@@ -6,14 +6,14 @@ import { ArrowLeft,ArrowUpRight,Check,Gamepad2,LogOut,Save,ShieldCheck,UserRound
 import type { User } from "@supabase/supabase-js";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { SiteHeader } from "@/components/site-header";
-type Profile={username:string;display_name:string;bio:string};
+type Profile={username:string;display_name:string;bio:string;public_id:string};
 export default function AccountPage(){
- const router=useRouter();const [user,setUser]=useState<User|null>(null);const [profile,setProfile]=useState<Profile>({username:"",display_name:"Player",bio:""});
+ const router=useRouter();const [user,setUser]=useState<User|null>(null);const [profile,setProfile]=useState<Profile>({username:"",display_name:"Player",bio:"",public_id:""});
  const [loading,setLoading]=useState(true);const [saving,setSaving]=useState(false);const [notice,setNotice]=useState("");const [problem,setProblem]=useState("");
  const load=useCallback(async()=>{const sb=getBrowserSupabase();if(!sb){setProblem("Konfigurasi Supabase belum tersedia.");setLoading(false);return;}
  const {data:{user:u},error}=await sb.auth.getUser();if(error||!u){router.replace("/auth");return;}setUser(u);
- const {data,error:profileError}=await sb.from("profiles").select("username,display_name,bio").eq("id",u.id).maybeSingle();if(profileError)setProblem(profileError.message);
- if(data)setProfile({username:data.username??"",display_name:data.display_name??"Player",bio:data.bio??""});else setProfile({username:typeof u.user_metadata?.username==="string"?u.user_metadata.username:"",display_name:String(u.user_metadata?.display_name??u.user_metadata?.username??"Player"),bio:""});
+ const {data,error:profileError}=await sb.from("profiles").select("username,display_name,bio,public_id").eq("id",u.id).maybeSingle();if(profileError)setProblem(profileError.message);
+ if(data)setProfile({username:data.username??"",display_name:data.display_name??"Player",bio:data.bio??"",public_id:data.public_id??""});else setProfile({username:typeof u.user_metadata?.username==="string"?u.user_metadata.username:"",display_name:String(u.user_metadata?.display_name??u.user_metadata?.username??"Player"),bio:"",public_id:""});
  setLoading(false);},[router]);
  useEffect(()=>{void load();},[load]);
  async function save(e:FormEvent<HTMLFormElement>){e.preventDefault();setSaving(true);setNotice("");setProblem("");const sb=getBrowserSupabase();if(!sb||!user){setProblem("Sesi tidak ditemukan. Masuk kembali.");setSaving(false);return;}
@@ -23,7 +23,7 @@ export default function AccountPage(){
  async function logout(){const sb=getBrowserSupabase();if(sb)await sb.auth.signOut();router.replace("/");router.refresh();}
  return <main><SiteHeader/><section className="account-page"><Link href="/" className="back-link"><ArrowLeft size={15}/> BACK TO UNIVERSE</Link>
  {loading?<div className="account-loading">LOADING PLAYER DATA...</div>:user&&<><div className="account-heading"><div><div className="eyebrow dark-eyebrow"><UserRound size={14}/> PLAYER PROFILE / 001</div><h1>YOUR PLAYER<br/><span>CARD.</span></h1></div><div className="account-stamp"><ShieldCheck size={23}/><span>ACCOUNT<br/>CONNECTED</span></div></div>
- <div className="account-layout"><aside className="player-card"><div className="player-card-top"><span>ROBLOX HUB / PLAYER</span><span>NO. 001</span></div><div className="player-avatar"><UserRound size={64}/><span>✦</span></div><h2>{profile.display_name||"Player"}</h2><p>@{profile.username||"new_player"}</p><div className="player-card-line"/><div className="player-card-meta"><span>IDENTITY STATUS</span><strong><i/> ACCOUNT ACTIVE</strong></div><div className="player-card-foot">YOUR STORY STARTS HERE <Gamepad2 size={16}/></div></aside>
+ <div className="account-layout"><aside className="player-card"><div className="player-card-top"><span>ROBLOX HUB / PLAYER</span><span>NO. 001</span></div><div className="player-avatar"><UserRound size={64}/><span>✦</span></div><h2>{profile.display_name||"Player"}</h2><p>@{profile.username||"new_player"}</p><div className="player-public-id">PLAYER ID · {profile.public_id||"ASSIGNING..."}</div><div className="player-card-line"/><div className="player-card-meta"><span>IDENTITY STATUS</span><strong><i/> ACCOUNT ACTIVE</strong></div><div className="player-card-foot">YOUR STORY STARTS HERE <Gamepad2 size={16}/></div></aside>
  <section className="profile-editor"><div className="profile-editor-head"><div><span>PLAYER SETTINGS</span><h2>EDIT YOUR PROFILE</h2></div><span className="profile-edition">EDITION 01</span></div>
  <form onSubmit={save} className="profile-form"><label>DISPLAY NAME<input value={profile.display_name} maxLength={40} onChange={e=>setProfile(p=>({...p,display_name:e.target.value}))} required/></label><label>USERNAME<input value={profile.username} maxLength={24} onChange={e=>setProfile(p=>({...p,username:e.target.value}))} placeholder="your_player_name"/></label><label>ABOUT YOU<textarea value={profile.bio} maxLength={240} rows={4} onChange={e=>setProfile(p=>({...p,bio:e.target.value}))} placeholder="Tell the universe a little about yourself..."/></label><label>EMAIL ADDRESS<input value={user.email??""} disabled/></label>
  {problem&&<p className="auth-feedback error" role="alert">{problem}</p>}{notice&&<p className="auth-feedback success" role="status"><Check size={15}/>{notice}</p>}<button className="auth-submit" type="submit" disabled={saving}>{saving?"SAVING...":"SAVE PROFILE"} <Save size={16}/></button></form></section></div>
