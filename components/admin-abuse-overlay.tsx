@@ -1,23 +1,103 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 
-type EventState = { active: boolean; started_at: string | null };
+type EventType = "taco_rain" | "rainbow_party" | "emoji_invasion" | "pet_parade" | "candy_storm" | "disco_takeover";
+type EventState = { active: boolean; started_at: string | null; event_type?: EventType };
 type Announcement = { id: number; sender_name: string; message: string; created_at: string };
-const tacos = Array.from({ length: 22 }, (_, i) => i);
+
 const INTRO_DURATION = 5000;
+const particles = Array.from({ length: 38 }, (_, i) => i);
+const EVENT_CONFIG: Record<EventType, { title: string; subtitle: string; kicker: string; symbols: string[]; className: string }> = {
+  taco_rain: { title: "TACO RAIN", subtitle: "THE TACO STORM IS HERE!", kicker: "CRUNCH TIME", symbols: ["🌮", "🌮", "🌮", "✨"], className: "taco" },
+  rainbow_party: { title: "RAINBOW PARTY", subtitle: "LET THE COLORS TAKE OVER!", kicker: "COLOR EXPLOSION", symbols: ["🌈", "🎉", "⭐", "🪅"], className: "rainbow" },
+  emoji_invasion: { title: "EMOJI INVASION", subtitle: "EMOJIS ARE EVERYWHERE!", kicker: "REACTION OVERLOAD", symbols: ["😂", "😎", "🤩", "🥳", "👾"], className: "emoji" },
+  pet_parade: { title: "PET PARADE", subtitle: "THE CUTEST PARADE HAS ARRIVED!", kicker: "PAWS ON PARADE", symbols: ["🐶", "🐱", "🐰", "🐼", "🐸"], className: "pet" },
+  candy_storm: { title: "CANDY STORM", subtitle: "SWEET TREATS ARE FALLING!", kicker: "SUGAR RUSH", symbols: ["🍬", "🍭", "🍩", "🍡", "🍫"], className: "candy" },
+  disco_takeover: { title: "DISCO TAKEOVER", subtitle: "LIGHTS UP. LET'S DANCE!", kicker: "DANCE FLOOR OPEN", symbols: ["🪩", "💿", "✨", "🕺", "💃"], className: "disco" },
+};
+
+const MUSIC: Record<EventType, number[]> = {
+  taco_rain: [392, 494, 587, 494, 440, 523, 659, 523],
+  rainbow_party: [523, 659, 784, 659, 587, 698, 880, 698],
+  emoji_invasion: [330, 392, 494, 392, 370, 440, 554, 440],
+  pet_parade: [392, 440, 523, 587, 523, 440, 392, 330],
+  candy_storm: [659, 784, 988, 784, 698, 880, 1046, 880],
+  disco_takeover: [440, 554, 659, 554, 494, 622, 740, 622],
+};
+
+function startEventMusic(type: EventType, onReady: () => void) {
+  const AudioContextClass = window.AudioContext;
+  if (!AudioContextClass) return () => {};
+  const context = new AudioContextClass();
+  let beat = 0;
+  let timer: number | undefined;
+  let disposed = false;
+  const playNote = (frequency: number, duration: number, wave: OscillatorType, volume: number) => {
+    if (disposed || context.state !== "running") return;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const now = context.currentTime;
+    oscillator.type = wave;
+    oscillator.frequency.setValueAtTime(frequency, now);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(volume, now + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(now);
+    oscillator.stop(now + duration + 0.03);
+  };
+  const tick = () => {
+    const notes = MUSIC[type];
+    playNote(notes[beat % notes.length], 0.22, type === "disco_takeover" ? "square" : "triangle", 0.045);
+    if (beat % 2 === 0) playNote(notes[(beat + 4) % notes.length] / 2, 0.3, "sine", 0.025);
+    if (type === "taco_rain" && beat % 4 === 2) playNote(880, 0.07, "sine", 0.018);
+    if (type === "emoji_invasion" && beat % 2 === 1) playNote(740, 0.06, "square", 0.012);
+    if (type === "pet_parade" && beat % 4 === 0) playNote(1046, 0.09, "sine", 0.015);
+    if (type === "candy_storm" && beat % 4 === 3) playNote(1318, 0.08, "triangle", 0.014);
+    beat += 1;
+  };
+  const unlock = async () => {
+    if (disposed) return;
+    try {
+      await context.resume();
+      if (context.state === "running" && timer === undefined) {
+        tick();
+        timer = window.setInterval(tick, type === "disco_takeover" ? 260 : 340);
+        onReady();
+      }
+    } catch {
+      // The browser may require another user gesture before audio can start.
+    }
+  };
+  void unlock();
+  window.addEventListener("pointerdown", unlock);
+  window.addEventListener("keydown", unlock);
+  window.addEventListener("touchstart", unlock, { passive: true });
+  return () => {
+    disposed = true;
+    window.removeEventListener("pointerdown", unlock);
+    window.removeEventListener("keydown", unlock);
+    window.removeEventListener("touchstart", unlock);
+    if (timer !== undefined) window.clearInterval(timer);
+    void context.close();
+  };
+}
 
 export function AdminAbuseOverlay() {
-  const [event, setEvent] = useState<EventState>({ active: false, started_at: null });
+  const [event, setEvent] = useState<EventState>({ active: false, started_at: null, event_type: "taco_rain" });
   const [clock, setClock] = useState(() => Date.now());
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [soundReady, setSoundReady] = useState(false);
   const announcementTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const sb = getBrowserSupabase();
     if (!sb) return;
     let alive = true;
-    void sb.from("site_admin_abuse").select("active,started_at").eq("id", true).maybeSingle()
+    void sb.from("site_admin_abuse").select("active,started_at,event_type").eq("id", true).maybeSingle()
       .then(({ data }) => { if (alive && data) setEvent(data as EventState); });
     const channel = sb.channel("roblox-hub-admin-abuse")
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "site_admin_abuse", filter: "id=eq.true" },
@@ -48,68 +128,42 @@ export function AdminAbuseOverlay() {
   const elapsed = startedAt ? Math.max(0, clock - startedAt) : INTRO_DURATION;
   const isIntro = event.active && elapsed < INTRO_DURATION;
   const countdown = Math.max(1, 5 - Math.floor(elapsed / 1000));
-
   const showEventEffects = event.active && elapsed >= INTRO_DURATION;
+  const eventType = event.event_type && EVENT_CONFIG[event.event_type] ? event.event_type : "taco_rain";
+  const config = EVENT_CONFIG[eventType];
 
   useEffect(() => {
+    setSoundReady(false);
     if (!showEventEffects || typeof window === "undefined") return;
-    let disposed = false;
-    let starting = false;
-    const audio = new Audio("https://quicksounds.com/uploads/tracks/1219935113_1051071961_1597840749.mp3");
-    audio.loop = true;
-    audio.preload = "auto";
-    audio.volume = 0.7;
-
-    const tryStartSound = async () => {
-      if (disposed || starting || !audio.paused) return;
-      starting = true;
-      try {
-        await audio.play();
-        window.removeEventListener("pointerdown", tryStartSound);
-        window.removeEventListener("keydown", tryStartSound);
-        window.removeEventListener("touchstart", tryStartSound);
-      } catch {
-        // Browser autoplay policy may require a normal visitor interaction.
-      } finally {
-        starting = false;
-      }
-    };
-
-    window.addEventListener("pointerdown", tryStartSound);
-    window.addEventListener("keydown", tryStartSound);
-    window.addEventListener("touchstart", tryStartSound, { passive: true });
-    void tryStartSound();
-
-    return () => {
-      disposed = true;
-      window.removeEventListener("pointerdown", tryStartSound);
-      window.removeEventListener("keydown", tryStartSound);
-      window.removeEventListener("touchstart", tryStartSound);
-      audio.pause();
-      audio.currentTime = 0;
-      audio.removeAttribute("src");
-      audio.load();
-    };
-  }, [showEventEffects]);
+    return startEventMusic(eventType, () => setSoundReady(true));
+  }, [showEventEffects, eventType]);
 
   if (!event.active && !announcement) return null;
   return <>
     {event.active && <>
-      {elapsed >= INTRO_DURATION && <div className="abuse-event" aria-hidden="true">
-        <div className="taco-rain">{tacos.map((n) =>
-          <span key={n} style={{ left: `${(n * 47 + 3) % 100}%`, animationDelay: `${(n % 9) * -0.73}s`, animationDuration: `${5 + (n % 5) * 0.7}s`, fontSize: `${25 + (n % 4) * 9}px` }}>🌮</span>)}</div>
+      {showEventEffects && <div className={"abuse-event abuse-event--" + config.className} aria-hidden="true">
+        {eventType === "rainbow_party" && <div className="abuse-rainbow-wash"/>}
+        {eventType === "disco_takeover" && <><div className="abuse-disco-lights"/><div className="abuse-disco-ball">🪩</div></>}
+        <div className="abuse-particle-layer">{particles.map((n) =>
+          <span className="abuse-particle" key={n} style={{
+            left: `${(n * 47 + 3) % 100}%`,
+            animationDelay: `${(n % 11) * -0.61}s`,
+            animationDuration: `${4.5 + (n % 6) * 0.62}s`,
+            fontSize: `${24 + (n % 5) * 8}px`,
+          }}>{config.symbols[n % config.symbols.length]}</span>)}</div>
       </div>}
-      {isIntro ? <div className="abuse-intro" role="status" aria-live="assertive">
+      {isIntro ? <div className={"abuse-intro abuse-intro--" + config.className} role="status" aria-live="assertive">
         <div className="abuse-intro-content">
-          <span className="abuse-intro-kicker">ROBLOX HUB PRESENTS</span>
-          <strong>ADMIN ABUSE</strong>
+          <span className="abuse-intro-kicker">ROBLOX HUB PRESENTS · {config.kicker}</span>
+          <strong>{config.title}</strong>
           <span className="abuse-countdown" key={countdown}>{countdown}</span>
-          <span className="abuse-intro-caption">GET READY</span>
+          <span className="abuse-intro-caption">{config.subtitle}</span>
         </div>
       </div> : elapsed < INTRO_DURATION + 1250 ? <div className="abuse-opening" aria-hidden="true">
         <div className="abuse-curtain abuse-curtain-left"/>
         <div className="abuse-curtain abuse-curtain-right"/>
       </div> : null}
+      {showEventEffects && !soundReady && <div className="abuse-sound-hint" aria-live="polite">TAP ANYWHERE TO ENABLE EVENT SOUND</div>}
     </>}
     {announcement && <div className="global-announcement" role="status" aria-live="polite">
       <div className="global-announcement-tag">ROBLOX HUB <span>· GLOBAL ANNOUNCEMENT</span></div>
