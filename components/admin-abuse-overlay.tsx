@@ -142,7 +142,7 @@ export function AdminAbuseOverlay() {
   return <>
     {event.active && <>
       {showEventEffects && <div className={"abuse-event abuse-event--" + config.className} aria-hidden="true">
-        {eventType === "rainbow_party" && <div className="abuse-rainbow-wash"/>}
+        {eventType === "rainbow_party" && <><div className="abuse-rainbow-wash"/><div className="abuse-indonesia-beams" aria-hidden="true"><div className="abuse-beam-corner abuse-beam-left"><i className="beam-red beam-one"/><i className="beam-white beam-two"/><i className="beam-red beam-three"/><i className="beam-white beam-four"/></div><div className="abuse-beam-corner abuse-beam-right"><i className="beam-red beam-one"/><i className="beam-white beam-two"/><i className="beam-red beam-three"/><i className="beam-white beam-four"/></div></div></>}
         {eventType === "disco_takeover" && <><div className="abuse-disco-lights"/><div className="abuse-disco-ball">🪩</div></>}
         <div className="abuse-particle-layer">{particles.map((n) =>
           <span className="abuse-particle" key={n} style={{
