@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight, Compass, Flame, Gamepad2, Search, Sparkles, Users, Eye, LoaderCircle,
 } from "lucide-react";
@@ -64,6 +64,10 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchError, setSearchError] = useState("");
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiStatus, setAiStatus] = useState("");
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const cursorHistory = useRef(new Set<string>());
 
   // Discover starts with a live broad search, then users can narrow it by keyword or category.
   const searchTerm = query.trim() || categorySearch[category] || "popular";
@@ -83,6 +87,7 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
       setSearchError("");
       setLiveGames([]);
       setNextCursor(null);
+      cursorHistory.current.clear();
       try {
         const response = await fetch(`/api/roblox/search?q=${encodeURIComponent(searchTerm)}`, { signal: controller.signal });
         const result = await response.json() as SearchResponse;
@@ -104,23 +109,68 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
     };
   }, [searchTerm]);
 
-  async function loadMore() {
-    if (!nextCursor || loadingMore || !searchTerm) return;
-    setLoadingMore(true);
-    try {
-      const response = await fetch(`/api/roblox/search?q=${encodeURIComponent(searchTerm)}&cursor=${encodeURIComponent(nextCursor)}`);
-      const result = await response.json() as SearchResponse;
-      if (!response.ok) throw new Error(result.error || "Could not load more games.");
-      setLiveGames((current) => {
-        const seen = new Set(current.map((game) => game.id));
-        return [...current, ...(result.games ?? []).filter((game) => !seen.has(game.id))];
-      });
-      setNextCursor(result.nextCursor ?? null);
-    } catch (error) {
-      setSearchError(error instanceof Error ? error.message : "Could not load more games.");
-    } finally {
-      setLoadingMore(false);
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !nextCursor || !searchTerm || sort === "community" || loading || loadingMore) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting) || !nextCursor || loadingMore) return;
+      if (cursorHistory.current.has(nextCursor)) {
+        setNextCursor(null);
+        return;
+      }
+      cursorHistory.current.add(nextCursor);
+      setLoadingMore(true);
+      void (async () => {
+        try {
+          const response = await fetch(`/api/roblox/search?q=${encodeURIComponent(searchTerm)}&cursor=${encodeURIComponent(nextCursor)}`);
+          const result = await response.json() as SearchResponse;
+          if (!response.ok) throw new Error(result.error || "Could not load more games.");
+          setLiveGames((current) => {
+            const seen = new Set(current.map((game) => game.id));
+            return [...current, ...(result.games ?? []).filter((game) => !seen.has(game.id))];
+          });
+          setNextCursor(result.nextCursor ?? null);
+        } catch (error) {
+          setSearchError(error instanceof Error ? error.message : "Could not load more games.");
+          setNextCursor(null);
+        } finally {
+          setLoadingMore(false);
+        }
+      })();
+    }, { rootMargin: "900px 0px" });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [nextCursor, searchTerm, sort, loading, loadingMore]);
+
+  function runZakssAI() {
+    const prompt = aiPrompt.trim();
+    if (!prompt) {
+      setAiStatus("Ceritakan game yang ingin kamu temukan dulu.");
+      return;
     }
+    const lower = prompt.toLowerCase();
+    const intentMap: Array<[RegExp, string]> = [
+      [/horor|horror|seram|takut|scary/, "horror"],
+      [/anime|naruto|one piece|jujutsu|demon slayer/, "anime"],
+      [/role.?play|rp|kota|sekolah|rumah sakit|city/, "roleplay"],
+      [/simulator|simulasi|pet|hewan|peliharaan/, "simulator pets"],
+      [/obby|parkour|rintangan|tower/, "obby parkour"],
+      [/balap|racing|mobil|motor|drift/, "racing"],
+      [/tembak|shoot|fps|senjata/, "shooter"],
+      [/bertahan|survival|zombie/, "survival"],
+      [/bangun|building|tycoon|bisnis/, "tycoon building"],
+      [/teman|bareng|hangout|sosial|santai/, "social hangout"],
+      [/bola|basket|sepak bola|sport/, "sports"],
+      [/petualangan|adventure|explore/, "adventure"],
+    ];
+    const matched = intentMap.find(([pattern]) => pattern.test(lower));
+    const stopWords = /\\b(game|yang|buat|untuk|aku|saya|gw|gue|lu|kamu|ingin|mau|cari|rekomendasi|tolong|dong|seru|bagus|dengan|dan|atau|di|ke|the|a|an|for|to|with|that|i|want|find|recommend)\\b/gi;
+    const cleaned = lower.replace(stopWords, " ").replace(/[^a-z0-9 ]/g, " ").replace(/\\s+/g, " ").trim();
+    const search = matched?.[1] ?? cleaned;
+    setCategory("All");
+    setSort("active");
+    setQuery(search.slice(0, 80) || prompt.slice(0, 80));
+    setAiStatus(`Zakss AI sedang mencari pengalaman: “${search || prompt}”`);
   }
 
   const officialItems = useMemo<DiscoverItem[]>(() => robloxGames.map((game) => ({
@@ -206,6 +256,20 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
         </section>
       )}
 
+      <section className="zakss-ai-finder" aria-label="Zakss AI game finder">
+        <div className="zakss-ai-orb"><Sparkles size={24}/><span>AI</span></div>
+        <div className="zakss-ai-copy">
+          <span className="zakss-ai-kicker">YOUR ROBLOX DISCOVERY ASSISTANT</span>
+          <h2>ZAKSS <em>AI</em> FINDER</h2>
+          <p>Deskripsikan game yang kamu suka. Zakss AI akan mencarikan pengalaman Roblox yang paling relevan.</p>
+          <div className="zakss-ai-input-row">
+            <input value={aiPrompt} onChange={(event) => setAiPrompt(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") runZakssAI(); }} placeholder="Contoh: game horror bareng teman atau anime fighting..." aria-label="Describe the Roblox game you want"/>
+            <button type="button" onClick={runZakssAI}><Sparkles size={16}/> FIND GAMES</button>
+          </div>
+          {aiStatus && <small className="zakss-ai-status" role="status">{aiStatus}</small>}
+        </div>
+      </section>
+
       <section className="discover-toolbar" aria-label="Find experiences">
         <div className="discover-search">
           <Search size={18}/>
@@ -261,10 +325,8 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
               ))}
             </div>
             {nextCursor && searchTerm && sort !== "community" && (
-              <div className="discover-load-more">
-                <button type="button" onClick={loadMore} disabled={loadingMore}>
-                  {loadingMore ? <><LoaderCircle size={15}/> LOADING...</> : <>LOAD MORE WORLDS <ArrowUpRight size={15}/></>}
-                </button>
+              <div className="discover-auto-load" ref={loadMoreRef} aria-live="polite">
+                {loadingMore ? <><LoaderCircle size={16}/> ZAKSS HUB SEDANG MEMUAT GAME BERIKUTNYA...</> : "SCROLL UNTUK MENEMUKAN LEBIH BANYAK GAME"}
               </div>
             )}
           </>
@@ -280,7 +342,7 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
       <div className="discover-source-note">
         <span><span className="source-dot official-dot"/> Official Roblox public data</span>
         <span><span className="source-dot community-dot"/> ROBLOX HUB approved community catalog</span>
-        <small>Live Roblox discovery results are combined with fallback picks. Use LOAD MORE WORLDS to continue through available result pages; Roblox controls the catalog and pagination.</small>
+        <small>Live Roblox discovery uses automatic infinite scrolling and continues through available result pages. Roblox controls the public catalog and pagination.</small>
       </div>
     </div>
   );
