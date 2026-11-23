@@ -24,57 +24,57 @@ export function AdminAbuseOverlay() {
 
   useEffect(() => {
     if (!event.active || typeof window === "undefined") return;
-    let started = false;
     let disposed = false;
-    const startSound = () => {
-      if (started || disposed) return;
-      started = true;
-      window.removeEventListener("pointerdown", startSound);
-      window.removeEventListener("keydown", startSound);
-      window.removeEventListener("touchstart", startSound);
-      const AudioContextClass = window.AudioContext;
-      if (!AudioContextClass) return;
-      const ctx = new AudioContextClass();
-      const notes = [392, 494, 587, 494, 440, 523, 659, 523];
-      let step = 0;
-      const play = () => {
-        if (ctx.state === "suspended") void ctx.resume();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "triangle";
-        osc.frequency.value = notes[step++ % notes.length];
-        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.055, ctx.currentTime + 0.025);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.19);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.2);
-      };
-      if (ctx.state === "running") play();
-      else void ctx.resume().then(() => { if (!disposed) play(); });
-      const timer = setInterval(play, 260);
-      audioRef.current = { ctx, timer };
+    let ctx: AudioContext | null = null;
+    let timer: ReturnType<typeof setInterval> | null = null;
+    let step = 0;
+    const notes = [392, 494, 587, 494, 440, 523, 659, 523];
+    const play = () => {
+      if (!ctx || ctx.state !== "running") return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.value = notes[step++ % notes.length];
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.055, ctx.currentTime + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.19);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.2);
+    };
+    const tryStartSound = async () => {
+      if (disposed) return;
+      try {
+        ctx ??= new window.AudioContext();
+        if (ctx.state !== "running") await ctx.resume();
+        if (!disposed && ctx.state === "running" && !timer) {
+          play();
+          timer = setInterval(play, 260);
+          audioRef.current = { ctx, timer };
+          window.removeEventListener("pointerdown", tryStartSound);
+          window.removeEventListener("keydown", tryStartSound);
+          window.removeEventListener("touchstart", tryStartSound);
+        }
+      } catch {
+        // Browser may require a user gesture; listeners below retry silently.
+      }
     };
 
-    // Attempt autoplay first. If the browser blocks it, start after the visitor's
-    // first normal interaction anywhere on the page (no dedicated sound button).
-    startSound();
-    if (!started) {
-      window.addEventListener("pointerdown", startSound, { once: true });
-      window.addEventListener("keydown", startSound, { once: true });
-      window.addEventListener("touchstart", startSound, { once: true, passive: true });
-    }
+    // Attempt autoplay. If blocked, any ordinary page interaction retries audio.
+    window.addEventListener("pointerdown", tryStartSound);
+    window.addEventListener("keydown", tryStartSound);
+    window.addEventListener("touchstart", tryStartSound, { passive: true });
+    void tryStartSound();
+
     return () => {
       disposed = true;
-      window.removeEventListener("pointerdown", startSound);
-      window.removeEventListener("keydown", startSound);
-      window.removeEventListener("touchstart", startSound);
-      if (audioRef.current) {
-        clearInterval(audioRef.current.timer);
-        void audioRef.current.ctx.close();
-        audioRef.current = null;
-      }
+      window.removeEventListener("pointerdown", tryStartSound);
+      window.removeEventListener("keydown", tryStartSound);
+      window.removeEventListener("touchstart", tryStartSound);
+      if (timer) clearInterval(timer);
+      if (ctx) void ctx.close();
+      audioRef.current = null;
     };
   }, [event.active]);
 
