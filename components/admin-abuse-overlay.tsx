@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 
-type EventType = "taco_rain" | "rainbow_party" | "emoji_invasion" | "pet_parade" | "candy_storm" | "disco_takeover";
+type EventType = "taco_rain" | "rainbow_party" | "emoji_invasion" | "pet_parade" | "candy_storm" | "disco_takeover" | "zakss_jumpscare";
 type EventState = { active: boolean; started_at: string | null; event_type?: EventType; beam_angle?: number };
 type Announcement = { id: number; sender_name: string; message: string; created_at: string };
 
@@ -16,6 +16,7 @@ const EVENT_CONFIG: Record<EventType, { title: string; subtitle: string; kicker:
   pet_parade: { title: "PET PARADE", subtitle: "THE CUTEST PARADE HAS ARRIVED!", kicker: "PAWS ON PARADE", symbols: ["🐶", "🐱", "🐰", "🐼", "🐸"], className: "pet" },
   candy_storm: { title: "CANDY STORM", subtitle: "SWEET TREATS ARE FALLING!", kicker: "SUGAR RUSH", symbols: ["🍬", "🍭", "🍩", "🍡", "🍫"], className: "candy" },
   disco_takeover: { title: "DISCO TAKEOVER", subtitle: "LIGHTS UP. LET'S DANCE!", kicker: "DANCE FLOOR OPEN", symbols: ["🪩", "💿", "✨", "🕺", "💃"], className: "disco" },
+  zakss_jumpscare: { title: "ZAKSS", subtitle: "YOU HAVE BEEN NOTICED", kicker: "SYSTEM TAKEOVER", symbols: [], className: "zakss" },
 };
 
 const MUSIC: Record<EventType, number[]> = {
@@ -25,6 +26,7 @@ const MUSIC: Record<EventType, number[]> = {
   pet_parade: [392, 440, 523, 587, 523, 440, 392, 330],
   candy_storm: [659, 784, 988, 784, 698, 880, 1046, 880],
   disco_takeover: [440, 554, 659, 554, 494, 622, 740, 622],
+  zakss_jumpscare: [110, 220, 880, 440],
 };
 
 function startEventMusic(type: EventType, onReady: () => void) {
@@ -84,6 +86,14 @@ function startEventMusic(type: EventType, onReady: () => void) {
   };
   const tick = () => {
     const notes = MUSIC[type];
+    if (type === "zakss_jumpscare") {
+      if (beat % 4 === 0) { playNote(72, 0.8, "sawtooth", 0.055); playNote(880, 0.18, "square", 0.025); }
+      if (beat % 4 === 1) playNote(660, 0.24, "square", 0.022);
+      if (beat % 4 === 2) playNote(110, 0.55, "sawtooth", 0.045);
+      if (beat % 4 === 3) playNote(440, 0.15, "triangle", 0.018);
+      beat += 1;
+      return;
+    }
     playNote(notes[beat % notes.length], 0.22, type === "disco_takeover" ? "square" : "triangle", 0.045);
     if (beat % 2 === 0) playNote(notes[(beat + 4) % notes.length] / 2, 0.3, "sine", 0.025);
     if (type === "emoji_invasion" && beat % 2 === 1) playNote(740, 0.06, "square", 0.012);
@@ -176,14 +186,15 @@ export function AdminAbuseOverlay() {
       {showEventEffects && <div className={"abuse-event abuse-event--" + config.className} aria-hidden="true">
         {eventType === "rainbow_party" && <><div className="abuse-rainbow-wash"/><div className="abuse-indonesia-beams" aria-hidden="true"><div className="abuse-beam-corner abuse-beam-left" style={{ transform: `rotate(${event.beam_angle ?? 0}deg)` }}><i className="beam-red beam-one"/><i className="beam-white beam-two"/><i className="beam-red beam-three"/><i className="beam-white beam-four"/></div><div className="abuse-beam-corner abuse-beam-right" style={{ transform: `scaleX(-1) rotate(${-(event.beam_angle ?? 0)}deg)` }}><i className="beam-red beam-one"/><i className="beam-white beam-two"/><i className="beam-red beam-three"/><i className="beam-white beam-four"/></div></div></>}
         {eventType === "disco_takeover" && <><div className="abuse-disco-lights"/><div className="abuse-disco-ball">🪩</div></>}
-        <div className="abuse-particle-layer">{particles.map((n) =>
+        {eventType !== "zakss_jumpscare" && <div className="abuse-particle-layer">{particles.map((n) =>
           <span className="abuse-particle" key={n} style={{
             left: `${(n * 47 + 3) % 100}%`,
             animationDelay: `${(n % 11) * -0.61}s`,
             animationDuration: `${4.5 + (n % 6) * 0.62}s`,
             fontSize: `${24 + (n % 5) * 8}px`,
-          }}>{config.symbols[n % config.symbols.length]}</span>)}</div>
+          }}>{config.symbols[n % config.symbols.length]}</span>)}</div>}
       </div>}
+      {showEventEffects && eventType === "zakss_jumpscare" && <div className={"abuse-zakss-stage " + (elapsed < INTRO_DURATION + 2400 ? "impact" : "settled")} aria-hidden="true"><div className="abuse-zakss-scanlines"/><div className="abuse-zakss-word" data-text="ZAKSS"><span>ZAKSS</span></div><small>ROBLOX HUB // SYSTEM TAKEOVER</small></div>}
       {isIntro ? <div className={"abuse-intro abuse-intro--" + config.className} role="status" aria-live="assertive">
         <div className="abuse-intro-content">
           <span className="abuse-intro-kicker">ROBLOX HUB PRESENTS · {config.kicker}</span>
