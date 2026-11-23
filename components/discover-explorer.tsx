@@ -222,7 +222,8 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
     items = [...new Map(items.map((item) => [item.id, item])).values()];
     const normalized = query.trim().toLowerCase();
     if (normalized) {
-      items = items.filter((item) =>
+      // Roblox search already matches live results; only locally filter community fallback entries.
+      items = items.filter((item) => item.source === "ROBLOX" ||
         [item.name, item.description, item.genre, item.creator].join(" ").toLowerCase().includes(normalized),
       );
     }
