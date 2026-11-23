@@ -37,7 +37,7 @@ export default function ControlRoomPage() {
     setBusy(true); setError(""); setNotice("");
     const { error: rpcError } = await sb.rpc("set_site_admin_abuse", { is_active: next });
     if (rpcError) setError(rpcError.message);
-    else { setNotice(next ? "Admin Abuse berhasil dimulai untuk pengunjung online." : "Event dihentikan untuk semua pengunjung."); await refresh(); }
+    else { setNotice(next ? "Admin Abuse dimulai. Intro 5 detik sedang disinkronkan ke pengunjung online." : "Event dihentikan untuk semua pengunjung."); await refresh(); }
     setBusy(false);
   }
   async function manageAdmin(e: FormEvent<HTMLFormElement>, makeAdmin: boolean) {
@@ -70,9 +70,9 @@ export default function ControlRoomPage() {
     <Link href="/" className="back-link"><ArrowLeft size={15}/> BACK TO UNIVERSE</Link>
     {loading ? <div className="control-loading">VERIFYING ACCESS...</div> : !role ? <div className="control-denied"><ShieldCheck size={38}/><h1>ACCESS RESTRICTED.</h1><p>Akun ini belum memiliki akses Owner atau Admin.</p><Link href="/account">Kembali ke akun</Link></div> :
     <>
-      <div className="control-heading"><div><div className="eyebrow dark-eyebrow"><ShieldCheck size={14}/> PRIVATE COMMAND / ROBLOX HUB</div><h1>CONTROL<br/><span>ROOM.</span></h1><p>Kelola event website dengan aman dan realtime.</p></div><div className="role-stamp"><span>ACCESS LEVEL</span><strong>{role.toUpperCase()}</strong><small>{role === "owner" ? "12 OWNER MENUS" : "5 ADMIN MENUS"}</small></div></div>
+      <div className="control-heading"><div><div className="eyebrow dark-eyebrow"><ShieldCheck size={14}/> PRIVATE COMMAND / ROBLOX HUB</div><h1>CONTROL<br/><span>ROOM.</span></h1><p>Kelola fitur utama dan event website secara realtime. Admin Abuse Intro adalah fitur utama, terpisah dari 20 menu Owner dan 5 menu Admin.</p></div><div className="role-stamp"><span>ACCESS LEVEL</span><strong>{role.toUpperCase()}</strong><small>{role === "owner" ? "20 OWNER MENUS" : "5 ADMIN MENUS"}</small></div></div>
       <section className="abuse-console"><div className="console-title"><div><span>LIVE EVENT CONTROL</span><h2>🌮 ADMIN ABUSE</h2></div><span className={active ? "event-status is-live" : "event-status"}>{active ? "● LIVE" : "○ INACTIVE"}</span></div>
-        <p>Efek taco ditampilkan hanya pada pengunjung yang sedang membuka website. Suara membutuhkan izin dari masing-masing browser.</p>
+        <p>Saat dimulai, semua pengunjung online melihat layar hitam, countdown 5–1, lalu layar terbuka dan hujan taco dimulai. Musik mengikuti izin autoplay browser.</p>
         <div className="console-actions"><button disabled={busy || active} onClick={() => void toggleEvent(true)} className="start-event"><Play size={17} fill="currentColor"/> START ADMIN ABUSE</button><button disabled={busy || !active} onClick={() => void toggleEvent(false)} className="stop-event"><Square size={16} fill="currentColor"/> STOP ALL</button><button disabled={busy} onClick={() => void refresh()} className="refresh-event"><RefreshCw size={16}/></button></div>
         {eventTime && active && <small className="event-time">Started: {new Date(eventTime).toLocaleString()}</small>}
       </section>
