@@ -28,6 +28,39 @@ const MUSIC: Record<EventType, number[]> = {
 };
 
 function startEventMusic(type: EventType, onReady: () => void) {
+  if (type === "taco_rain") {
+    const audio = new Audio("https://quicksounds.com/uploads/tracks/1219935113_1051071961_1597840749.mp3");
+    audio.loop = true;
+    audio.preload = "auto";
+    audio.volume = 0.72;
+    let disposed = false;
+    let ready = false;
+    const unlock = async () => {
+      if (disposed || ready) return;
+      try {
+        await audio.play();
+        if (!disposed) {
+          ready = true;
+          onReady();
+        }
+      } catch {
+        // Browsers may require a visitor gesture before audio playback.
+      }
+    };
+    void unlock();
+    window.addEventListener("pointerdown", unlock);
+    window.addEventListener("keydown", unlock);
+    window.addEventListener("touchstart", unlock, { passive: true });
+    return () => {
+      disposed = true;
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+      window.removeEventListener("touchstart", unlock);
+      audio.pause();
+      audio.currentTime = 0;
+      audio.src = "";
+    };
+  }
   const AudioContextClass = window.AudioContext;
   if (!AudioContextClass) return () => {};
   const context = new AudioContextClass();
