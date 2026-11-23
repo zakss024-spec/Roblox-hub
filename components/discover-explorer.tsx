@@ -164,8 +164,8 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
       [/petualangan|adventure|explore/, "adventure"],
     ];
     const matched = intentMap.find(([pattern]) => pattern.test(lower));
-    const stopWords = /\\b(game|yang|buat|untuk|aku|saya|gw|gue|lu|kamu|ingin|mau|cari|rekomendasi|tolong|dong|seru|bagus|dengan|dan|atau|di|ke|the|a|an|for|to|with|that|i|want|find|recommend)\\b/gi;
-    const cleaned = lower.replace(stopWords, " ").replace(/[^a-z0-9 ]/g, " ").replace(/\\s+/g, " ").trim();
+    const stopWords = /\b(game|yang|buat|untuk|aku|saya|gw|gue|lu|kamu|ingin|mau|cari|rekomendasi|tolong|dong|seru|bagus|dengan|dan|atau|di|ke|the|a|an|for|to|with|that|i|want|find|recommend)\b/gi;
+    const cleaned = lower.replace(stopWords, " ").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
     const search = matched?.[1] ?? cleaned;
     setCategory("All");
     setSort("active");
