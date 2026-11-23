@@ -58,3 +58,21 @@
 .event-sound-note{display:flex;align-items:center;gap:9px;margin-top:16px;padding:12px;background:#f1f4ff;color:#4c5367;font:600 10px/1.5 'DM Sans'}
 @media(max-width:600px){.abuse-event-picker{grid-template-columns:1fr}.abuse-event-option{padding:11px}}
 @media(prefers-reduced-motion:reduce){.abuse-particle,.abuse-rainbow-wash,.abuse-disco-lights,.abuse-disco-ball,.abuse-sound-hint{animation:none!important}.abuse-particle{display:none}}
+
+
+/* Indonesian red-white stage beams layered over the rainbow party */
+.abuse-indonesia-beams{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:2}
+.abuse-beam-corner{position:absolute;bottom:-3vh;width:clamp(115px,19vw,245px);height:1px;transform-origin:50% 100%;filter:blur(.5px);opacity:.72}
+.abuse-beam-left{left:clamp(12px,4vw,58px)}
+.abuse-beam-right{right:clamp(12px,4vw,58px);transform:scaleX(-1)}
+.abuse-beam-corner i{position:absolute;bottom:0;display:block;height:min(76vh,720px);width:clamp(38px,6vw,76px);clip-path:polygon(45% 100%,55% 100%,100% 0,0 0);transform-origin:50% 100%;mix-blend-mode:screen;animation:indonesia-beam-sweep 5.5s ease-in-out infinite alternate}
+.abuse-beam-corner .beam-red{background:linear-gradient(to top,#ff2424aa 0%,#ff242455 35%,#ff242400 100%)}
+.abuse-beam-corner .beam-white{background:linear-gradient(to top,#ffffffbd 0%,#ffffff68 34%,#ffffff00 100%)}
+.abuse-beam-corner .beam-one{left:2%;transform:rotate(-19deg);animation-delay:-1.2s}
+.abuse-beam-corner .beam-two{left:24%;transform:rotate(-7deg);animation-delay:-2.5s}
+.abuse-beam-corner .beam-three{right:22%;transform:rotate(8deg);animation-delay:-.6s}
+.abuse-beam-corner .beam-four{right:0;transform:rotate(20deg);animation-delay:-3.4s}
+@keyframes indonesia-beam-sweep{0%{opacity:.42;filter:blur(1px);translate:-7px 0}50%{opacity:.92;filter:blur(3px)}100%{opacity:.55;filter:blur(1.5px);translate:8px 0}}
+.abuse-beam-corner:after{content:"";position:absolute;bottom:0;left:50%;width:150px;height:60px;transform:translateX(-50%);background:radial-gradient(ellipse,#fff9 0%,#ff343455 30%,transparent 72%);filter:blur(10px)}
+.abuse-event--rainbow .abuse-particle-layer{z-index:3}
+@media(prefers-reduced-motion:reduce){.abuse-beam-corner i{animation:none!important;opacity:.45}}
