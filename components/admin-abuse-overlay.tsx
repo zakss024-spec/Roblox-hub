@@ -49,8 +49,10 @@ export function AdminAbuseOverlay() {
   const isIntro = event.active && elapsed < INTRO_DURATION;
   const countdown = Math.max(1, 5 - Math.floor(elapsed / 1000));
 
+  const showEventEffects = event.active && elapsed >= INTRO_DURATION;
+
   useEffect(() => {
-    if (!event.active || typeof window === "undefined") return;
+    if (!showEventEffects || typeof window === "undefined") return;
     let disposed = false;
     let starting = false;
     const audio = new Audio("https://quicksounds.com/uploads/tracks/1219935113_1051071961_1597840749.mp3");
@@ -88,15 +90,15 @@ export function AdminAbuseOverlay() {
       audio.removeAttribute("src");
       audio.load();
     };
-  }, [event.active]);
+  }, [showEventEffects]);
 
   if (!event.active && !announcement) return null;
   return <>
     {event.active && <>
-      <div className="abuse-event" aria-hidden="true">
+      {elapsed >= INTRO_DURATION && <div className="abuse-event" aria-hidden="true">
         <div className="taco-rain">{tacos.map((n) =>
           <span key={n} style={{ left: `${(n * 47 + 3) % 100}%`, animationDelay: `${(n % 9) * -0.73}s`, animationDuration: `${5 + (n % 5) * 0.7}s`, fontSize: `${25 + (n % 4) * 9}px` }}>🌮</span>)}</div>
-      </div>
+      </div>}
       {isIntro ? <div className="abuse-intro" role="status" aria-live="assertive">
         <div className="abuse-intro-content">
           <span className="abuse-intro-kicker">ROBLOX HUB PRESENTS</span>
