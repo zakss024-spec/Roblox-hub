@@ -7,7 +7,7 @@ import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { SiteHeader } from "@/components/site-header";
 
 type Role = "owner" | "admin" | null;
-type EventType = "taco_rain" | "rainbow_party" | "emoji_invasion" | "pet_parade" | "candy_storm" | "disco_takeover";
+type EventType = "taco_rain" | "rainbow_party" | "emoji_invasion" | "pet_parade" | "candy_storm" | "disco_takeover" | "zakss_jumpscare";
 const EVENTS: { id: EventType; name: string; emoji: string; description: string }[] = [
   { id: "taco_rain", name: "Taco Rain", emoji: "🌮", description: "Hujan taco yang ramai dan lucu" },
   { id: "rainbow_party", name: "Rainbow Party", emoji: "🌈", description: "Warna neon dan confetti" },
@@ -15,6 +15,7 @@ const EVENTS: { id: EventType; name: string; emoji: string; description: string 
   { id: "pet_parade", name: "Pet Parade", emoji: "🐾", description: "Parade hewan lucu" },
   { id: "candy_storm", name: "Candy Storm", emoji: "🍬", description: "Hujan permen warna-warni" },
   { id: "disco_takeover", name: "Disco Takeover", emoji: "🪩", description: "Lampu disco dan beat elektronik" },
+  { id: "zakss_jumpscare", name: "Zakss 3D Jumpscare", emoji: "👁️", description: "Teks ZAKSS 3D muncul mendadak dengan efek zoom" },
 ];
 
 export default function ControlRoomPage() {
