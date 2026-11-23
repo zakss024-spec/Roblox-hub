@@ -13,11 +13,27 @@ export type RobloxExperience = {
   source: "ROBLOX";
 };
 
+// Curated starter catalog. Roblox's public Games API supplies current names,
+// descriptions, creator, player counts and visit counts when available.
 const STARTER_PLACES = [
   { placeId: 4924922222, genre: "Roleplay", fallbackName: "Brookhaven 🏡 RP" },
-  { placeId: 920587237, genre: "Simulator", fallbackName: "Adopt Me!" },
+  { placeId: 920587237, genre: "Pets", fallbackName: "Adopt Me!" },
+  { placeId: 126884695634066, genre: "Simulator", fallbackName: "Grow a Garden" },
   { placeId: 15101393044, genre: "Fashion", fallbackName: "Dress To Impress" },
   { placeId: 1962086868, genre: "Obby", fallbackName: "Tower of Hell" },
+  { placeId: 8737899170, genre: "Simulator", fallbackName: "Pet Simulator 99!" },
+  { placeId: 1537690962, genre: "Simulator", fallbackName: "Bee Swarm Simulator" },
+  { placeId: 537413528, genre: "Building", fallbackName: "Build A Boat For Treasure" },
+  { placeId: 189707, genre: "Survival", fallbackName: "Natural Disaster Survival" },
+  { placeId: 192800, genre: "Roleplay", fallbackName: "Work at a Pizza Place" },
+  { placeId: 69184822, genre: "Tycoon", fallbackName: "Theme Park Tycoon 2" },
+  { placeId: 3398014311, genre: "Tycoon", fallbackName: "Restaurant Tycoon 2" },
+  { placeId: 183364845, genre: "Obby", fallbackName: "Speed Run 4" },
+  { placeId: 185655149, genre: "Roleplay", fallbackName: "Welcome to Bloxburg" },
+  { placeId: 370731277, genre: "Social", fallbackName: "MeepCity" },
+  { placeId: 735030788, genre: "Roleplay", fallbackName: "Royale High" },
+  { placeId: 6737970321, genre: "Roleplay", fallbackName: "Livetopia" },
+  { placeId: 8481844229, genre: "Roleplay", fallbackName: "Berry Avenue" },
 ];
 
 type PlaceDetails = {
