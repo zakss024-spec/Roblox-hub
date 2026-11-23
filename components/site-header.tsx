@@ -1,18 +1,3 @@
 import Link from "next/link";
-import { Compass, Gamepad2, Search, Sparkles } from "lucide-react";
-export function SiteHeader() {
-  return <header className="site-header">
-    <Link className="brand" href="/" aria-label="ROBLOX HUB home">
-      <span className="brand-mark"><Gamepad2 size={22}/></span>
-      <span className="brand-type">ROBLOX<span>HUB</span><small>PLAY YOUR NEXT STORY</small></span>
-    </Link>
-    <nav className="desktop-nav" aria-label="Main navigation">
-      <Link className="nav-active" href="/"><Sparkles size={15}/> Home</Link>
-      <Link href="/discover"><Compass size={15}/> Discover</Link>
-    </nav>
-    <div className="header-actions">
-      <Link className="icon-button" href="/discover" aria-label="Explore games"><Search size={19}/></Link>
-      <Link className="header-cta" href="/discover">Explore universe <span>↗</span></Link>
-    </div>
-  </header>;
-}
+import { Compass,Gamepad2,Search,Sparkles,UserRound } from "lucide-react";
+export function SiteHeader(){return <header className="site-header"><Link className="brand" href="/" aria-label="ROBLOX HUB home"><span className="brand-mark"><Gamepad2 size={22}/></span><span className="brand-type">ROBLOX<span>HUB</span><small>PLAY YOUR NEXT STORY</small></span></Link><nav className="desktop-nav" aria-label="Main navigation"><Link className="nav-active" href="/"><Sparkles size={15}/> Home</Link><Link href="/discover"><Compass size={15}/> Discover</Link></nav><div className="header-actions"><Link className="icon-button" href="/discover" aria-label="Explore games"><Search size={19}/></Link><Link className="header-cta" href="/auth"><UserRound size={15}/> Player access <span>↗</span></Link></div></header>}
