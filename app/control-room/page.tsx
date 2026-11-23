@@ -29,6 +29,7 @@ export default function ControlRoomPage() {
   const [active, setActive] = useState(false);
   const [eventTime, setEventTime] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventType>("taco_rain");
+  const [beamAngle, setBeamAngle] = useState(0);
 
   async function refresh() {
     const sb = getBrowserSupabase();
@@ -36,13 +37,14 @@ export default function ControlRoomPage() {
     const { data: { user } } = await sb.auth.getUser();
     if (!user) { router.replace("/login"); return; }
     const [{ data: myRole }, { data: event }] = await Promise.all([
-      sb.rpc("get_my_site_role"), sb.from("site_admin_abuse").select("active,started_at,event_type").eq("id", true).maybeSingle()
+      sb.rpc("get_my_site_role"), sb.from("site_admin_abuse").select("active,started_at,event_type,beam_angle").eq("id", true).maybeSingle()
     ]);
     setRole(myRole === "owner" || myRole === "admin" ? myRole : null);
     if (event) {
       setActive(Boolean(event.active));
       setEventTime(event.started_at);
       if (EVENTS.some(item => item.id === event.event_type)) setSelectedEvent(event.event_type as EventType);
+      setBeamAngle(Number(event.beam_angle ?? 0));
     }
     setLoading(false);
   }
@@ -58,6 +60,16 @@ export default function ControlRoomPage() {
     }
     setBusy(false);
   }
+  async function applyBeamPosition() {
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    setBusy(true); setError(""); setNotice("");
+    const { error: rpcError } = await sb.rpc("set_rainbow_beam_angle", { new_angle: beamAngle });
+    if (rpcError) setError(rpcError.message.includes("FORBIDDEN") ? "Hanya Owner yang boleh menggerakkan beam." : rpcError.message);
+    else setNotice("Arah beam berhasil diperbarui untuk semua pengunjung online.");
+    setBusy(false);
+  }
+
   async function manageAdmin(e: FormEvent<HTMLFormElement>, makeAdmin: boolean) {
     e.preventDefault(); const sb = getBrowserSupabase(); if (!sb) return;
     setBusy(true); setError(""); setNotice("");
@@ -97,6 +109,13 @@ export default function ControlRoomPage() {
             <span className="abuse-event-option-emoji">{item.emoji}</span><span className="abuse-event-option-copy"><strong>{item.name}</strong><small>{item.description}</small></span><span className="abuse-event-option-check">{selectedEvent === item.id ? "✓" : ""}</span>
           </button>)}
         </div>
+        {role === "owner" && active && selectedEvent === "rainbow_party" && <div className="owner-beam-control">
+          <div className="owner-beam-heading"><span>🇮🇩 OWNER BEAM CONTROL</span><strong>{beamAngle > 0 ? "+" : ""}{beamAngle}°</strong></div>
+          <p>Geser slider untuk mengatur arah sorotan merah-putih. Tekan APPLY agar semua pengunjung melihat arah yang sama.</p>
+          <input aria-label="Arah beam Rainbow Party" type="range" min={-60} max={60} step={1} value={beamAngle} onChange={e => setBeamAngle(Number(e.target.value))} disabled={busy}/>
+          <div className="owner-beam-scale"><span>◀ KIRI</span><span>ATAS</span><span>KANAN ▶</span></div>
+          <button type="button" className="owner-beam-apply" onClick={() => void applyBeamPosition()} disabled={busy}>APPLY BEAM POSITION</button>
+        </div>}
         <div className="console-actions"><button disabled={busy || active} onClick={() => void toggleEvent(true)} className="start-event"><Play size={17} fill="currentColor"/> START {EVENTS.find(item => item.id === selectedEvent)?.name.toUpperCase()}</button><button disabled={busy || !active} onClick={() => void toggleEvent(false)} className="stop-event"><Square size={16} fill="currentColor"/> STOP ALL</button><button disabled={busy} onClick={() => void refresh()} className="refresh-event"><RefreshCw size={16}/></button></div>
         {eventTime && active && <small className="event-time">Started: {new Date(eventTime).toLocaleString()}</small>}
         <div className="event-sound-note"><Sparkles size={16}/> Setiap event memiliki soundtrack sintetis berbeda. Pengunjung mungkin perlu mengetuk layar sekali agar browser mengizinkan audio.</div>
