@@ -100,7 +100,7 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
           <div className="featured-art">
             {featured.image ? <img src={featured.image} alt={featured.name} /> : <div className="featured-placeholder"><Gamepad2 size={82}/></div>}
             <span className="featured-burst">PLAY<br/>NOW!</span>
-            <span className="featured-caption">FIG. 001 — COMMUNITY FAVORITE</span>
+            <span className="featured-caption">FIG. 001 — ROBLOX SPOTLIGHT</span>
           </div>
         </section>
       )}
