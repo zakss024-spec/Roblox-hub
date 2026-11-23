@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 
 type EventType = "taco_rain" | "rainbow_party" | "emoji_invasion" | "pet_parade" | "candy_storm" | "disco_takeover";
-type EventState = { active: boolean; started_at: string | null; event_type?: EventType };
+type EventState = { active: boolean; started_at: string | null; event_type?: EventType; beam_angle?: number };
 type Announcement = { id: number; sender_name: string; message: string; created_at: string };
 
 const INTRO_DURATION = 5000;
@@ -97,7 +97,7 @@ export function AdminAbuseOverlay() {
     const sb = getBrowserSupabase();
     if (!sb) return;
     let alive = true;
-    void sb.from("site_admin_abuse").select("active,started_at,event_type").eq("id", true).maybeSingle()
+    void sb.from("site_admin_abuse").select("active,started_at,event_type,beam_angle").eq("id", true).maybeSingle()
       .then(({ data }) => { if (alive && data) setEvent(data as EventState); });
     const channel = sb.channel("roblox-hub-admin-abuse")
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "site_admin_abuse", filter: "id=eq.true" },
@@ -142,7 +142,7 @@ export function AdminAbuseOverlay() {
   return <>
     {event.active && <>
       {showEventEffects && <div className={"abuse-event abuse-event--" + config.className} aria-hidden="true">
-        {eventType === "rainbow_party" && <><div className="abuse-rainbow-wash"/><div className="abuse-indonesia-beams" aria-hidden="true"><div className="abuse-beam-corner abuse-beam-left"><i className="beam-red beam-one"/><i className="beam-white beam-two"/><i className="beam-red beam-three"/><i className="beam-white beam-four"/></div><div className="abuse-beam-corner abuse-beam-right"><i className="beam-red beam-one"/><i className="beam-white beam-two"/><i className="beam-red beam-three"/><i className="beam-white beam-four"/></div></div></>}
+        {eventType === "rainbow_party" && <><div className="abuse-rainbow-wash"/><div className="abuse-indonesia-beams" aria-hidden="true"><div className="abuse-beam-corner abuse-beam-left" style={{ transform: `rotate(${event.beam_angle ?? 0}deg)` }}><i className="beam-red beam-one"/><i className="beam-white beam-two"/><i className="beam-red beam-three"/><i className="beam-white beam-four"/></div><div className="abuse-beam-corner abuse-beam-right" style={{ transform: `scaleX(-1) rotate(${-(event.beam_angle ?? 0)}deg)` }}><i className="beam-red beam-one"/><i className="beam-white beam-two"/><i className="beam-red beam-three"/><i className="beam-white beam-four"/></div></div></>}
         {eventType === "disco_takeover" && <><div className="abuse-disco-lights"/><div className="abuse-disco-ball">🪩</div></>}
         <div className="abuse-particle-layer">{particles.map((n) =>
           <span className="abuse-particle" key={n} style={{
