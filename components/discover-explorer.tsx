@@ -66,6 +66,7 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
   const [searchError, setSearchError] = useState("");
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiStatus, setAiStatus] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const cursorHistory = useRef(new Set<string>());
 
@@ -142,35 +143,44 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
     return () => observer.disconnect();
   }, [nextCursor, searchTerm, sort, loading, loadingMore]);
 
-  function runZakssAI() {
+  async function runZakssAI() {
     const prompt = aiPrompt.trim();
     if (!prompt) {
       setAiStatus("Ceritakan game yang ingin kamu temukan dulu.");
       return;
     }
-    const lower = prompt.toLowerCase();
-    const intentMap: Array<[RegExp, string]> = [
-      [/horor|horror|seram|takut|scary/, "horror"],
-      [/anime|naruto|one piece|jujutsu|demon slayer/, "anime"],
-      [/role.?play|rp|kota|sekolah|rumah sakit|city/, "roleplay"],
-      [/simulator|simulasi|pet|hewan|peliharaan/, "simulator pets"],
-      [/obby|parkour|rintangan|tower/, "obby parkour"],
-      [/balap|racing|mobil|motor|drift/, "racing"],
-      [/tembak|shoot|fps|senjata/, "shooter"],
-      [/bertahan|survival|zombie/, "survival"],
-      [/bangun|building|tycoon|bisnis/, "tycoon building"],
-      [/teman|bareng|hangout|sosial|santai/, "social hangout"],
-      [/bola|basket|sepak bola|sport/, "sports"],
-      [/petualangan|adventure|explore/, "adventure"],
-    ];
-    const matched = intentMap.find(([pattern]) => pattern.test(lower));
-    const stopWords = /\b(game|yang|buat|untuk|aku|saya|gw|gue|lu|kamu|ingin|mau|cari|rekomendasi|tolong|dong|seru|bagus|dengan|dan|atau|di|ke|the|a|an|for|to|with|that|i|want|find|recommend)\b/gi;
-    const cleaned = lower.replace(stopWords, " ").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
-    const search = matched?.[1] ?? cleaned;
-    setCategory("All");
-    setSort("active");
-    setQuery(search.slice(0, 80) || prompt.slice(0, 80));
-    setAiStatus(`Zakss AI sedang mencari pengalaman: “${search || prompt}”`);
+    if (aiBusy) return;
+
+    setAiBusy(true);
+    setAiStatus("Zakss AI sedang memahami keinginanmu...");
+    try {
+      const response = await fetch("/api/zakss-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      const result = await response.json() as {
+        allowed?: boolean;
+        searchQuery?: string;
+        explanation?: string;
+        error?: string;
+      };
+      if (!response.ok) throw new Error(result.error || "Zakss AI sedang tidak tersedia.");
+      if (result.allowed === false) {
+        setAiStatus(result.explanation || "Coba cari tema game yang aman dan ramah.");
+        return;
+      }
+      const search = result.searchQuery?.trim();
+      if (!search) throw new Error("Zakss AI belum menemukan kata pencarian. Coba jelaskan dengan cara lain.");
+      setCategory("All");
+      setSort("active");
+      setQuery(search.slice(0, 80));
+      setAiStatus(result.explanation || `Zakss AI mencari pengalaman: “${search}”`);
+    } catch (error) {
+      setAiStatus(error instanceof Error ? error.message : "Zakss AI gagal memproses permintaan.");
+    } finally {
+      setAiBusy(false);
+    }
   }
 
   const officialItems = useMemo<DiscoverItem[]>(() => robloxGames.map((game) => ({
@@ -265,7 +275,7 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
           <p>Deskripsikan game yang kamu suka. Zakss AI akan mencarikan pengalaman Roblox yang paling relevan.</p>
           <div className="zakss-ai-input-row">
             <input value={aiPrompt} onChange={(event) => setAiPrompt(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") runZakssAI(); }} placeholder="Contoh: game horror bareng teman atau anime fighting..." aria-label="Describe the Roblox game you want"/>
-            <button type="button" onClick={runZakssAI}><Sparkles size={16}/> FIND GAMES</button>
+            <button type="button" onClick={runZakssAI} disabled={aiBusy}><Sparkles size={16}/> {aiBusy ? "THINKING..." : "FIND GAMES"}</button>
           </div>
           {aiStatus && <small className="zakss-ai-status" role="status">{aiStatus}</small>}
         </div>
