@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
       visits: details?.visits ?? numeric(raw.totalVisits),
       thumbnailUrl: universeId ? thumbnailsById.get(universeId) ?? null : null,
       url: finalPlaceId ? `https://www.roblox.com/games/${finalPlaceId}` : "https://www.roblox.com/charts",
-      source: "ROBLOX",
+      source: "ROBLOX" as const,
     };
   }).filter((game) => game.name && game.placeId > 0);
 
