@@ -76,3 +76,15 @@
 .abuse-beam-corner:after{content:"";position:absolute;bottom:0;left:50%;width:150px;height:60px;transform:translateX(-50%);background:radial-gradient(ellipse,#fff9 0%,#ff343455 30%,transparent 72%);filter:blur(10px)}
 .abuse-event--rainbow .abuse-particle-layer{z-index:3}
 @media(prefers-reduced-motion:reduce){.abuse-beam-corner i{animation:none!important;opacity:.45}}
+
+
+/* Owner-only synchronized Rainbow Party beam control */
+.owner-beam-control{margin-top:20px;padding:17px;border:2px solid #171a20;background:linear-gradient(120deg,#fff1ed,#fff 48%,#f2f2f2);box-shadow:3px 3px 0 #171a20}
+.owner-beam-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.owner-beam-heading span{font:900 10px 'DM Sans';letter-spacing:1.2px}
+.owner-beam-heading strong{font:900 22px 'Barlow Condensed';color:#d82727}
+.owner-beam-control p{font:600 10px/1.55 'DM Sans';color:#77766f;margin:8px 0 14px}
+.owner-beam-control input[type=range]{display:block;width:100%;accent-color:#e33131;cursor:pointer}
+.owner-beam-scale{display:flex;justify-content:space-between;margin-top:5px;font:900 8px 'DM Sans';letter-spacing:.7px;color:#77766f}
+.owner-beam-apply{margin-top:14px;width:100%;border:2px solid #171a20;background:#d92727;color:white;padding:12px;font:900 10px 'DM Sans';letter-spacing:1px;box-shadow:3px 3px 0 #171a20;cursor:pointer}
+.owner-beam-apply:disabled{opacity:.5;cursor:not-allowed}
