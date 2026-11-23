@@ -27,7 +27,7 @@ type DiscoverItem = {
 
 type SearchResponse = { games?: RobloxExperience[]; nextCursor?: string | null; error?: string };
 
-const categories = ["All", "Roleplay", "Simulator", "Pets", "Fashion", "Obby", "Survival", "Building", "Tycoon", "Social"];
+const categories = ["All", "Roleplay", "Simulator", "Pets", "Fashion", "Obby", "Survival", "Building", "Tycoon", "Social", "Horror", "Anime", "Fighting", "FPS", "Racing", "Story", "Adventure", "Sports", "Tower Defense", "Music"];
 const categorySearch: Record<string, string> = {
   Roleplay: "roleplay",
   Simulator: "simulator",
@@ -38,6 +38,16 @@ const categorySearch: Record<string, string> = {
   Building: "building",
   Tycoon: "tycoon",
   Social: "social hangout",
+  Horror: "horror",
+  Anime: "anime",
+  Fighting: "fighting",
+  FPS: "shooter",
+  Racing: "racing",
+  Story: "story",
+  Adventure: "adventure",
+  Sports: "sports",
+  "Tower Defense": "tower defense",
+  Music: "music",
 };
 
 function compact(value: number | null) {
@@ -55,7 +65,8 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchError, setSearchError] = useState("");
 
-  const searchTerm = query.trim() || categorySearch[category] || "";
+  // Discover starts with a live broad search, then users can narrow it by keyword or category.
+  const searchTerm = query.trim() || categorySearch[category] || "popular";
 
   useEffect(() => {
     if (!searchTerm) {
@@ -126,7 +137,7 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
   })), [robloxGames]);
 
   const liveItems = useMemo<DiscoverItem[]>(() => liveGames.map((game) => ({
-    id: game.id,
+    id: `roblox-${game.placeId || game.id}`,
     name: game.name,
     description: game.description || "Open this experience on Roblox to see its latest details.",
     genre: game.genre || "Roblox experience",
@@ -155,7 +166,9 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
   const visibleItems = useMemo(() => {
     let items = sort === "community"
       ? [...communityItems]
-      : searchTerm ? [...liveItems, ...communityItems] : [...officialItems, ...communityItems];
+      : [...liveItems, ...officialItems, ...communityItems];
+    // Merge live discovery and the curated fallback without showing the same Roblox place twice.
+    items = [...new Map(items.map((item) => [item.id, item])).values()];
     const normalized = query.trim().toLowerCase();
     if (normalized) {
       items = items.filter((item) =>
@@ -216,7 +229,7 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
 
       <section className="discover-results">
         <div className="discover-results-heading">
-          <div><span className="eyebrow dark-eyebrow">THE EXPLORE BOARD</span><h2>{sort === "community" ? "COMMUNITY PICKS." : sort === "visits" ? "MOST VISITED." : searchTerm ? "ROBLOX SEARCH RESULTS." : "WORLDS TO JUMP INTO."}</h2></div>
+          <div><span className="eyebrow dark-eyebrow">THE EXPLORE BOARD</span><h2>{sort === "community" ? "COMMUNITY PICKS." : sort === "visits" ? "MOST VISITED." : query.trim() || category !== "All" ? "ROBLOX SEARCH RESULTS." : "WORLDS TO JUMP INTO."}</h2></div>
           <span className="result-count">{loading ? "SEARCHING..." : `${visibleItems.length.toString().padStart(2, "0")} EXPERIENCES`}</span>
         </div>
 
@@ -266,7 +279,7 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
       <div className="discover-source-note">
         <span><span className="source-dot official-dot"/> Official Roblox public data</span>
         <span><span className="source-dot community-dot"/> ROBLOX HUB approved community catalog</span>
-        <small>Search results are fetched live from Roblox public discovery services. Availability and counts depend on Roblox.</small>
+        <small>Live Roblox discovery results are combined with fallback picks. Use LOAD MORE WORLDS to continue through available result pages; Roblox controls the catalog and pagination.</small>
       </div>
     </div>
   );
