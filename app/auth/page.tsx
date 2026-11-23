@@ -12,6 +12,7 @@ export default function AuthPage(){
  const supabase=getBrowserSupabase();if(!supabase){setError("Konfigurasi Supabase belum tersedia. Periksa environment Vercel.");setBusy(false);return;}
  try{if(mode==="signup"){const handle=username.trim().toLowerCase();if(!/^[a-z0-9_]{3,24}$/.test(handle))throw new Error("Username harus 3–24 karakter: huruf kecil, angka, atau underscore.");
  const {data,error}=await supabase.auth.signUp({email:email.trim(),password,options:{emailRedirectTo:window.location.origin+"/account",data:{username:handle,display_name:username.trim()}}});if(error)throw error;
+ if(data.user && Array.isArray(data.user.identities) && data.user.identities.length===0){setMode("signin");setMessage("Email tersebut tidak dapat didaftarkan sebagai akun baru. Jika sudah memiliki akun, silakan masuk melalui tab SIGN IN.");return;}
  if(data.session&&data.user){await supabase.from("profiles").upsert({id:data.user.id,username:handle,display_name:username.trim()},{onConflict:"id"});router.replace("/account");router.refresh();return;}
  setMessage("Akun berhasil dibuat. Cek email untuk verifikasi, lalu masuk ke ROBLOX HUB.");
  }else{const {data,error}=await supabase.auth.signInWithPassword({email:email.trim(),password});if(error)throw error;if(data.user){await supabase.from("profiles").upsert({id:data.user.id,display_name:String(data.user.user_metadata?.display_name??data.user.user_metadata?.username??"Player"),username:typeof data.user.user_metadata?.username==="string"?data.user.user_metadata.username:null},{onConflict:"id",ignoreDuplicates:true});}router.replace("/account");router.refresh();return;}
@@ -25,6 +26,6 @@ export default function AuthPage(){
  <label><span>PASSWORD</span><div className="auth-input"><LockKeyhole size={17}/><input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="At least 8 characters" minLength={8} autoComplete={mode==="signup"?"new-password":"current-password"} required/></div></label>
  {error&&<p className="auth-feedback error" role="alert">{error}</p>}{message&&<p className="auth-feedback success" role="status">{message}</p>}
  <button className="auth-submit" type="submit" disabled={busy}>{busy?"PLEASE WAIT...":mode==="signup"?"CREATE MY ACCOUNT":"ENTER ROBLOX HUB"} <ArrowRight size={17}/></button></form>
- <p className="auth-legal">Use a unique password. ROBLOX HUB will never ask for your Roblox password or account cookies.</p></section></div>
+ <p className="auth-legal">Sudah punya akun? <Link href="/login">Masuk di halaman login.</Link> Use a unique password. ROBLOX HUB will never ask for your Roblox password or account cookies.</p></section></div>
  <footer className="auth-footer"><span>ROBLOX HUB / PLAYER GATEWAY</span><span>© 2026 — ALL WORLDS WELCOME</span></footer></main>;
 }
