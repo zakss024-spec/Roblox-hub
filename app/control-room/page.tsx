@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ShieldCheck, RadioTower, UserPlus, UserMinus, Square, Play, RefreshCw } from "lucide-react";
+import { ArrowLeft, ShieldCheck, RadioTower, UserPlus, UserMinus, Square, Play, RefreshCw, Send } from "lucide-react";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { SiteHeader } from "@/components/site-header";
 
@@ -13,6 +13,7 @@ export default function ControlRoomPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [identifier, setIdentifier] = useState("");
+  const [announcementText, setAnnouncementText] = useState("");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [active, setActive] = useState(false);
@@ -47,6 +48,23 @@ export default function ControlRoomPage() {
     else { setNotice(makeAdmin ? "Akun berhasil diangkat menjadi Admin." : "Hak Admin berhasil dicabut."); setIdentifier(""); }
     setBusy(false);
   }
+  async function sendAnnouncement(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    const message = announcementText.trim();
+    if (!message || message.length > 280) return;
+    setBusy(true); setError(""); setNotice("");
+    const { error: rpcError } = await sb.rpc("send_site_announcement", { announcement_text: message });
+    if (rpcError) {
+      const msg = rpcError.message;
+      setError(msg.includes("PLEASE_WAIT") ? "Tunggu beberapa detik sebelum mengirim pengumuman berikutnya." : msg.includes("FORBIDDEN") ? "Akses ditolak." : msg);
+    } else {
+      setNotice("Pengumuman berhasil dikirim ke pengunjung yang sedang online.");
+      setAnnouncementText("");
+    }
+    setBusy(false);
+  }
 
   return <main className="control-room"><SiteHeader/><section className="control-wrap">
     <Link href="/" className="back-link"><ArrowLeft size={15}/> BACK TO UNIVERSE</Link>
@@ -58,9 +76,18 @@ export default function ControlRoomPage() {
         <div className="console-actions"><button disabled={busy || active} onClick={() => void toggleEvent(true)} className="start-event"><Play size={17} fill="currentColor"/> START ADMIN ABUSE</button><button disabled={busy || !active} onClick={() => void toggleEvent(false)} className="stop-event"><Square size={16} fill="currentColor"/> STOP ALL</button><button disabled={busy} onClick={() => void refresh()} className="refresh-event"><RefreshCw size={16}/></button></div>
         {eventTime && active && <small className="event-time">Started: {new Date(eventTime).toLocaleString()}</small>}
       </section>
+      <section className="announcement-console">
+        <div className="announcement-heading"><div><span>LIVE MESSAGE SYSTEM</span><h2>GLOBAL ANNOUNCEMENT</h2></div><span className="announcement-live">● REALTIME</span></div>
+        <p>Kirim pesan ke semua pengunjung yang sedang membuka ROBLOX HUB. Nama pengirim diambil otomatis dari profil akun.</p>
+        <form onSubmit={e => void sendAnnouncement(e)} className="announcement-form">
+          <label htmlFor="announcement-message">MASUKKAN TEKS PENGUMUMAN</label>
+          <textarea id="announcement-message" value={announcementText} onChange={e=>setAnnouncementText(e.target.value.slice(0,280))} placeholder="Tulis pengumuman di sini..." maxLength={280} rows={3} required />
+          <div className="announcement-form-bottom"><small>{announcementText.length}/280 karakter · jeda 8 detik antar pesan</small><button disabled={busy || !announcementText.trim()}><Send size={16}/> KIRIM TEXT PENGUMUMAN</button></div>
+        </form>
+      </section>
       {role === "owner" && <section className="admin-manage"><div className="manage-icon"><UserPlus size={22}/></div><div className="manage-copy"><span>OWNER ONLY</span><h2>MANAGE ADMIN</h2><p>Masukkan username atau ID publik pengguna yang sudah terdaftar.</p><form onSubmit={e => void manageAdmin(e,true)}><input value={identifier} onChange={e=>setIdentifier(e.target.value)} placeholder="Username atau RH-000001" required/><button disabled={busy}><UserPlus size={16}/> ADD ADMIN</button></form><form onSubmit={e=>void manageAdmin(e,false)}><button className="remove-admin" disabled={busy || !identifier.trim()}><UserMinus size={16}/> REMOVE ADMIN</button></form></div></section>}
       {error && <p className="control-feedback error">{error}</p>}{notice && <p className="control-feedback success">{notice}</p>}
-      <div className="control-note"><RadioTower size={18}/><span>Role diverifikasi melalui fungsi database. Pengguna biasa tidak dapat memicu event atau mengangkat Admin.</span></div>
+      <div className="control-note"><RadioTower size={18}/><span>Role diverifikasi melalui fungsi database. Pengguna biasa tidak dapat memicu event, mengirim pengumuman, atau mengangkat Admin.</span></div>
     </>}
   </section><footer className="site-footer"><Link className="footer-brand" href="/">ROBLOX<span>HUB</span></Link><span>PRIVATE COMMAND CENTER</span><span>© 2026 ROBLOX HUB</span></footer></main>;
 }
