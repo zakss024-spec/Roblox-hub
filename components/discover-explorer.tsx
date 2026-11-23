@@ -164,10 +164,11 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
 
   const featured = officialItems[0];
   const visibleItems = useMemo(() => {
+    const fallbackItems = !query.trim() && category === "All" ? officialItems : [];
     let items = sort === "community"
       ? [...communityItems]
-      : [...liveItems, ...officialItems, ...communityItems];
-    // Merge live discovery and the curated fallback without showing the same Roblox place twice.
+      : [...liveItems, ...fallbackItems, ...communityItems];
+    // Merge live discovery and fallback picks without showing the same Roblox place twice.
     items = [...new Map(items.map((item) => [item.id, item])).values()];
     const normalized = query.trim().toLowerCase();
     if (normalized) {
