@@ -88,3 +88,25 @@
 .owner-beam-scale{display:flex;justify-content:space-between;margin-top:5px;font:900 8px 'DM Sans';letter-spacing:.7px;color:#77766f}
 .owner-beam-apply{margin-top:14px;width:100%;border:2px solid #171a20;background:#d92727;color:white;padding:12px;font:900 10px 'DM Sans';letter-spacing:1px;box-shadow:3px 3px 0 #171a20;cursor:pointer}
 .owner-beam-apply:disabled{opacity:.5;cursor:not-allowed}
+
+/* Zakss 3D Jumpscare — dramatic text-only reveal */
+.abuse-intro--zakss{background:radial-gradient(ellipse at 50% 48%,#183c27 0%,#07120b 42%,#020403 78%)}
+.abuse-intro--zakss:before,.abuse-intro--zakss:after{background:linear-gradient(90deg,transparent,#9cff45,#ff6038,transparent)}
+.abuse-intro--zakss .abuse-intro-kicker,.abuse-intro--zakss .abuse-intro-caption{color:#c7ff91}
+.abuse-intro--zakss .abuse-countdown{border-color:#b8ff62;color:#d2ff78;box-shadow:0 0 28px #8cff3d55,inset 0 0 22px #8cff3d22}
+.abuse-zakss-stage{position:fixed;inset:0;z-index:85;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;overflow:hidden;perspective:1100px;background:radial-gradient(ellipse at 50% 46%,#183b25 0%,#07110b 40%,#020403 78%);pointer-events:none}
+.abuse-zakss-stage:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 25%,#000b 100%);z-index:0}
+.abuse-zakss-scanlines{position:absolute;inset:0;z-index:1;opacity:.19;background:repeating-linear-gradient(to bottom,transparent 0 3px,#aaff7830 4px,transparent 5px 8px);mask-image:linear-gradient(transparent,#000 20%,#000 80%,transparent)}
+.abuse-zakss-word{position:relative;z-index:2;transform-style:preserve-3d;transform:rotateX(14deg) rotateY(-12deg);will-change:transform}
+.abuse-zakss-word span{position:relative;display:block;font:900 clamp(76px,19vw,210px)/.78 'Barlow Condensed';letter-spacing:.035em;color:#d8ff9a;-webkit-text-stroke:2px #07170b;text-shadow:1px 1px 0 #254b1d,2px 2px 0 #254b1d,3px 3px 0 #254b1d,4px 4px 0 #254b1d,5px 5px 0 #254b1d,6px 6px 0 #254b1d,7px 7px 0 #254b1d,8px 8px 0 #254b1d,9px 9px 0 #254b1d,10px 10px 0 #254b1d,12px 12px 0 #07170b,16px 16px 25px #000,0 0 35px #a2ff4d66;transform:translateZ(34px)}
+.abuse-zakss-word:before{content:attr(data-text);position:absolute;inset:0;color:#ff6038;opacity:.58;transform:translate3d(10px,7px,-22px);filter:blur(.3px);text-shadow:0 0 20px #ff603888}
+.abuse-zakss-stage small{position:relative;z-index:2;color:#b6d79a;font:900 9px 'DM Sans';letter-spacing:clamp(2px,1vw,5px);text-align:center}
+.abuse-zakss-stage.impact .abuse-zakss-word{animation:zakss-impact .72s cubic-bezier(.12,.88,.22,1) both}
+.abuse-zakss-stage.impact .abuse-zakss-word span{animation:zakss-text-jolt .72s steps(2,end) both}
+.abuse-zakss-stage.settled .abuse-zakss-word{animation:zakss-float 4.5s ease-in-out infinite}
+.abuse-zakss-stage.settled .abuse-zakss-word span{filter:drop-shadow(0 0 18px #9cff3b55)}
+@keyframes zakss-impact{0%{opacity:0;transform:translateZ(-500px) rotateX(38deg) rotateY(-30deg) scale(.08)}55%{opacity:1;transform:translateZ(80px) rotateX(8deg) rotateY(9deg) scale(1.12)}75%{transform:translateZ(20px) rotateX(17deg) rotateY(-14deg) scale(.96)}100%{opacity:1;transform:translateZ(34px) rotateX(14deg) rotateY(-12deg) scale(1)}}
+@keyframes zakss-text-jolt{0%,100%{translate:0 0}30%{translate:-5px 2px}60%{translate:4px -2px}}
+@keyframes zakss-float{0%,100%{transform:rotateX(14deg) rotateY(-12deg) translateY(0)}50%{transform:rotateX(10deg) rotateY(12deg) translateY(-10px)}}
+@media(max-width:520px){.abuse-zakss-word span{font-size:clamp(72px,22vw,130px);letter-spacing:0}.abuse-zakss-stage{gap:18px}}
+@media(prefers-reduced-motion:reduce){.abuse-zakss-stage.impact .abuse-zakss-word,.abuse-zakss-stage.impact .abuse-zakss-word span,.abuse-zakss-stage.settled .abuse-zakss-word{animation:none!important;transform:none!important}}
