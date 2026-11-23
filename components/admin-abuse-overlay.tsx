@@ -86,7 +86,6 @@ function startEventMusic(type: EventType, onReady: () => void) {
     const notes = MUSIC[type];
     playNote(notes[beat % notes.length], 0.22, type === "disco_takeover" ? "square" : "triangle", 0.045);
     if (beat % 2 === 0) playNote(notes[(beat + 4) % notes.length] / 2, 0.3, "sine", 0.025);
-    if (type === "taco_rain" && beat % 4 === 2) playNote(880, 0.07, "sine", 0.018);
     if (type === "emoji_invasion" && beat % 2 === 1) playNote(740, 0.06, "square", 0.012);
     if (type === "pet_parade" && beat % 4 === 0) playNote(1046, 0.09, "sine", 0.015);
     if (type === "candy_storm" && beat % 4 === 3) playNote(1318, 0.08, "triangle", 0.014);
