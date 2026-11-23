@@ -27,3 +27,24 @@
 .discover-load-more button:disabled{opacity:.65;cursor:wait}
 @keyframes discover-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.discover-loading svg,.discover-load-more svg{animation:none}}
+
+
+/* Zakss AI Finder — comic-styled Roblox discovery assistant */
+.zakss-ai-finder{display:grid;grid-template-columns:76px 1fr;gap:22px;align-items:center;margin:28px 0 24px;padding:25px 28px;background:#171a20;color:#fff;border:2px solid #171a20;box-shadow:7px 7px 0 var(--orange);position:relative;overflow:hidden}
+.zakss-ai-finder:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.13;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:13px 13px;mask-image:linear-gradient(90deg,black,transparent 75%)}
+.zakss-ai-orb{width:66px;height:66px;display:grid;place-items:center;align-content:center;gap:2px;background:var(--yellow);color:var(--ink);border:2px solid #fff;box-shadow:4px 4px 0 var(--orange);transform:rotate(-7deg);z-index:1}
+.zakss-ai-orb span{font:900 11px 'Barlow Condensed';letter-spacing:1px}
+.zakss-ai-copy{position:relative;z-index:1;min-width:0}
+.zakss-ai-kicker{font-size:9px;font-weight:900;letter-spacing:2px;color:var(--yellow)}
+.zakss-ai-copy h2{margin:5px 0 4px;font:900 34px/.95 'Barlow Condensed';letter-spacing:.2px}
+.zakss-ai-copy h2 em{font-style:normal;color:var(--orange)}
+.zakss-ai-copy p{margin:0 0 14px;color:#d1d1d1;font-size:12px;line-height:1.6}
+.zakss-ai-input-row{display:flex;gap:9px}
+.zakss-ai-input-row input{flex:1;min-width:0;height:46px;padding:0 14px;background:#fff;color:var(--ink);border:2px solid #fff;outline:none;font:600 12px 'DM Sans'}
+.zakss-ai-input-row input:focus{border-color:var(--yellow);box-shadow:0 0 0 3px #f8d34d38}
+.zakss-ai-input-row button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 16px;background:var(--orange);color:#fff;border:2px solid #fff;font-size:10px;font-weight:900;letter-spacing:.8px;cursor:pointer;white-space:nowrap;transition:transform .2s}
+.zakss-ai-input-row button:hover{transform:translateY(-2px)}
+.zakss-ai-status{display:block;margin-top:9px;color:var(--yellow);font-size:10px;font-weight:700}
+.discover-auto-load{min-height:52px;display:flex;align-items:center;justify-content:center;gap:10px;margin:24px 0 8px;color:var(--blue);font-size:10px;font-weight:900;letter-spacing:1px;text-align:center}
+.discover-auto-load svg{animation:discover-spin 1s linear infinite}
+@media(max-width:600px){.zakss-ai-finder{grid-template-columns:1fr;gap:14px;padding:20px}.zakss-ai-orb{width:52px;height:52px}.zakss-ai-copy h2{font-size:30px}.zakss-ai-input-row{flex-direction:column}.zakss-ai-input-row button{height:44px}.discover-auto-load{font-size:9px;padding:0 12px}}
