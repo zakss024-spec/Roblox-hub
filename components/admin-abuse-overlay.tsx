@@ -38,40 +38,22 @@ export function AdminAbuseOverlay() {
   useEffect(() => {
     if (!event.active || typeof window === "undefined") return;
     let disposed = false;
-    let ctx: AudioContext | null = null;
-    let timer: ReturnType<typeof setInterval> | null = null;
     let starting = false;
-    let step = 0;
-    const notes = [392, 494, 587, 494, 440, 523, 659, 523];
-    const play = () => {
-      if (!ctx || ctx.state !== "running") return;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "triangle";
-      osc.frequency.value = notes[step++ % notes.length];
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.055, ctx.currentTime + 0.025);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.19);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.2);
-    };
+    const audio = new Audio("https://quicksounds.com/uploads/tracks/1219935113_1051071961_1597840749.mp3");
+    audio.loop = true;
+    audio.preload = "auto";
+    audio.volume = 0.7;
+
     const tryStartSound = async () => {
-      if (disposed || starting || timer) return;
+      if (disposed || starting || !audio.paused) return;
       starting = true;
       try {
-        ctx ??= new window.AudioContext();
-        if (ctx.state !== "running") await ctx.resume();
-        if (!disposed && ctx.state === "running" && !timer) {
-          play();
-          timer = setInterval(play, 260);
-          window.removeEventListener("pointerdown", tryStartSound);
-          window.removeEventListener("keydown", tryStartSound);
-          window.removeEventListener("touchstart", tryStartSound);
-        }
+        await audio.play();
+        window.removeEventListener("pointerdown", tryStartSound);
+        window.removeEventListener("keydown", tryStartSound);
+        window.removeEventListener("touchstart", tryStartSound);
       } catch {
-        // Browser may require a user gesture; ordinary page interactions retry audio.
+        // Browsers may block autoplay; retry after the visitor's first normal interaction.
       } finally {
         starting = false;
       }
@@ -87,8 +69,10 @@ export function AdminAbuseOverlay() {
       window.removeEventListener("pointerdown", tryStartSound);
       window.removeEventListener("keydown", tryStartSound);
       window.removeEventListener("touchstart", tryStartSound);
-      if (timer) clearInterval(timer);
-      if (ctx) void ctx.close();
+      audio.pause();
+      audio.currentTime = 0;
+      audio.removeAttribute("src");
+      audio.load();
     };
   }, [event.active]);
 
