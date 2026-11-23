@@ -8,10 +8,10 @@ import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { SiteHeader } from "@/components/site-header";
 type Profile={username:string;display_name:string;bio:string;public_id:string};
 export default function AccountPage(){
- const router=useRouter();const [user,setUser]=useState<User|null>(null);const [profile,setProfile]=useState<Profile>({username:"",display_name:"Player",bio:"",public_id:""});
+ const router=useRouter();const [user,setUser]=useState<User|null>(null);const [role,setRole]=useState<"owner"|"admin"|null>(null);const [profile,setProfile]=useState<Profile>({username:"",display_name:"Player",bio:"",public_id:""});
  const [loading,setLoading]=useState(true);const [saving,setSaving]=useState(false);const [notice,setNotice]=useState("");const [problem,setProblem]=useState("");
  const load=useCallback(async()=>{const sb=getBrowserSupabase();if(!sb){setProblem("Konfigurasi Supabase belum tersedia.");setLoading(false);return;}
- const {data:{user:u},error}=await sb.auth.getUser();if(error||!u){router.replace("/auth");return;}setUser(u);
+ const {data:{user:u},error}=await sb.auth.getUser();if(error||!u){router.replace("/auth");return;}setUser(u);const {data:myRole}=await sb.rpc("get_my_site_role");setRole(myRole==="owner"||myRole==="admin"?myRole:null);
  const {data,error:profileError}=await sb.from("profiles").select("username,display_name,bio,public_id").eq("id",u.id).maybeSingle();if(profileError)setProblem(profileError.message);
  if(data)setProfile({username:data.username??"",display_name:data.display_name??"Player",bio:data.bio??"",public_id:data.public_id??""});else setProfile({username:typeof u.user_metadata?.username==="string"?u.user_metadata.username:"",display_name:String(u.user_metadata?.display_name??u.user_metadata?.username??"Player"),bio:"",public_id:""});
  setLoading(false);},[router]);
@@ -27,6 +27,6 @@ export default function AccountPage(){
  <section className="profile-editor"><div className="profile-editor-head"><div><span>PLAYER SETTINGS</span><h2>EDIT YOUR PROFILE</h2></div><span className="profile-edition">EDITION 01</span></div>
  <form onSubmit={save} className="profile-form"><label>DISPLAY NAME<input value={profile.display_name} maxLength={40} onChange={e=>setProfile(p=>({...p,display_name:e.target.value}))} required/></label><label>USERNAME<input value={profile.username} maxLength={24} onChange={e=>setProfile(p=>({...p,username:e.target.value}))} placeholder="your_player_name"/></label><label>ABOUT YOU<textarea value={profile.bio} maxLength={240} rows={4} onChange={e=>setProfile(p=>({...p,bio:e.target.value}))} placeholder="Tell the universe a little about yourself..."/></label><label>EMAIL ADDRESS<input value={user.email??""} disabled/></label>
  {problem&&<p className="auth-feedback error" role="alert">{problem}</p>}{notice&&<p className="auth-feedback success" role="status"><Check size={15}/>{notice}</p>}<button className="auth-submit" type="submit" disabled={saving}>{saving?"SAVING...":"SAVE PROFILE"} <Save size={16}/></button></form></section></div>
- <div className="account-links"><Link href="/discover">Explore experiences <ArrowUpRight size={15}/></Link><button onClick={logout}><LogOut size={15}/> SIGN OUT</button></div></>}
+ <div className="account-links">{role&&<Link href="/control-room" className="account-control-link" style={{display:"inline-flex",alignItems:"center",gap:8,padding:"12px 16px",border:"2px solid #171a20",background:"#f8d34d",color:"#171a20",fontWeight:900,fontSize:11,textDecoration:"none",boxShadow:"3px 3px 0 #171a20"}}><ShieldCheck size={15}/> CONTROL PANEL · {role.toUpperCase()}</Link>}<Link href="/discover">Explore experiences <ArrowUpRight size={15}/></Link><button onClick={logout}><LogOut size={15}/> SIGN OUT</button></div></>}
  </section><footer className="site-footer"><Link className="footer-brand" href="/">ROBLOX<span>HUB</span></Link><span>YOUR STORY. YOUR UNIVERSE.</span><span>© 2026 ROBLOX HUB</span></footer></main>;
 }
