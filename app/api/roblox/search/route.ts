@@ -90,7 +90,6 @@ export async function GET(request: NextRequest) {
   }
   const rows = [...unique.values()].slice(0, 30);
   const universeIds = rows.map((game) => numeric(game.universeId) ?? numeric(game.id)).filter((id): id is number => id !== null).slice(0, 10);
-  const placeIds = rows.map((game) => numeric(game.rootPlaceId) ?? numeric(game.placeId)).filter((id): id is number => id !== null);
 
   const [metadata, thumbnailData] = await Promise.all([
     universeIds.length
@@ -109,7 +108,7 @@ export async function GET(request: NextRequest) {
   const thumbnailsById = new Map((thumbnailData?.data ?? []).map((item) => [item.targetId, item.imageUrl ?? null]));
   const games: RobloxSearchGame[] = rows.map((raw) => {
     const universeId = numeric(raw.universeId) ?? numeric(raw.id);
-    const placeId = numeric(raw.rootPlaceId) ?? numeric(raw.placeId) ?? numeric(raw.rootPlace?.id);
+    const placeId = numeric(raw.rootPlaceId) ?? numeric(raw.placeId) ?? numeric(asRecord(raw.rootPlace)?.id);
     const details = universeId ? metadataById.get(universeId) : undefined;
     const creatorRecord = asRecord(raw.creator);
     const name = details?.name ?? (typeof raw.name === "string" ? raw.name : "Roblox experience");
