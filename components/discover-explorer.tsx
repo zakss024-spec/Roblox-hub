@@ -25,7 +25,7 @@ type DiscoverItem = {
   visits: number | null;
 };
 
-const categories = ["All", "Roleplay", "Simulator", "Fashion", "Obby", "Adventure", "Survival", "Tycoon"];
+const categories = ["All", "Roleplay", "Simulator", "Pets", "Fashion", "Obby", "Survival", "Building", "Tycoon", "Social"];
 
 function compact(value: number | null) {
   if (value === null) return "—";
