@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
     if (key && !unique.has(key)) unique.set(key, game);
   }
   const rows = [...unique.values()].slice(0, 30);
-  const universeIds = rows.map((game) => numeric(game.universeId) ?? numeric(game.id)).filter((id): id is number => id !== null).slice(0, 10);
+  const universeIds = rows.map((game) => numeric(game.universeId) ?? numeric(game.id)).filter((id): id is number => id !== null).slice(0, 50);
 
   const [metadata, thumbnailData] = await Promise.all([
     universeIds.length
