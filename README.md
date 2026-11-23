@@ -1,31 +1,32 @@
 # ROBLOX HUB
 
-Comic-inspired Roblox experience discovery website.
+A mobile-first Roblox experience discovery website with a 3D comic visual identity.
 
-## Platform setup
-- GitHub: source code and version control.
-- Vercel: website hosting and deployment.
-- Supabase: authentication, database, and realtime features (integration phase).
+## Stack
+- Next.js 15 + React 19 + TypeScript
+- Supabase Auth and Postgres (RLS enabled)
+- Vercel hosting and deployment
 
-## Product direction
-The visual system is 3D Comic Universe: dimensional comic panels, halftone textures, bold ink outlines, pop-art colors, layered depth, and responsive motion. It must remain usable on mobile and respect reduced-motion preferences.
+## Environment variables
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
-## Security principles
-- Public discovery pages never expose private owner controls.
-- Owner access must be verified server-side; hiding a URL is not authorization.
-- No public owner registration or client-controlled role metadata.
-- Admin controls may only target Roblox experiences owned by the account or explicitly authorized by the owner.
-- Never request Roblox passwords or session cookies.
-- No fake catalog entries, ratings, activity, or success states.
+Only the Supabase publishable key belongs in public frontend configuration. Never expose a Supabase secret/service-role key in browser code.
 
-## Deployment
-Connect this repository to Vercel. Framework preset: Next.js. Build command: npm run build.
+## Database
+The initial `roblox_hub_core_schema` migration creates:
+- public profiles and categories
+- published Roblox experiences
+- per-user favorites
+- private owner membership, owner command queue, and audit logs
 
-Supabase credentials will be configured as Vercel environment variables after a dedicated ROBLOX HUB Supabase project is selected:
-- NEXT_PUBLIC_SUPABASE_URL
-- NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+RLS is enabled on every public-schema table. Owner operations must be performed through trusted server-side code after verifying the authenticated user against the private owner membership list. Never trust a hidden URL or client-supplied role.
 
-Never add Supabase secret keys to public variables or commit credentials to GitHub.
+## Roblox integration boundary
+The owner command queue is only a data model. Commands must only be sent to Roblox experiences that the account owner controls or is explicitly authorized to manage, using a legitimate Roblox server-side Luau integration. No Roblox passwords, cookies, or third-party exploit execution are supported.
 
-## Current implementation
-The first implementation establishes the responsive 3D Comic Universe landing page and a truthful discovery empty state. Supabase-backed catalog, authentication, profiles, and private owner routes are intentionally gated until the dedicated database and server-side policies are configured.
+## Local development
+```bash
+npm install
+npm run dev
+```

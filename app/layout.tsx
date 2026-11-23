@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./catalog.css";
 export const metadata: Metadata = {
   title: "ROBLOX HUB — Enter the universe",
   description: "Discover your next Roblox experience in a comic-inspired universe.",
