@@ -1,8 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
-import { MessageCircle, Send, X, Radio, LogIn } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { type FormEvent, useEffect, useRef, useState } from "react";
+import { MessageCircle, Send, X, Radio } from "lucide-react";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 
 type ChatMessage = {
@@ -15,7 +14,6 @@ type ChatMessage = {
 };
 
 export function GlobalChat() {
-  const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -126,7 +124,9 @@ export function GlobalChat() {
     if (sendError) {
       setError(sendError.message.includes("Authentication")
         ? "Sesi login berakhir. Silakan login kembali."
-        : "Pesan gagal dikirim. Coba lagi sebentar.");
+        : sendError.message.includes("Please wait")
+          ? "Tunggu 2 detik sebelum mengirim pesan lagi."
+          : "Pesan gagal dikirim. Coba lagi sebentar.");
     } else if (data) {
       const sent = data as ChatMessage;
       setMessages((current) => current.some((message) => message.id === sent.id)
