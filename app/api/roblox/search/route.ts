@@ -49,6 +49,26 @@ function collectGames(value: unknown, output: UnknownRecord[] = [], depth = 0): 
   return output;
 }
 
+function findNextCursor(value: unknown, depth = 0): string | null {
+  if (depth > 8 || value == null || typeof value !== "object") return null;
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findNextCursor(item, depth + 1);
+      if (found) return found;
+    }
+    return null;
+  }
+  const record = value as UnknownRecord;
+  for (const key of ["nextPageToken", "nextPageCursor", "nextCursor"]) {
+    if (typeof record[key] === "string" && record[key]) return record[key] as string;
+  }
+  for (const child of Object.values(record)) {
+    const found = findNextCursor(child, depth + 1);
+    if (found) return found;
+  }
+  return null;
+}
+
 async function getJson<T>(url: string): Promise<T | null> {
   try {
     const response = await fetch(url, {
@@ -129,9 +149,7 @@ export async function GET(request: NextRequest) {
     };
   }).filter((game) => game.name && game.placeId > 0);
 
-  const nextCursor = typeof search.nextPageToken === "string"
-    ? search.nextPageToken
-    : typeof search.nextPageCursor === "string" ? search.nextPageCursor : null;
+  const nextCursor = findNextCursor(search);
 
   return NextResponse.json({ games, nextCursor });
 }
