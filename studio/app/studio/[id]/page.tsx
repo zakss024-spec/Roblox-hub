@@ -69,23 +69,8 @@ export default function StudioEditor() {
     const W = 1200, H = 700;
     canvas.width = W; canvas.height = H;
     ctx.fillStyle = "#b9d5e5"; ctx.fillRect(0, 0, W, H);
-    // Automatic starter terrain: always rendered, even when the scene has zero saved objects.
-    if (project.engine === "3d") {
-      const iso = (x: number, z: number) => ({ x: 600 + (x - z) * 34, y: 365 + (x + z) * 17 });
-      const a = iso(-8, -8), b = iso(8, -8), c = iso(8, 8), d = iso(-8, 8);
-      ctx.fillStyle = "#82b96c"; ctx.strokeStyle = "#24352d"; ctx.lineWidth = 5;
-      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(c.x, c.y); ctx.lineTo(d.x, d.y); ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.strokeStyle = "rgba(28,52,39,.19)"; ctx.lineWidth = 1.5;
-      for (let n = -8; n <= 8; n++) { const p1 = iso(n, -8), p2 = iso(n, 8), p3 = iso(-8, n), p4 = iso(8, n); ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.moveTo(p3.x,p3.y); ctx.lineTo(p4.x,p4.y); ctx.stroke(); }
-      const sorted = [...objects].sort((a,b) => a.x + a.z - (b.x + b.z));
-      for (const o of sorted) {
-        const p = iso(o.x, o.z), w = o.w * 27, dpth = o.d * 27, h = o.h * 35;
-        ctx.fillStyle = o.color; ctx.strokeStyle = selected === o.id ? "#fff16a" : "#24352d"; ctx.lineWidth = selected === o.id ? 5 : 2.5;
-        ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p.x+w,p.y+dpth/2); ctx.lineTo(p.x,p.y+dpth); ctx.lineTo(p.x-w,p.y+dpth/2); ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = o.color; ctx.beginPath(); ctx.moveTo(p.x-w,p.y+dpth/2); ctx.lineTo(p.x,p.y+dpth); ctx.lineTo(p.x,p.y+dpth-h); ctx.lineTo(p.x-w,p.y+dpth/2-h); ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "rgba(255,255,255,.22)"; ctx.beginPath(); ctx.moveTo(p.x+w,p.y+dpth/2); ctx.lineTo(p.x,p.y+dpth); ctx.lineTo(p.x,p.y+dpth-h); ctx.lineTo(p.x+w,p.y+dpth/2-h); ctx.closePath(); ctx.fill(); ctx.stroke();
-      }
-    } else {
+    // The 3D engine is rendered by SceneViewport3D; this canvas is 2D-only.
+
       ctx.fillStyle = "#85bb6c"; ctx.fillRect(0, 520, W, 180); ctx.strokeStyle = "#24352d"; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(0,520); ctx.lineTo(W,520); ctx.stroke();
       ctx.strokeStyle = "rgba(28,52,39,.13)"; ctx.lineWidth = 1;
       for (let x=0; x<W; x+=40) { ctx.beginPath(); ctx.moveTo(x,520); ctx.lineTo(x,700); ctx.stroke(); }
@@ -98,7 +83,7 @@ export default function StudioEditor() {
       }
     }
     ctx.fillStyle = "rgba(15,27,22,.7)"; ctx.fillRect(20,20,220,38);
-    ctx.fillStyle = "#f5f7e8"; ctx.font = "bold 16px Arial"; ctx.fillText(project.engine === "3d" ? "3D TERRAIN / TOP VIEW" : "2D WORLD / SIDE VIEW", 34,45);
+    ctx.fillStyle = "#f5f7e8"; ctx.font = "bold 16px Arial"; ctx.fillText("2D WORLD / SIDE VIEW", 34,45);
   }, [project, objects, selected]);
 
   function canvasPoint(e: React.PointerEvent<HTMLCanvasElement>) {
