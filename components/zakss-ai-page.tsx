@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useState } from "react";
 import { ArrowUpRight, LoaderCircle, Send, Sparkles, Users, Eye, Gamepad2 } from "lucide-react";
 import type { RobloxExperience } from "@/lib/roblox-discovery";
@@ -84,7 +86,7 @@ export function ZakssAIPage() {
             {games.map((game, index) => (
               <article className="zakss-ai-game-card" key={game.id}>
                 <div className="zakss-ai-game-art">{game.thumbnailUrl ? <img src={game.thumbnailUrl} alt={game.name}/> : <Gamepad2 size={48}/>}<span>#{String(index + 1).padStart(2, "0")}</span></div>
-                <div className="zakss-ai-game-copy"><small>{game.genre || "ROBLOX EXPERIENCE"}</small><h3>{game.name}</h3><p>{game.description || "Buka pengalaman ini di Roblox untuk melihat detail selengkapnya."}</p><div className="zakss-ai-game-stats"><span><Users size={13}/>{compact(game.playing)} PLAYING</span><span><Eye size={13}/>{compact(game.visits)} VISITS</span></div><a href={game.url} target="_blank" rel="noreferrer">BUKA DI ROBLOX <ArrowUpRight size={15}/></a></div>
+                <div className="zakss-ai-game-copy"><small>{game.genre || "ROBLOX EXPERIENCE"}</small><h3>{game.name}</h3><p>{game.description || "Buka pengalaman ini di Roblox untuk melihat detail selengkapnya."}</p><div className="zakss-ai-game-stats"><span><Users size={13}/>{compact(game.playing)} PLAYING</span><span><Eye size={13}/>{compact(game.visits)} VISITS</span></div><Link href={`/game/${game.placeId}`}>GAME DETAILS <ArrowUpRight size={15}/></Link><a href={game.url} target="_blank" rel="noreferrer">BUKA DI ROBLOX <ArrowUpRight size={15}/></a></div>
               </article>
             ))}
           </div>
