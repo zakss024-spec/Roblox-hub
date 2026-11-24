@@ -95,12 +95,23 @@ export async function GET(request: NextRequest) {
   searchUrl.searchParams.set("pageType", "all");
   if (cursor) searchUrl.searchParams.set("pageToken", cursor);
 
-  const search = await getJson<UnknownRecord>(searchUrl.toString());
+  let search = await getJson<UnknownRecord>(searchUrl.toString());
+
+  // Roblox's Omni Search can intermittently reject server-side requests.
+  // Fall back to the public Games list endpoint instead of failing the whole discovery flow.
   if (!search) {
-    return NextResponse.json({ games: [], nextCursor: null, error: "Roblox search is temporarily unavailable." }, { status: 502 });
+    const fallbackUrl = new URL("https://games.roblox.com/v1/games/list");
+    fallbackUrl.searchParams.set("model.keyword", query);
+    fallbackUrl.searchParams.set("model.maxRows", "30");
+    fallbackUrl.searchParams.set("model.sortOrder", "1");
+    search = await getJson<UnknownRecord>(fallbackUrl.toString());
   }
 
-  const candidates = collectGames(search.searchResults ?? search.results ?? search.data);
+  if (!search) {
+    return NextResponse.json({ games: [], nextCursor: null, error: "Roblox search is temporarily unavailable. Please try again shortly." }, { status: 502 });
+  }
+
+  const candidates = collectGames(search.searchResults ?? search.results ?? search.data ?? search.games);
   const unique = new Map<string, UnknownRecord>();
   for (const game of candidates) {
     const placeId = numeric(game.rootPlaceId) ?? numeric(game.placeId);
