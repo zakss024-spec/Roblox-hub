@@ -70,11 +70,11 @@ export function MaintenanceGate({ children }: { children: ReactNode }) {
       <section className="maintenance-card">
         <div className="maintenance-brand">ROBLOX<span>HUB</span></div>
         <div className="maintenance-symbol">⚙</div>
-        <span className="maintenance-kicker">TEMPORARILY OFFLINE / SYSTEM CARE</span>
-        <h1>WE’LL BE<br/><span>RIGHT BACK.</span></h1>
-        <p>ROBLOX HUB sedang menjalani perbaikan sementara agar pengalaman bermain dan menjelajah tetap nyaman.</p>
-        <div className="maintenance-status"><span/> MAINTENANCE MODE ACTIVE</div>
-        <small>Silakan coba lagi beberapa saat lagi.</small>
+        <span className="maintenance-kicker">ZAKSS / ROBLOX HUB — SEDANG UPGRADE</span>
+        <h1>ZAKSS SEDANG<br/><span>MEMPERBAIKI WEB.</span></h1>
+        <p>Zakss sedang memperbaiki web agar ROBLOX HUB terus berkembang, makin nyaman digunakan, dan punya lebih banyak hal seru untuk dijelajahi.</p>
+        <div className="maintenance-status"><span/> WEBSITE SEMENTARA DITUTUP</div>
+        <small>Kami sedang menyiapkan pembaruan. Coba kunjungi lagi nanti, ya!</small>
         <Link className="maintenance-owner-link" href="/auth">Akses Developer / Owner</Link>
       </section>
       <footer className="maintenance-footer">ROBLOX HUB · THANK YOU FOR YOUR PATIENCE</footer>
