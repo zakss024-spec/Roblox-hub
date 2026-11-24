@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight, Compass, Flame, Gamepad2, Search, Sparkles, Users, Eye, LoaderCircle,
@@ -277,7 +279,7 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
                       <span><Users size={13}/> {compact(game.playing)} <small>PLAYING</small></span>
                       <span><Eye size={13}/> {compact(game.visits)} <small>VISITS</small></span>
                     </div>
-                    {game.href ? <a className="experience-open" href={game.href} target="_blank" rel="noreferrer">PLAY EXPERIENCE <ArrowUpRight size={14}/></a> : <span className="experience-open unavailable">ROBLOX LINK NOT ADDED YET</span>}
+                    <div className="discover-card-actions"><Link className="experience-open" href={game.placeId > 0 ? `/game/${game.placeId}` : "/discover"}>GAME DETAILS <ArrowUpRight size={14}/></Link>{game.href && <a className="experience-open" href={game.href} target="_blank" rel="noreferrer">PLAY <ArrowUpRight size={14}/></a>}</div>
                   </div>
                 </article>
               ))}
