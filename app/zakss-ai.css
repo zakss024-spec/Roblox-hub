@@ -1,0 +1,41 @@
+
+/* Dedicated Zakss AI page */
+.zakss-ai-page{min-height:calc(100vh - 82px);padding:55px 10% 100px;background:#f4f0e6}
+.zakss-ai-hero{position:relative;overflow:hidden;background:#171a20;color:#fff;border:2px solid #171a20;box-shadow:9px 9px 0 #ff6038;padding:65px 7%;isolation:isolate}
+.zakss-ai-hero:before{content:"";position:absolute;inset:0;z-index:-1;opacity:.14;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:14px 14px}
+.zakss-ai-hero-inner{position:relative;z-index:1;max-width:760px;margin:auto}
+.zakss-ai-label{display:inline-flex;align-items:center;gap:9px;color:#f8d34d;font-size:10px;font-weight:900;letter-spacing:2px}
+.zakss-ai-mascot{width:78px;height:78px;margin:26px 0 22px;display:grid;place-items:center;align-content:center;gap:0;background:#f8d34d;color:#171a20;border:3px solid white;box-shadow:5px 5px 0 #ff6038;transform:rotate(-7deg)}
+.zakss-ai-mascot b{font:900 13px 'Barlow Condensed';letter-spacing:2px}
+.zakss-ai-hero h1{font:900 clamp(58px,9vw,104px)/.85 'Barlow Condensed';margin:0 0 22px;letter-spacing:-1px}
+.zakss-ai-hero h1 span{color:#ff6038;text-shadow:3px 3px 0 #f8d34d}
+.zakss-ai-hero p{max-width:570px;color:#c5c6c9;font-size:14px;line-height:1.8;margin:0 0 25px}
+.zakss-ai-prompt{display:flex;gap:10px;align-items:stretch}
+.zakss-ai-prompt textarea{flex:1;min-width:0;min-height:84px;resize:vertical;padding:15px;background:#fff;color:#171a20;border:2px solid white;outline:none;font:600 13px/1.6 'DM Sans'}
+.zakss-ai-prompt textarea:focus{border-color:#f8d34d;box-shadow:0 0 0 3px #f8d34d38}
+.zakss-ai-prompt button{min-width:160px;display:flex;align-items:center;justify-content:center;gap:9px;padding:12px;background:#ff6038;color:white;border:2px solid white;font-size:10px;font-weight:900;letter-spacing:.8px;cursor:pointer}
+.zakss-ai-prompt button:disabled{opacity:.6;cursor:wait}
+.zakss-ai-hint{display:block;margin-top:11px;color:#9fa0a5;font-size:9px;letter-spacing:1px}
+.zakss-ai-orbit{position:absolute;border:1px solid #ffffff20;border-radius:50%;pointer-events:none}.zakss-ai-orbit.orbit-a{width:370px;height:370px;right:-90px;top:-190px}.zakss-ai-orbit.orbit-b{width:250px;height:250px;right:-30px;top:-130px}
+.zakss-ai-response{display:flex;gap:17px;align-items:center;margin:38px 0 25px;padding:23px 25px;background:#fffdf7;border:2px solid #171a20;box-shadow:5px 5px 0 #171a20}
+.zakss-ai-response-icon{width:48px;height:48px;flex:0 0 48px;display:grid;place-items:center;background:#f8d34d;border:2px solid #171a20}
+.zakss-ai-response.thinking .zakss-ai-response-icon svg,.zakss-ai-response.searching .zakss-ai-response-icon svg{animation:discover-spin 1s linear infinite}
+.zakss-ai-response-kicker{font-size:9px;font-weight:900;letter-spacing:1.6px;color:#315fe8}
+.zakss-ai-response h2{font:800 20px/1.25 'DM Sans';margin:6px 0 0}
+.zakss-ai-recommendations{margin-top:46px}
+.zakss-ai-results-heading>span{font-size:10px;font-weight:900;letter-spacing:2px;color:#ff6038}
+.zakss-ai-results-heading h2{font:900 clamp(37px,5vw,58px)/.9 'Barlow Condensed';margin:10px 0 25px}
+.zakss-ai-game-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.zakss-ai-game-card{background:#fffdf7;border:2px solid #171a20;box-shadow:5px 5px 0 #171a20;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.zakss-ai-game-card:hover{transform:translateY(-3px);box-shadow:7px 8px 0 #ff6038}
+.zakss-ai-game-art{height:190px;position:relative;background:#e9edff;display:grid;place-items:center;overflow:hidden}
+.zakss-ai-game-art img{width:100%;height:100%;object-fit:cover}
+.zakss-ai-game-art>span{position:absolute;top:12px;left:12px;padding:7px 10px;background:#f8d34d;border:1.5px solid #171a20;font:900 13px 'Barlow Condensed'}
+.zakss-ai-game-copy{padding:19px}
+.zakss-ai-game-copy>small{font-size:9px;font-weight:900;letter-spacing:1px;color:#315fe8}
+.zakss-ai-game-copy h3{font:900 26px/1 'Barlow Condensed';margin:9px 0}
+.zakss-ai-game-copy p{min-height:48px;color:#77766f;font-size:11px;line-height:1.6}
+.zakss-ai-game-stats{display:flex;gap:15px;flex-wrap:wrap;margin:14px 0;color:#555;font-size:9px;font-weight:900}
+.zakss-ai-game-stats span{display:flex;align-items:center;gap:5px}
+.zakss-ai-game-copy>a{display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:11px 13px;background:#171a20;color:white;font-size:9px;font-weight:900;letter-spacing:.8px}
+@media(max-width:700px){.zakss-ai-page{padding:35px 6% 70px}.zakss-ai-hero{padding:40px 7%}.zakss-ai-prompt{flex-direction:column}.zakss-ai-prompt button{min-height:47px}.zakss-ai-game-grid{grid-template-columns:1fr}.zakss-ai-game-art{height:210px}.zakss-ai-response{align-items:flex-start;padding:18px}.zakss-ai-response h2{font-size:16px}}
