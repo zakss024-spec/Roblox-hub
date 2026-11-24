@@ -16,6 +16,7 @@ type Props = {
 
 type DiscoverItem = {
   id: string;
+  placeId: number;
   name: string;
   description: string;
   genre: string;
@@ -148,6 +149,7 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
 
   const officialItems = useMemo<DiscoverItem[]>(() => robloxGames.map((game) => ({
     id: game.id,
+    placeId: game.placeId,
     name: game.name,
     description: game.description,
     genre: game.genre,
@@ -161,6 +163,7 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
 
   const liveItems = useMemo<DiscoverItem[]>(() => liveGames.map((game) => ({
     id: `roblox-${game.placeId || game.id}`,
+    placeId: game.placeId,
     name: game.name,
     description: game.description || "Open this experience on Roblox to see its latest details.",
     genre: game.genre || "Roblox experience",
@@ -174,6 +177,7 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
 
   const communityItems = useMemo<DiscoverItem[]>(() => communityGames.map((game) => ({
     id: game.id,
+    placeId: Number(game.roblox_place_id) || 0,
     name: game.name,
     description: game.description || "A community-selected experience from the ROBLOX HUB catalog.",
     genre: game.genre || "Community pick",
