@@ -10,7 +10,7 @@ type SceneObject = { id: string; type: Kind; x: number; y: number; z: number; w:
 type Scene = { schemaVersion: 1; objects: SceneObject[] };
 type Project = { id: string; owner_id: string; title: string; description: string; engine: Engine; template: string; scene: Scene };
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 let browserClient: SupabaseClient | null = null;
 function getSupabase() { if (!supabaseUrl || !supabaseKey) return null; if (!browserClient) browserClient = createClient(supabaseUrl, supabaseKey); return browserClient; }
 const colors = ["#f2bd45", "#e65d37", "#9acb4a", "#5b8fe8", "#a98bd8", "#f4efe5"];
@@ -18,6 +18,7 @@ const starterGround = (engine: Engine): Scene => ({ schemaVersion: 1, objects: [
 export default function StudioEditor() {
   const { id } = useParams<{ id: string }>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const dragRef = useRef<{ id: string; offsetX: number; offsetY: number } | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [objects, setObjects] = useState<SceneObject[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -94,6 +95,43 @@ export default function StudioEditor() {
     ctx.fillStyle = "#f5f7e8"; ctx.font = "bold 16px Arial"; ctx.fillText(project.engine === "3d" ? "3D TERRAIN / TOP VIEW" : "2D WORLD / SIDE VIEW", 34,45);
   }, [project, objects, selected]);
 
+  function canvasPoint(e: React.PointerEvent<HTMLCanvasElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    return { x: (e.clientX - rect.left) * 1200 / rect.width, y: (e.clientY - rect.top) * 700 / rect.height };
+  }
+  function pointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
+    if (!project) return;
+    const p = canvasPoint(e);
+    let nearest: SceneObject | null = null, best = 105 * 105;
+    for (const o of objects) {
+      const cx = project.engine === "3d" ? 600 + (o.x - o.z) * 34 : 600 + o.x * 42;
+      const cy = project.engine === "3d" ? 365 + (o.x + o.z) * 17 : 520 - o.y * 35;
+      const d = (p.x - cx) ** 2 + (p.y - cy) ** 2;
+      if (d < best) { best = d; nearest = o; }
+    }
+    if (!nearest) { setSelected(null); return; }
+    setSelected(nearest.id);
+    const world = project.engine === "3d"
+      ? { x: ((p.x - 600) / 34 + (p.y - 365) / 17) / 2, z: ((p.y - 365) / 17 - (p.x - 600) / 34) / 2 }
+      : { x: (p.x - 600) / 42, z: (520 - p.y) / 35 };
+    dragRef.current = { id: nearest.id, offsetX: nearest.x - world.x, offsetY: (project.engine === "3d" ? nearest.z : nearest.y) - world.z };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+  function pointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
+    const drag = dragRef.current;
+    if (!drag || !project) return;
+    const p = canvasPoint(e);
+    const world = project.engine === "3d"
+      ? { x: ((p.x - 600) / 34 + (p.y - 365) / 17) / 2, z: ((p.y - 365) / 17 - (p.x - 600) / 34) / 2 }
+      : { x: (p.x - 600) / 42, z: (520 - p.y) / 35 };
+    setObjects(items => items.map(o => o.id === drag.id ? {
+      ...o, x: Number((world.x + drag.offsetX).toFixed(2)),
+      ...(project.engine === "3d" ? { z: Number((world.z + drag.offsetY).toFixed(2)) } : { y: Number((world.z + drag.offsetY).toFixed(2)) })
+    } : o));
+    setSaved(false);
+  }
+  function pointerUp() { dragRef.current = null; }
+
   async function signIn(e: FormEvent) {
     e.preventDefault(); setError(""); const sb = getSupabase(); if (!sb) return;
     const { error: signError } = await sb.auth.signInWithPassword({ email: email.trim(), password });
@@ -131,7 +169,7 @@ export default function StudioEditor() {
   return <main className="studio-app">
     <header className="studio-topbar"><a href="https://roblox-hub-project-of-zakss.vercel.app/creator" className="back-link"><ArrowLeft size={17}/> HUB</a><div className="brand-mark">ROBLOX HUB <span>STUDIO</span></div><div className="project-name"><i/>{project.title}</div><div className="top-actions"><button onClick={()=>void save()} disabled={saving}><Save size={16}/>{saving?"SAVING":saved?"SAVED":"SAVE"}</button><button className="publish-btn" onClick={()=>void publish()} disabled={publishing}><Globe2 size={16}/>{publishing?"PUBLISHING":published?"UPDATE PUBLISH":"PUBLISH"}</button></div></header>
     <div className="studio-workspace"><aside className="tool-panel"><div className="panel-heading"><span>BUILD TOOLS</span><small>ADD TO WORLD</small></div><button onClick={()=>add("block")}><Box/> <span>Block</span><kbd>B</kbd></button><button onClick={()=>add("platform")}><Layers3/> <span>Platform</span><kbd>P</kbd></button><button onClick={()=>add("coin")}><Coins/> <span>Coin</span><kbd>C</kbd></button><button onClick={()=>add("checkpoint")}><Circle/> <span>Checkpoint</span><kbd>K</kbd></button><div className="panel-divider"/><div className="panel-heading"><span>WORLD OBJECTS</span><small>{objects.length}/200</small></div><div className="object-list">{objects.map((o,i)=><button key={o.id} className={selected===o.id?"active":""} onClick={()=>setSelected(o.id)}><i style={{background:o.color}}/>{o.type.toUpperCase()} {i+1}</button>)}{objects.length===0&&<p className="empty-list">Tanah sudah tersedia. Tambahkan objek untuk mulai membangun.</p>}</div></aside>
-    <section className="viewport-wrap"><div className="viewport-toolbar"><span>WORLD EDITOR <b>● LIVE SCENE</b></span><span>{project.engine.toUpperCase()} MODE · AUTO TERRAIN</span></div><canvas ref={canvasRef} className="world-canvas"/><div className="viewport-footer"><span>DRAG OBJECTS: SELECT IN LIST · TRANSFORM: RIGHT PANEL</span><span>SCENE V1</span></div></section>
+    <section className="viewport-wrap"><div className="viewport-toolbar"><span>WORLD EDITOR <b>● LIVE SCENE</b></span><span>{project.engine.toUpperCase()} MODE · AUTO TERRAIN</span></div><canvas ref={canvasRef} className="world-canvas" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp}/><div className="viewport-footer"><span>DRAG OBJECTS: SELECT IN LIST · TRANSFORM: RIGHT PANEL</span><span>SCENE V1</span></div></section>
     <aside className="properties-panel"><div className="panel-heading"><span>INSPECTOR</span><small>{active?"OBJECT SELECTED":"NO SELECTION"}</small></div>{active?<><label>OBJECT TYPE<input value={active.type.toUpperCase()} readOnly/></label><div className="property-group"><b>POSITION</b><label>X<input type="number" value={active.x} onChange={e=>patch({x:Number(e.target.value)})}/></label><label>Y<input type="number" value={active.y} onChange={e=>patch({y:Number(e.target.value)})}/></label>{project.engine==="3d"&&<label>Z<input type="number" value={active.z} onChange={e=>patch({z:Number(e.target.value)})}/></label>}</div><div className="property-group"><b>SIZE</b><label>WIDTH<input type="number" min=".25" max="10" step=".25" value={active.w} onChange={e=>patch({w:Number(e.target.value)})}/></label><label>HEIGHT<input type="number" min=".25" max="10" step=".25" value={active.h} onChange={e=>patch({h:Number(e.target.value)})}/></label>{project.engine==="3d"&&<label>DEPTH<input type="number" min=".25" max="10" step=".25" value={active.d} onChange={e=>patch({d:Number(e.target.value)})}/></label>}</div><label>COLOR<input className="color-input" type="color" value={active.color} onChange={e=>patch({color:e.target.value})}/></label><button className="delete-btn" onClick={()=>{setObjects(v=>v.filter(o=>o.id!==selected));setSelected(null);setSaved(false);}}><Trash2 size={15}/> DELETE OBJECT</button></>:<div className="inspector-empty"><Cuboid size={34}/><p>Pilih objek dari daftar untuk mengatur posisi, ukuran, dan warna.</p></div>}<div className="terrain-note"><Check size={15}/> AUTO TERRAIN ACTIVE<br/><small>Tanah dasar selalu muncul dan tidak bisa terhapus.</small></div></aside></div>
     <footer className="studio-status"><span><i/> ALL SYSTEMS READY</span><span>{objects.length} OBJECTS · {project.engine.toUpperCase()} WORLD</span><span>{published?"PUBLIC WORLD":"PRIVATE DRAFT"}</span></footer>
     {(error||message)&&<div className={error?"toast error-toast":"toast"}>{error||message}</div>}
