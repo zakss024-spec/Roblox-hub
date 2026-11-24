@@ -10,6 +10,7 @@ type Announcement = { id: number; sender_name: string; message: string; created_
 
 const INTRO_DURATION = 5000;
 const particles = Array.from({ length: 38 }, (_, i) => i);
+let globalEffectAudioContext: AudioContext | null = null;
 function playAnnouncementSound() {
   const AudioContextClass = window.AudioContext;
   if (!AudioContextClass) return;
