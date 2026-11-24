@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {useEffect,useMemo,useState} from "react";
+import {useEffect,useMemo,useState,type ReactNode} from "react";
 import {ArrowUpRight,Bell,BookOpen,CalendarDays,ChartNoAxesCombined,Compass,Flame,Gamepad2,MessageCircle,RefreshCw,ShieldCheck,Sparkles,Star,Trophy,Users} from "lucide-react";
 import {getBrowserSupabase} from "@/lib/supabase-browser";
 import type {RobloxExperience} from "@/lib/roblox-discovery";
@@ -41,6 +41,6 @@ export function HubPlatform({kind,fallbackGames=[]}:{kind:Kind;fallbackGames?:Ro
  {kind==="collection"&&userId&&<p className="hub-platform-footnote">Koleksi ini hanya terlihat oleh akunmu.</p>}
  <div className="hub-platform-links"><Link href="/discover"><Compass size={15}/> DISCOVER</Link><Link href="/daily"><CalendarDays size={15}/> DAILY PICKS</Link><Link href="/community"><Users size={15}/> COMMUNITY</Link></div></section>;
 }
-function PanelTitle({icon,title}:{icon:React.ReactNode;title:string}){return <div className="hub-panel-title">{icon}<h2>{title}</h2></div>}
+function PanelTitle({icon,title}:{icon:ReactNode;title:string}){return <div className="hub-panel-title">{icon}<h2>{title}</h2></div>}
 function Metric({label,value}:{label:string;value:unknown}){return <div className="hub-metric"><span>{label}</span><strong>{fmt(value)}</strong></div>}
 function Empty({title,body}:{title:string;body:string}){return <div className="hub-platform-empty"><Gamepad2 size={32}/><h2>{title}</h2><p>{body}</p><Link href="/discover" className="hub-action">OPEN DISCOVER <ArrowUpRight size={15}/></Link></div>}
