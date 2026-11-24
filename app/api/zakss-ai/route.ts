@@ -15,6 +15,7 @@ function cleanText(value: unknown, max: number): string {
 function getSafeGenreQuery(prompt: string): string {
   const normalized = prompt.toLowerCase();
   const fictionalGenres: Array<[RegExp, string]> = [
+    [/\b(fps|first.?person.?shooter|shooter|tembak.?tembakan|tembak.?menembak|sniper|gun game|paintball|battle royale|counter.?strike)\b/i, "Roblox fictional FPS and shooter experiences"],
     [/\b(horror|horor|scary|spooky|seram|jumpscare)\b/i, "Roblox horror experiences"],
     [/\b(zombie|undead)\b/i, "Roblox zombie survival experiences"],
     [/\b(survival|bertahan hidup)\b/i, "Roblox survival experiences"],
@@ -25,7 +26,7 @@ function getSafeGenreQuery(prompt: string): string {
     [/\b(roleplay|rp|peran)\b/i, "Roblox roleplay experiences"],
     [/\b(racing|balapan|mobil)\b/i, "Roblox racing experiences"],
     [/\b(adventure|petualangan)\b/i, "Roblox adventure experiences"],
-    [/\b(puzzle|puzzle)\b/i, "Roblox puzzle experiences"],
+    [/\b(puzzle)\b/i, "Roblox puzzle experiences"],
     [/\b(building|membangun|build)\b/i, "Roblox building experiences"],
     [/\b(sports|olahraga)\b/i, "Roblox sports experiences"],
     [/\b(tycoon)\b/i, "Roblox tycoon experiences"],
@@ -38,10 +39,6 @@ function getSafeGenreQuery(prompt: string): string {
     [/\b(minigames|mini games|permainan kecil)\b/i, "Roblox minigames experiences"],
   ];
   return fictionalGenres.find(([pattern]) => pattern.test(normalized))?.[1] ?? "";
-}
-
-function requestsShooterContent(prompt: string): boolean {
-  return /\b(fps|first.?person.?shooter|shooter|tembak.?tembakan|tembak.?menembak|sniper|gun game|weapon game|game senjata|permainan senjata|paintball|battle royale|counter.?strike)\b/i.test(prompt);
 }
 
 function requestsDisallowedContent(prompt: string): boolean {
@@ -69,12 +66,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Ceritakan game yang ingin kamu temukan." }, { status: 400 });
   }
 
-  if (requestsShooterContent(prompt)) {
-    return NextResponse.json({
-      allowed: false,
-      explanation: "Zakss AI belum bisa mencarikan game yang berfokus pada tembak-tembakan atau senjata. Coba horror, survival, obby, puzzle, atau racing.",
-    });
-  }
   if (requestsDisallowedContent(prompt)) {
     return NextResponse.json({
       allowed: false,
@@ -103,7 +94,7 @@ export async function POST(request: NextRequest) {
               "Understand Indonesian and English. Convert the user's preference into a concise Roblox public-experience search phrase.",
               "Recommend Roblox experiences across a wide range of genres, including age-appropriate horror, spooky, survival, escape, mystery, puzzle, obby, parkour, building, roleplay, sports, racing, social hangouts, simulators, pets, fashion, cooking, story, music, and minigames.",
               "Never reject a Roblox game request merely because it includes horror, scary, spooky, jumpscare, zombie, survival, mystery, or other fictional entertainment themes. Keep descriptions non-graphic and age-appropriate.",
-              "Do not recommend or help search for shooter/FPS, weapon-focused games, or real-world weapon content. If requested, return allowed=false with a brief Indonesian explanation and suggest non-weapon alternatives such as horror, obby, puzzle, or racing.",
+              "You may help users discover fictional Roblox FPS, shooter, paintball, sniper, and battle royale experiences as video-game entertainment. Keep descriptions age-appropriate and non-graphic. Do not provide real-world weapon instructions, tactics, weapon construction, or advice for harming people.",
               "Refuse requests seeking explicit sexual content, real-world harm instructions, dangerous real-life challenges, drugs, gambling, or ways to bypass safety protections. Do not confuse fictional game themes with real-world instructions.",
               "Never invent Roblox game titles, game IDs, links, player counts, or claim that a game exists. Actual results will be fetched separately from Roblox.",
               "Return ONLY a JSON object with exactly these fields: allowed (boolean), searchQuery (string), explanation (string).",
