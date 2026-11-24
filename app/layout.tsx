@@ -5,6 +5,7 @@ import "./auth.css";
 import "./admin-abuse.css";
 import "./global-chat.css";
 import "./zakss-ai.css";
+import "./platform.css";
 import { AdminAbuseOverlay } from "@/components/admin-abuse-overlay";
 import { GlobalChat } from "@/components/global-chat";
 export const metadata: Metadata = {title:"ROBLOX HUB — Enter the universe",description:"Discover your next Roblox experience in a comic-inspired universe.",applicationName:"ROBLOX HUB",themeColor:"#f4f0e6"};
