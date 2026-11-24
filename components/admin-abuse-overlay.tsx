@@ -149,7 +149,7 @@ export function AdminAbuseOverlay() {
             fontSize: `${24 + (n % 5) * 8}px`,
           }}>🌮</span>)}</div>
       </div>)}
-      {isIntro ? <div className="abuse-intro abuse-intro--taco" role="status" aria-live="assertive">
+      {isIntro ? <div className={`abuse-intro ${eventType === "disco_takeover" ? "abuse-intro--disco" : "abuse-intro--taco"}`} role="status" aria-live="assertive">
         <div className="abuse-intro-content">
           <span className="abuse-intro-kicker">ROBLOX HUB PRESENTS · CRUNCH TIME</span>
           <strong>{eventType === "disco_takeover" ? "DISCO FEVER" : "TACO RAIN"}</strong>
