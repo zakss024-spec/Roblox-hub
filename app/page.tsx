@@ -32,6 +32,16 @@ export default function Home() {
    <div className="section-heading"><div><div className="eyebrow dark-eyebrow">THE UNIVERSE IS YOURS</div><h2>MORE THAN A<br/><span>GAME DIRECTORY.</span></h2></div><p>Every great adventure starts with a little curiosity. ROBLOX HUB brings discovery, personal collections, and authorized creator tools into one playful universe.</p></div>
    <div className="pillar-grid">{pillars.map(item=><article className="pillar" key={item.number}><div className="pillar-top"><span>{item.number} / 03</span><item.icon size={23}/></div><h3>{item.title}</h3><p>{item.copy}</p><div className="pillar-arrow">↗</div></article>)}</div>
   </section>
+  <section className="hub-destinations"><div className="eyebrow dark-eyebrow">THE HUB NETWORK / 008</div><h2>CHOOSE YOUR<br/><span>NEXT DESTINATION.</span></h2><div className="hub-destination-grid">
+  <Link className="hub-destination-card" href="/trending"><Flame size={22}/><strong>Trending Radar</strong><p>See which games are getting noticed.</p><ArrowUpRight size={16}/></Link>
+  <Link className="hub-destination-card" href="/daily"><CalendarDays size={22}/><strong>Daily Discovery</strong><p>A fresh set of worlds to explore.</p><ArrowUpRight size={16}/></Link>
+  <Link className="hub-destination-card" href="/community"><Users size={22}/><strong>Player Community</strong><p>Reviews, players, and leaderboard.</p><ArrowUpRight size={16}/></Link>
+  <Link className="hub-destination-card" href="/news"><BookOpen size={22}/><strong>Hub News</strong><p>Updates from ROBLOX HUB.</p><ArrowUpRight size={16}/></Link>
+  <Link className="hub-destination-card" href="/collection"><Gamepad2 size={22}/><strong>My Collection</strong><p>Your saved Roblox experiences.</p><ArrowUpRight size={16}/></Link>
+  <Link className="hub-destination-card" href="/notifications"><Bell size={22}/><strong>Notifications</strong><p>Keep up with site announcements.</p><ArrowUpRight size={16}/></Link>
+  <Link className="hub-destination-card" href="/owner-analytics"><ChartNoAxesCombined size={22}/><strong>Owner Analytics</strong><p>Activity insights for site staff.</p><ArrowUpRight size={16}/></Link>
+  <Link className="hub-destination-card" href="/zakss-ai"><Sparkles size={22}/><strong>Zakss AI</strong><p>Describe a world and get recommendations.</p><ArrowUpRight size={16}/></Link>
+ </div></section>
   <section className="owner-strip"><div className="owner-symbol"><Globe2 size={27}/></div><div className="owner-copy"><span className="eyebrow">FOR GAME OWNERS & CREATORS</span><h2>YOUR WORLD.<br/>YOUR RULES.</h2><p>Private owner tools will only become available after secure account and server-side permission verification.</p></div><div className="owner-cta"><span>PRIVATE ACCESS</span><span className="owner-locked">ACCESS CONTROLLED <ShieldCheck size={16}/></span></div></section>
   <footer className="site-footer"><Link className="footer-brand" href="/">ROBLOX<span>HUB</span></Link><span>AN UNIVERSE OF EXPERIENCES.</span><span>© 2026 ROBLOX HUB</span></footer>
  </main>;
