@@ -11,7 +11,7 @@ type Role = "owner" | "admin" | null;
 type EventType = "taco_rain" | "disco_takeover";
 const EVENTS: { id: EventType; name: string; emoji: string; description: string }[] = [
   { id: "taco_rain", name: "Taco Rain", emoji: "🌮", description: "Hujan taco yang ramai dan lucu" },
-  { id: "disco_takeover", name: "Disco Fever", emoji: "🪩", description: "Lampu disco berputar dan beam dari dua sisi atas" },
+  { id: "disco_takeover", name: "Disco Fever", emoji: "🪩", description: "Lampu disco transparan dari dua sisi atas; tidak menutupi halaman" },
 ];
 
 export default function ControlRoomPage() {
@@ -150,7 +150,7 @@ export default function ControlRoomPage() {
       </>}
       <section className="abuse-console">
         <div className="console-title"><div><span>LIVE EVENT CONTROL</span><h2>⚡ ADMIN ABUSE</h2></div><span className={active ? "event-status is-live" : "event-status"}>{active ? "● LIVE" : "○ INACTIVE"}</span></div>
-        <p>Pilih event untuk semua pengunjung online. Disco Fever menampilkan lampu sorot bergerak dari kiri dan kanan atas; STOP ALL menghentikan seluruh efek event.</p>
+        <p>Pilih event untuk semua pengunjung online. Disco Fever hanya menampilkan lampu sorot transparan dari kiri dan kanan atas; halaman tetap bisa dilihat dan digunakan. STOP ALL menghentikan efek event.</p>
         <div className="abuse-event-picker">
           {EVENTS.map(item => <button type="button" key={item.id} className={selectedEvent === item.id ? "abuse-event-option selected" : "abuse-event-option"} aria-pressed={selectedEvent === item.id} disabled={busy || active} onClick={() => setSelectedEvent(item.id)}>
             <span className="abuse-event-option-emoji">{item.emoji}</span><span className="abuse-event-option-copy"><strong>{item.name}</strong><small>{item.description}</small></span>{selectedEvent === item.id && <span className="abuse-event-option-check">✓</span>}
@@ -158,7 +158,7 @@ export default function ControlRoomPage() {
         </div>
         <div className="console-actions"><button disabled={busy || active} onClick={() => void toggleEvent(true)} className="start-event"><Play size={17} fill="currentColor"/> START {EVENTS.find(item => item.id === selectedEvent)?.name.toUpperCase()}</button><button disabled={busy || !active} onClick={() => void toggleEvent(false)} className="stop-event"><Square size={16} fill="currentColor"/> STOP ALL</button><button disabled={busy} onClick={() => void refresh()} className="refresh-event"><RefreshCw size={16}/></button></div>
         {eventTime && active && <small className="event-time">Started: {new Date(eventTime).toLocaleString()}</small>}
-        <div className="event-sound-note"><Sparkles size={16}/> Efek visual Disco Fever aktif tanpa pemutar video. Musik Garam &amp; Madu belum dipasang sebagai audio langsung karena perlu file/sumber dengan izin pemutaran website.</div>
+        <div className="event-sound-note"><Sparkles size={16}/> Efek visual Disco Fever aktif tanpa pemutar video. Izin penggunaan sudah dikonfirmasi. Untuk pemutaran latar tanpa player, masih diperlukan URL file audio MP3 langsung; tautan halaman Audio.com bukan URL file audio.</div>
       </section>
       <section className="announcement-console">
         <div className="announcement-heading"><div><span>LIVE MESSAGE SYSTEM</span><h2>GLOBAL ANNOUNCEMENT</h2></div><span className="announcement-live">● REALTIME</span></div>
