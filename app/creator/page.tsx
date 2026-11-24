@@ -7,7 +7,8 @@ import {getBrowserSupabase} from "@/lib/supabase-browser";
 import {SiteHeader} from "@/components/site-header";
 type Engine="2d"|"3d";type Template="blank"|"obby"|"adventure"|"platformer"|"puzzle"|"runner";
 type Project={id:string;title:string;description:string;engine:Engine;template:Template;status:"draft"|"archived";updated_at:string};
-const STUDIO_URL="https://roblox-hub-studio-project-of-zakss.vercel.app";\nconst templates:{id:Template;name:string;copy:string;icon:typeof Layers3}[]=[
+const STUDIO_URL="https://roblox-hub-studio-project-of-zakss.vercel.app";
+const templates:{id:Template;name:string;copy:string;icon:typeof Layers3}[]=[
 {id:"blank",name:"Blank World",copy:"Mulai dari dunia kosong.",icon:Layers3},{id:"obby",name:"Obby Course",copy:"Rintangan dan checkpoint.",icon:Rocket},{id:"adventure",name:"Adventure",copy:"Jelajahi dunia baru.",icon:Compass},{id:"platformer",name:"Platformer",copy:"Level dan lompatan.",icon:Gamepad2},{id:"puzzle",name:"Puzzle Room",copy:"Ruang teka-teki.",icon:Box},{id:"runner",name:"Endless Runner",copy:"Tantangan tanpa akhir.",icon:Sparkles}];
 export default function CreatorDashboard(){
  const router=useRouter();const [userId,setUserId]=useState<string|null>(null);const [projects,setProjects]=useState<Project[]>([]);const [published,setPublished]=useState<Set<string>>(new Set());const [engine,setEngine]=useState<Engine>("2d");const [template,setTemplate]=useState<Template>("blank");const [title,setTitle]=useState("");const [loading,setLoading]=useState(true);const [busy,setBusy]=useState(false);const [notice,setNotice]=useState("");const [problem,setProblem]=useState("");
