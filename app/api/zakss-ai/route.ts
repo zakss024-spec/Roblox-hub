@@ -29,7 +29,7 @@ function getSafeGenreQuery(prompt: string): string {
     [/\b(combat|pertempuran|war game|perang dalam game|military)\b/i, "Roblox fictional combat game"],
     [/\b(murder mystery|mystery|misteri|detective)\b/i, "Roblox mystery detective"],
     [/\b(fighting|pertarungan|martial arts)\b/i, "Roblox fighting game"],
-    [/\b(escape|obby|simulator|roleplay|racing|balapan|adventure|petualangan)\b/i, "Roblox ${normalized.match(/escape|obby|simulator|roleplay|racing|balapan|adventure|petualangan/i)?.[0] ?? "adventure"}"],
+    [/\\b(escape|obby|simulator|roleplay|racing|balapan|adventure|petualangan)\\b/i, `Roblox ${normalized.match(/escape|obby|simulator|roleplay|racing|balapan|adventure|petualangan/i)?.[0] ?? "adventure"}`],
   ];
   const match = genres.find(([pattern]) => pattern.test(normalized));
   return match?.[1] ?? "";
