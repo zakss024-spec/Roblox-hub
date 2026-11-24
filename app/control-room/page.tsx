@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, BookOpen, ShieldCheck, RadioTower, UserPlus, UserMinus, Square, Play, RefreshCw, Send, Sparkles } from "lucide-react";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { SiteHeader } from "@/components/site-header";
+import { OwnerLiveUsers } from "@/components/owner-live-users";
 
 type Role = "owner" | "admin" | null;
 type EventType = "taco_rain";
@@ -110,6 +111,7 @@ export default function ControlRoomPage() {
     {loading ? <div className="control-loading">VERIFYING ACCESS...</div> : !role ? <div className="control-denied"><ShieldCheck size={38}/><h1>ACCESS RESTRICTED.</h1><p>Akun ini belum memiliki akses Owner atau Admin.</p><Link href="/account">Kembali ke akun</Link></div> :
     <>
       <div className="control-heading"><div><div className="eyebrow dark-eyebrow"><ShieldCheck size={14}/> PRIVATE COMMAND / ROBLOX HUB</div><h1>CONTROL<br/><span>ROOM.</span></h1><p>Kelola fitur utama dan event website secara realtime. Admin Abuse Intro adalah fitur utama, terpisah dari 20 menu Owner dan 5 menu Admin.</p></div><div className="role-stamp"><span>ACCESS LEVEL</span><strong>{role.toUpperCase()}</strong><small>{role === "owner" ? "20 OWNER MENUS" : "5 ADMIN MENUS"}</small></div></div>
+      {role === "owner" && <OwnerLiveUsers />}
       <section className="abuse-console">
         <div className="console-title"><div><span>LIVE EVENT CONTROL</span><h2>⚡ ADMIN ABUSE</h2></div><span className={active ? "event-status is-live" : "event-status"}>{active ? "● LIVE" : "○ INACTIVE"}</span></div>
         <p>Taco Rain adalah satu-satunya event Admin Abuse yang tersedia. Pengunjung online menerima intro, animasi hujan taco, dan soundtrack event. STOP ALL menghentikan semuanya.</p>
