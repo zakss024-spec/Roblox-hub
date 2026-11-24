@@ -15,33 +15,37 @@ function cleanText(value: unknown, max: number): string {
 function getSafeGenreQuery(prompt: string): string {
   const normalized = prompt.toLowerCase();
   const fictionalGenres: Array<[RegExp, string]> = [
-    [/\\b(horror|horor|scary|spooky|seram|jumpscare)\\b/i, "Roblox horror experiences"],
-    [/\\b(zombie|undead)\\b/i, "Roblox zombie survival experiences"],
-    [/\\b(survival|bertahan hidup)\\b/i, "Roblox survival experiences"],
-    [/\\b(mystery|misteri|detective|teka.?teki)\\b/i, "Roblox mystery puzzle experiences"],
-    [/\\b(escape|kabur|melarikan diri)\\b/i, "Roblox escape experiences"],
-    [/\\b(obby|parkour)\\b/i, "Roblox obby parkour experiences"],
-    [/\\b(simulator)\\b/i, "Roblox simulator experiences"],
-    [/\\b(roleplay|rp|peran)\\b/i, "Roblox roleplay experiences"],
-    [/\\b(racing|balapan|mobil)\\b/i, "Roblox racing experiences"],
-    [/\\b(adventure|petualangan)\\b/i, "Roblox adventure experiences"],
-    [/\\b(puzzle|puzzle)\\b/i, "Roblox puzzle experiences"],
-    [/\\b(building|membangun|build)\\b/i, "Roblox building experiences"],
-    [/\\b(sports|olahraga)\\b/i, "Roblox sports experiences"],
-    [/\\b(tycoon)\\b/i, "Roblox tycoon experiences"],
-    [/\\b(fashion|outfit|dress up)\\b/i, "Roblox fashion experiences"],
-    [/\\b(pets|hewan|pet)\\b/i, "Roblox pet experiences"],
-    [/\\b(cooking|memasak|restaurant)\\b/i, "Roblox cooking restaurant experiences"],
-    [/\\b(story|cerita)\\b/i, "Roblox story experiences"],
-    [/\\b(music|musik|dance|menari)\\b/i, "Roblox music dance experiences"],
-    [/\\b(social|hangout|nongkrong)\\b/i, "Roblox social hangout experiences"],
-    [/\\b(minigames|mini games|permainan kecil)\\b/i, "Roblox minigames experiences"],
+    [/\b(horror|horor|scary|spooky|seram|jumpscare)\b/i, "Roblox horror experiences"],
+    [/\b(zombie|undead)\b/i, "Roblox zombie survival experiences"],
+    [/\b(survival|bertahan hidup)\b/i, "Roblox survival experiences"],
+    [/\b(mystery|misteri|detective|teka.?teki)\b/i, "Roblox mystery puzzle experiences"],
+    [/\b(escape|kabur|melarikan diri)\b/i, "Roblox escape experiences"],
+    [/\b(obby|parkour)\b/i, "Roblox obby parkour experiences"],
+    [/\b(simulator)\b/i, "Roblox simulator experiences"],
+    [/\b(roleplay|rp|peran)\b/i, "Roblox roleplay experiences"],
+    [/\b(racing|balapan|mobil)\b/i, "Roblox racing experiences"],
+    [/\b(adventure|petualangan)\b/i, "Roblox adventure experiences"],
+    [/\b(puzzle|puzzle)\b/i, "Roblox puzzle experiences"],
+    [/\b(building|membangun|build)\b/i, "Roblox building experiences"],
+    [/\b(sports|olahraga)\b/i, "Roblox sports experiences"],
+    [/\b(tycoon)\b/i, "Roblox tycoon experiences"],
+    [/\b(fashion|outfit|dress up)\b/i, "Roblox fashion experiences"],
+    [/\b(pets|hewan|pet)\b/i, "Roblox pet experiences"],
+    [/\b(cooking|memasak|restaurant)\b/i, "Roblox cooking restaurant experiences"],
+    [/\b(story|cerita)\b/i, "Roblox story experiences"],
+    [/\b(music|musik|dance|menari)\b/i, "Roblox music dance experiences"],
+    [/\b(social|hangout|nongkrong)\b/i, "Roblox social hangout experiences"],
+    [/\b(minigames|mini games|permainan kecil)\b/i, "Roblox minigames experiences"],
   ];
   return fictionalGenres.find(([pattern]) => pattern.test(normalized))?.[1] ?? "";
 }
 
 function requestsShooterContent(prompt: string): boolean {
-  return /\\b(fps|first.?person.?shooter|shooter|tembak.?tembakan|tembak.?menembak|sniper|gun game|weapon game|game senjata|permainan senjata|paintball|battle royale|counter.?strike)\\b/i.test(prompt);
+  return /\b(fps|first.?person.?shooter|shooter|tembak.?tembakan|tembak.?menembak|sniper|gun game|weapon game|game senjata|permainan senjata|paintball|battle royale|counter.?strike)\b/i.test(prompt);
+}
+
+function requestsDisallowedContent(prompt: string): boolean {
+  return /\b(pornografi|konten seksual eksplisit|eksploitasi seksual|eksploitasi anak|pelecehan seksual|perdagangan manusia|cara membunuh orang|membunuh orang di dunia nyata|cara melukai orang|membuat bom|membuat bahan peledak|serangan di dunia nyata|tantangan berbahaya|obat terlarang|narkoba|judi online|perjudian)\b/i.test(prompt);
 }
 
 export async function POST(request: NextRequest) {
@@ -69,6 +73,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       allowed: false,
       explanation: "Zakss AI belum bisa mencarikan game yang berfokus pada tembak-tembakan atau senjata. Coba horror, survival, obby, puzzle, atau racing.",
+    });
+  }
+  if (requestsDisallowedContent(prompt)) {
+    return NextResponse.json({
+      allowed: false,
+      explanation: "Zakss AI tidak bisa membantu permintaan tersebut. Coba tema pengalaman Roblox yang aman dan sesuai usia.",
     });
   }
 
@@ -131,14 +141,8 @@ export async function POST(request: NextRequest) {
     };
 
     const safeGenreQuery = getSafeGenreQuery(prompt);
-    if (parsed.allowed !== true && !safeGenreQuery) {
-      return NextResponse.json({
-        allowed: false,
-        explanation: cleanText(parsed.explanation, 180) || "Zakss AI tidak bisa membantu mencari tema tersebut. Coba tema game yang aman seperti obby, puzzle, atau simulator.",
-      });
-    }
-
-    const searchQuery = safeGenreQuery || cleanText(parsed.searchQuery, 80);
+    // Do not let the model over-filter ordinary fictional game genres.
+    const searchQuery = safeGenreQuery || cleanText(parsed.searchQuery, 80) || cleanText(prompt, 80);
     if (searchQuery.length < 2) throw new Error("Model returned an empty search query.");
 
     return NextResponse.json({
