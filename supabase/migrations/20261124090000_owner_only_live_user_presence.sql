@@ -14,9 +14,11 @@ create policy "Users can update own presence" on public.hub_user_presence
 for update to authenticated using ((select auth.uid()) = user_id)
 with check ((select auth.uid()) = user_id);
 drop policy if exists "Only owner can read presence" on public.hub_user_presence;
-create policy "Only owner can read presence" on public.hub_user_presence
+drop policy if exists "Users can read own presence or owner reads all" on public.hub_user_presence;
+create policy "Users can read own presence or owner reads all" on public.hub_user_presence
 for select to authenticated using (
-  exists (select 1 from public.site_user_roles r
+  (select auth.uid()) = user_id
+  or exists (select 1 from public.site_user_roles r
     where r.user_id = (select auth.uid()) and r.role = 'owner')
 );
 create or replace function public.set_hub_presence_display_name()
