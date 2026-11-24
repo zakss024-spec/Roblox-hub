@@ -132,3 +132,25 @@
 
 /* Disco Fever must never wash out or cover the underlying page. */
 .abuse-event--disco .abuse-disco-lights{inset:0;background:transparent!important;filter:none!important;animation:none!important;}
+
+
+/* Disco Fever REMIX burst: fireworks rise from the bottom without blocking the HUB. */
+.abuse-remix-button{position:fixed;z-index:92;left:50%;bottom:22px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border:1.5px solid #fff8;border-radius:999px;background:linear-gradient(110deg,#5d24a8,#d52b91 52%,#ff8a28);color:#fff;font:900 12px 'DM Sans';letter-spacing:2px;box-shadow:0 0 18px #d64cff88,0 5px 24px #0007;cursor:pointer;pointer-events:auto;transition:transform .18s ease,filter .18s ease}
+.abuse-remix-button:hover{filter:brightness(1.2);transform:translateX(-50%) translateY(-2px) scale(1.04)}
+.abuse-remix-button:active{transform:translateX(-50%) scale(.96)}
+.abuse-remix-button span{color:#fff4a6;font-size:16px}
+.abuse-remix-fx{position:fixed;inset:0;z-index:81;overflow:hidden;pointer-events:none}
+.abuse-remix-rockets{position:absolute;inset:0}
+.abuse-remix-rockets span{position:absolute;bottom:-8vh;color:#fff6a8;font-size:clamp(24px,4vw,42px);text-shadow:0 0 8px #fff,0 0 20px #ff9d39,0 0 34px #ff3e9c;animation:remix-rocket-rise 1.05s cubic-bezier(.18,.72,.25,1) both}
+@keyframes remix-rocket-rise{0%{opacity:0;transform:translate3d(0,0,0) scale(.3)}12%{opacity:1}78%{opacity:1;transform:translate3d(0,-66vh,0) scale(1.1)}100%{opacity:0;transform:translate3d(0,-72vh,0) scale(.2)}}
+.abuse-remix-confetti{position:absolute;inset:0}
+.abuse-remix-confetti i{position:absolute;bottom:-18px;width:7px;height:13px;border-radius:2px;background:hsl(calc(var(--i, 1)*37),95%,65%);background:#ffdf62;box-shadow:0 0 8px #fff7;animation:remix-confetti-rise 1.8s cubic-bezier(.12,.65,.22,1) both}
+.abuse-remix-confetti i:nth-child(3n){background:#ff55bd}.abuse-remix-confetti i:nth-child(3n + 1){background:#55eaff}.abuse-remix-confetti i:nth-child(3n + 2){background:#a9ff69}
+@keyframes remix-confetti-rise{0%{opacity:0;transform:translate3d(0,0,0) rotate(0) scale(.4)}12%{opacity:1}65%{opacity:1;transform:translate3d(22px,-58vh,0) rotate(440deg) scale(1)}100%{opacity:0;transform:translate3d(-18px,-88vh,0) rotate(780deg) scale(.65)}}
+.abuse-remix-flares{position:absolute;inset:0}
+.abuse-remix-flares i{position:absolute;bottom:-25vh;left:18%;width:2px;height:70vh;opacity:0;background:linear-gradient(to top,transparent,#fff,#ff70d8,transparent);filter:drop-shadow(0 0 9px #ff60dd);transform-origin:bottom;animation:remix-flare-rise 1.35s ease-out both}
+.abuse-remix-flares i:nth-child(2){left:50%;height:84vh;animation-delay:.16s;background:linear-gradient(to top,transparent,#fff,#70eaff,transparent)}
+.abuse-remix-flares i:nth-child(3){left:82%;height:66vh;animation-delay:.3s;background:linear-gradient(to top,transparent,#fff,#ffe36b,transparent)}
+@keyframes remix-flare-rise{0%{opacity:0;transform:translateY(0) scaleY(.05) rotate(-8deg)}18%{opacity:.95}75%{opacity:.75;transform:translateY(-62vh) scaleY(1) rotate(8deg)}100%{opacity:0;transform:translateY(-80vh) scaleY(.15) rotate(12deg)}}
+@media(max-width:600px){.abuse-remix-button{bottom:16px;padding:11px 20px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){.abuse-remix-fx *{animation-duration:.01ms!important;animation-iteration-count:1!important}}
