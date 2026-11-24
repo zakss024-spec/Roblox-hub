@@ -129,3 +129,6 @@
 .abuse-disco-ball{position:absolute;z-index:4;top:12px;left:50%;transform:translateX(-50%);font-size:clamp(38px,7vw,66px);filter:drop-shadow(0 0 18px #fff9);animation:disco-bob 2s ease-in-out infinite alternate;pointer-events:none}
 @media(max-width:600px){.abuse-disco-lamp{width:42px;height:50px}.abuse-disco-lamp--left{left:3vw}.abuse-disco-lamp--right{right:3vw}.abuse-disco-lamp:after{width:58vw}}
 @media(prefers-reduced-motion:reduce){.abuse-disco-lamp,.abuse-disco-lamp:after,.abuse-disco-lights,.abuse-disco-ball{animation:none!important}}
+
+/* Disco Fever must never wash out or cover the underlying page. */
+.abuse-event--disco .abuse-disco-lights{inset:0;background:transparent!important;filter:none!important;animation:none!important;}
