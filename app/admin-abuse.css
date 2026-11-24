@@ -110,3 +110,14 @@
 @keyframes zakss-float{0%,100%{transform:rotateX(14deg) rotateY(-12deg) translateY(0)}50%{transform:rotateX(10deg) rotateY(12deg) translateY(-10px)}}
 @media(max-width:520px){.abuse-zakss-word span{font-size:clamp(72px,22vw,130px);letter-spacing:0}.abuse-zakss-stage{gap:18px}}
 @media(prefers-reduced-motion:reduce){.abuse-zakss-stage.impact .abuse-zakss-word,.abuse-zakss-stage.impact .abuse-zakss-word span,.abuse-zakss-stage.settled .abuse-zakss-word{animation:none!important;transform:none!important}}
+
+
+/* Official YouTube soundtrack player for Disco Fever */
+.abuse-disco-player{position:fixed;z-index:92;right:18px;bottom:18px;width:236px;padding:10px;background:#120b27ee;border:1px solid #e7b8ff88;border-radius:14px;box-shadow:0 12px 44px #0009;color:#fff;pointer-events:auto;backdrop-filter:blur(12px)}
+.abuse-disco-player-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;font:800 9px 'DM Sans';letter-spacing:.7px}
+.abuse-disco-player-heading strong{color:#f2a8ff;font-size:8px}
+.abuse-disco-player iframe{display:block;width:216px;height:200px;max-width:100%;border:0;border-radius:8px;background:#080313}
+.abuse-disco-player button{display:block;width:100%;margin-top:8px;padding:10px;border:1px solid #f2a8ff;background:linear-gradient(100deg,#8b35c8,#d43c9d);border-radius:8px;color:#fff;font:900 10px 'DM Sans';letter-spacing:1px;cursor:pointer}
+.abuse-disco-player button:active{transform:scale(.98)}
+@media(max-width:600px){.abuse-disco-player{right:10px;bottom:10px;width:220px;padding:8px}.abuse-disco-player iframe{width:202px;height:200px}}
+@media(prefers-reduced-motion:reduce){.abuse-disco-player button:active{transform:none}}
