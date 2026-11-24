@@ -17,6 +17,7 @@ export function MaintenanceGate({ children }: { children: ReactNode }) {
       return;
     }
 
+    setState((current) => ({ ...current, checking: true }));
     const supabase = getBrowserSupabase();
     if (!supabase) {
       setState({ checking: false, maintenance: false, owner: false });
