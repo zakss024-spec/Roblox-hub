@@ -64,9 +64,6 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchError, setSearchError] = useState("");
-  const [aiPrompt, setAiPrompt] = useState("");
-  const [aiStatus, setAiStatus] = useState("");
-  const [aiBusy, setAiBusy] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const cursorHistory = useRef(new Set<string>());
 
@@ -143,45 +140,6 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
     return () => observer.disconnect();
   }, [nextCursor, searchTerm, sort, loading, loadingMore]);
 
-  async function runZakssAI() {
-    const prompt = aiPrompt.trim();
-    if (!prompt) {
-      setAiStatus("Ceritakan game yang ingin kamu temukan dulu.");
-      return;
-    }
-    if (aiBusy) return;
-
-    setAiBusy(true);
-    setAiStatus("Zakss AI sedang memahami keinginanmu...");
-    try {
-      const response = await fetch("/api/zakss-ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
-      });
-      const result = await response.json() as {
-        allowed?: boolean;
-        searchQuery?: string;
-        explanation?: string;
-        error?: string;
-      };
-      if (!response.ok) throw new Error(result.error || "Zakss AI sedang tidak tersedia.");
-      if (result.allowed === false) {
-        setAiStatus(result.explanation || "Coba cari tema game yang aman dan ramah.");
-        return;
-      }
-      const search = result.searchQuery?.trim();
-      if (!search) throw new Error("Zakss AI belum menemukan kata pencarian. Coba jelaskan dengan cara lain.");
-      setCategory("All");
-      setSort("active");
-      setQuery(search.slice(0, 80));
-      setAiStatus(result.explanation || `Zakss AI mencari pengalaman: “${search}”`);
-    } catch (error) {
-      setAiStatus(error instanceof Error ? error.message : "Zakss AI gagal memproses permintaan.");
-    } finally {
-      setAiBusy(false);
-    }
-  }
 
   const officialItems = useMemo<DiscoverItem[]>(() => robloxGames.map((game) => ({
     id: game.id,
@@ -266,20 +224,6 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
           </div>
         </section>
       )}
-
-      <section className="zakss-ai-finder" aria-label="Zakss AI game finder">
-        <div className="zakss-ai-orb"><Sparkles size={24}/><span>AI</span></div>
-        <div className="zakss-ai-copy">
-          <span className="zakss-ai-kicker">YOUR ROBLOX DISCOVERY ASSISTANT</span>
-          <h2>ZAKSS <em>AI</em> FINDER</h2>
-          <p>Deskripsikan game yang kamu suka. Zakss AI akan mencarikan pengalaman Roblox yang paling relevan.</p>
-          <div className="zakss-ai-input-row">
-            <input value={aiPrompt} onChange={(event) => setAiPrompt(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") runZakssAI(); }} placeholder="Contoh: game horror bareng teman atau anime fighting..." aria-label="Describe the Roblox game you want"/>
-            <button type="button" onClick={runZakssAI} disabled={aiBusy}><Sparkles size={16}/> {aiBusy ? "THINKING..." : "FIND GAMES"}</button>
-          </div>
-          {aiStatus && <small className="zakss-ai-status" role="status">{aiStatus}</small>}
-        </div>
-      </section>
 
       <section className="discover-toolbar" aria-label="Find experiences">
         <div className="discover-search">
