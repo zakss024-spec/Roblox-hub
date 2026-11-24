@@ -16,6 +16,12 @@ export function OwnerLiveUsers() {
   const [rows, setRows] = useState<PresenceRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [clock, setClock] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setClock(Date.now()), 10_000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const sb = getBrowserSupabase();
@@ -75,8 +81,8 @@ export function OwnerLiveUsers() {
 
   const users = useMemo(() => rows.map((row) => ({
     ...row,
-    online: row.is_online && Date.now() - new Date(row.last_seen).getTime() < STALE_AFTER_MS,
-  })), [rows]);
+    online: row.is_online && clock - new Date(row.last_seen).getTime() < STALE_AFTER_MS,
+  })), [rows, clock]);
   const onlineCount = users.filter((u) => u.online).length;
 
   return <section className="owner-live-monitor">
