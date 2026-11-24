@@ -42,7 +42,21 @@ export function UserPresenceTracker() {
     const onPageHide = () => { void publish(false); };
 
     void start();
-    const { data: authListener } = sb.auth.onAuthStateChange(() => { void start(); });
+    const { data: authListener } = sb.auth.onAuthStateChange((_event, session) => {
+      window.setTimeout(() => {
+        const nextUserId = session?.user?.id ?? null;
+        if (userId && userId !== nextUserId) void publish(false);
+        userId = nextUserId;
+        if (!userId) {
+          if (timer) clearInterval(timer);
+          timer = null;
+          return;
+        }
+        void publish(true);
+        if (timer) clearInterval(timer);
+        timer = setInterval(() => { void publish(true); }, 30_000);
+      }, 0);
+    });
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pagehide", onPageHide);
 
