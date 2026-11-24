@@ -112,12 +112,20 @@
 @media(prefers-reduced-motion:reduce){.abuse-zakss-stage.impact .abuse-zakss-word,.abuse-zakss-stage.impact .abuse-zakss-word span,.abuse-zakss-stage.settled .abuse-zakss-word{animation:none!important;transform:none!important}}
 
 
-/* Official YouTube soundtrack player for Disco Fever */
-.abuse-disco-player{position:fixed;z-index:92;right:18px;bottom:18px;width:236px;padding:10px;background:#120b27ee;border:1px solid #e7b8ff88;border-radius:14px;box-shadow:0 12px 44px #0009;color:#fff;pointer-events:auto;backdrop-filter:blur(12px)}
-.abuse-disco-player-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;font:800 9px 'DM Sans';letter-spacing:.7px}
-.abuse-disco-player-heading strong{color:#f2a8ff;font-size:8px}
-.abuse-disco-player iframe{display:block;width:216px;height:200px;max-width:100%;border:0;border-radius:8px;background:#080313}
-.abuse-disco-player button{display:block;width:100%;margin-top:8px;padding:10px;border:1px solid #f2a8ff;background:linear-gradient(100deg,#8b35c8,#d43c9d);border-radius:8px;color:#fff;font:900 10px 'DM Sans';letter-spacing:1px;cursor:pointer}
-.abuse-disco-player button:active{transform:scale(.98)}
-@media(max-width:600px){.abuse-disco-player{right:10px;bottom:10px;width:220px;padding:8px}.abuse-disco-player iframe{width:202px;height:200px}}
-@media(prefers-reduced-motion:reduce){.abuse-disco-player button:active{transform:none}}
+/* Disco Fever: overhead rotating fixtures and crossed spot beams */
+.abuse-event--disco{background:radial-gradient(ellipse at 50% 110%,#8d42ff35,transparent 55%),radial-gradient(ellipse at 50% 0%,#32105a 0%,#09051c 62%);isolation:isolate}
+.abuse-disco-lights{position:absolute;inset:-25%;background:conic-gradient(from 0deg at 50% 50%,#ff36b31b,#39e8ff1b,#fff12220,#8e52ff25,#ff36b31b);filter:blur(18px);animation:rainbow-spin 9s linear infinite}
+.abuse-disco-rig{position:absolute;inset:0;overflow:hidden}
+.abuse-disco-lamp{position:absolute;top:-12px;width:52px;height:58px;z-index:3;border:2px solid #c9b8ff;border-top:0;border-radius:0 0 13px 13px;background:linear-gradient(135deg,#f5eaff,#7852b5 48%,#21143e);box-shadow:0 5px 20px #c38cff88, inset 0 -8px 12px #09051c;transform-origin:50% 0;animation:disco-lamp-swing 3.8s ease-in-out infinite alternate}
+.abuse-disco-lamp:before{content:"";position:absolute;left:13px;right:13px;bottom:5px;height:13px;border-radius:50%;background:#fff;box-shadow:0 0 14px 7px #fff,0 0 32px 15px #d17bff}
+.abuse-disco-lamp:after{content:"";position:absolute;top:48px;left:50%;width:min(44vw,520px);height:105vh;clip-path:polygon(47% 0,53% 0,100% 100%,0 100%);transform:translateX(-50%);transform-origin:50% 0;filter:blur(10px);opacity:.58;mix-blend-mode:screen}
+.abuse-disco-lamp--left{left:7vw;animation-delay:-.7s}
+.abuse-disco-lamp--left:after{background:linear-gradient(180deg,#ff52db99 0%,#ff52db20 70%,transparent);animation:disco-beam-left 5.5s ease-in-out infinite alternate}
+.abuse-disco-lamp--right{right:7vw;animation-delay:-1.9s}
+.abuse-disco-lamp--right:after{background:linear-gradient(180deg,#38eaff99 0%,#38eaff20 70%,transparent);animation:disco-beam-right 6s ease-in-out infinite alternate}
+@keyframes disco-lamp-swing{0%{rotate:-16deg}100%{rotate:16deg}}
+@keyframes disco-beam-left{0%{transform:translateX(-50%) rotate(-24deg);opacity:.25}100%{transform:translateX(-50%) rotate(30deg);opacity:.72}}
+@keyframes disco-beam-right{0%{transform:translateX(-50%) rotate(24deg);opacity:.28}100%{transform:translateX(-50%) rotate(-30deg);opacity:.72}}
+.abuse-disco-ball{position:absolute;z-index:4;top:7%;left:50%;transform:translateX(-50%);font-size:clamp(54px,10vw,100px);filter:drop-shadow(0 0 24px #fff9);animation:disco-bob 2s ease-in-out infinite alternate}
+@media(max-width:600px){.abuse-disco-lamp{width:42px;height:50px}.abuse-disco-lamp--left{left:3vw}.abuse-disco-lamp--right{right:3vw}.abuse-disco-lamp:after{width:58vw}}
+@media(prefers-reduced-motion:reduce){.abuse-disco-lamp,.abuse-disco-lamp:after,.abuse-disco-lights,.abuse-disco-ball{animation:none!important}}
