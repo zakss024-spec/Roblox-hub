@@ -53,3 +53,8 @@
 @media(max-width:900px){.hub-destination-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:720px){.desktop-nav a:nth-child(n+3){display:none}}
 @media(max-width:520px){.hub-destinations{padding:65px 7%}.hub-destination-grid{gap:10px}.hub-destination-card{min-height:145px;padding:14px}.hub-destination-card strong{font-size:18px}}
+
+
+/* Creator true 3D viewport */
+.creator-three-viewport{position:relative;flex:1;min-height:360px;width:100%;overflow:hidden;background:#91b9d0;touch-action:none}.creator-three-viewport canvas{display:block;width:100%;height:100%;touch-action:none}.creator-three-viewport .studio-three-hud{top:10px;font-size:9px}.creator-three-viewport .studio-three-axis{right:12px;bottom:12px}
+@media(max-width:760px){.creator-workspace{grid-template-columns:minmax(0,1fr)}.creator-toolbox,.creator-properties{max-height:260px}.creator-viewport{min-height:420px}.creator-three-viewport{min-height:420px}}
