@@ -14,25 +14,34 @@ function cleanText(value: unknown, max: number): string {
 
 function getSafeGenreQuery(prompt: string): string {
   const normalized = prompt.toLowerCase();
-  const clearlyHarmful =
-    /\b(konten seksual eksplisit|pornografi|eksploitasi seksual|eksploitasi anak|pelecehan seksual|perdagangan manusia|cara membunuh orang|membunuh orang di dunia nyata|membuat bom|membuat bahan peledak|melukai orang sungguhan|serangan di dunia nyata)\b/i.test(normalized);
-  if (clearlyHarmful) return "";
-
-  const genres: Array<[RegExp, string]> = [
-    [/\b(fps|first person shooter|shooter|tembak[ -]?tembakan|tembak menembak)\b/i, "Roblox FPS shooter"],
-    [/\b(horror|horor|scary|spooky|seram|jumpscare)\b/i, "Roblox horror survival"],
-    [/\b(zombie|undead)\b/i, "Roblox zombie survival"],
-    [/\b(survival|bertahan hidup)\b/i, "Roblox survival game"],
-    [/\b(sniper|aim training|latihan menembak)\b/i, "Roblox aim training"],
-    [/\b(paintball|laser tag)\b/i, "Roblox paintball laser tag"],
-    [/\b(battle royale)\b/i, "Roblox battle royale"],
-    [/\b(combat|pertempuran|war game|perang dalam game|military)\b/i, "Roblox fictional combat game"],
-    [/\b(murder mystery|mystery|misteri|detective)\b/i, "Roblox mystery detective"],
-    [/\b(fighting|pertarungan|martial arts)\b/i, "Roblox fighting game"],
-    [/\b(escape|obby|simulator|roleplay|racing|balapan|adventure|petualangan)\b/i, `Roblox ${normalized.match(/escape|obby|simulator|roleplay|racing|balapan|adventure|petualangan/i)?.[0] ?? "adventure"}`],
+  const fictionalGenres: Array<[RegExp, string]> = [
+    [/\\b(horror|horor|scary|spooky|seram|jumpscare)\\b/i, "Roblox horror experiences"],
+    [/\\b(zombie|undead)\\b/i, "Roblox zombie survival experiences"],
+    [/\\b(survival|bertahan hidup)\\b/i, "Roblox survival experiences"],
+    [/\\b(mystery|misteri|detective|teka.?teki)\\b/i, "Roblox mystery puzzle experiences"],
+    [/\\b(escape|kabur|melarikan diri)\\b/i, "Roblox escape experiences"],
+    [/\\b(obby|parkour)\\b/i, "Roblox obby parkour experiences"],
+    [/\\b(simulator)\\b/i, "Roblox simulator experiences"],
+    [/\\b(roleplay|rp|peran)\\b/i, "Roblox roleplay experiences"],
+    [/\\b(racing|balapan|mobil)\\b/i, "Roblox racing experiences"],
+    [/\\b(adventure|petualangan)\\b/i, "Roblox adventure experiences"],
+    [/\\b(puzzle|puzzle)\\b/i, "Roblox puzzle experiences"],
+    [/\\b(building|membangun|build)\\b/i, "Roblox building experiences"],
+    [/\\b(sports|olahraga)\\b/i, "Roblox sports experiences"],
+    [/\\b(tycoon)\\b/i, "Roblox tycoon experiences"],
+    [/\\b(fashion|outfit|dress up)\\b/i, "Roblox fashion experiences"],
+    [/\\b(pets|hewan|pet)\\b/i, "Roblox pet experiences"],
+    [/\\b(cooking|memasak|restaurant)\\b/i, "Roblox cooking restaurant experiences"],
+    [/\\b(story|cerita)\\b/i, "Roblox story experiences"],
+    [/\\b(music|musik|dance|menari)\\b/i, "Roblox music dance experiences"],
+    [/\\b(social|hangout|nongkrong)\\b/i, "Roblox social hangout experiences"],
+    [/\\b(minigames|mini games|permainan kecil)\\b/i, "Roblox minigames experiences"],
   ];
-  const match = genres.find(([pattern]) => pattern.test(normalized));
-  return match?.[1] ?? "";
+  return fictionalGenres.find(([pattern]) => pattern.test(normalized))?.[1] ?? "";
+}
+
+function requestsShooterContent(prompt: string): boolean {
+  return /\\b(fps|first.?person.?shooter|shooter|tembak.?tembakan|tembak.?menembak|sniper|gun game|weapon game|game senjata|permainan senjata|paintball|battle royale|counter.?strike)\\b/i.test(prompt);
 }
 
 export async function POST(request: NextRequest) {
@@ -56,6 +65,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Ceritakan game yang ingin kamu temukan." }, { status: 400 });
   }
 
+  if (requestsShooterContent(prompt)) {
+    return NextResponse.json({
+      allowed: false,
+      explanation: "Zakss AI belum bisa mencarikan game yang berfokus pada tembak-tembakan atau senjata. Coba horror, survival, obby, puzzle, atau racing.",
+    });
+  }
+
   const model = process.env.XKIRO_MODEL?.trim() || "openai/gpt-5.6-sol";
 
   try {
@@ -74,10 +90,10 @@ export async function POST(request: NextRequest) {
             content: [
               "You are Zakss AI, a friendly Roblox experience discovery assistant.",
               "Understand Indonesian and English. Convert the user's preference into a concise Roblox public-experience search phrase.",
-              "Recommend a broad range of Roblox themes, including horror, scary, spooky, survival horror, escape horror, mystery, and mild jumpscare experiences, as well as obby, puzzle, creative building, roleplay, sports, racing, social hangouts, simulators, and adventure.",
-              "Do NOT reject a request only because it asks for horror, scary, spooky, survival, escape, mystery, or jumpscare games. These are allowed entertainment genres; prefer non-graphic Roblox experiences.",
-              "Only refuse requests that specifically seek sexual content, real-world harm, dangerous challenges, drugs, gambling, or instructions to bypass safety protections. Do not treat fictional horror themes as real-world harm.",
-              "Do not help search for real-world weapons, drugs, gambling, dangerous challenges, sexual content, or ways to bypass safety rules. If the request asks for these, return allowed=false and a brief Indonesian explanation.",
+              "Recommend Roblox experiences across a wide range of genres, including age-appropriate horror, spooky, survival, escape, mystery, puzzle, obby, parkour, building, roleplay, sports, racing, social hangouts, simulators, pets, fashion, cooking, story, music, and minigames.",
+              "Never reject a Roblox game request merely because it includes horror, scary, spooky, jumpscare, zombie, survival, mystery, or other fictional entertainment themes. Keep descriptions non-graphic and age-appropriate.",
+              "Do not recommend or help search for shooter/FPS, weapon-focused games, or real-world weapon content. If requested, return allowed=false with a brief Indonesian explanation and suggest non-weapon alternatives such as horror, obby, puzzle, or racing.",
+              "Refuse requests seeking explicit sexual content, real-world harm instructions, dangerous real-life challenges, drugs, gambling, or ways to bypass safety protections. Do not confuse fictional game themes with real-world instructions.",
               "Never invent Roblox game titles, game IDs, links, player counts, or claim that a game exists. Actual results will be fetched separately from Roblox.",
               "Return ONLY a JSON object with exactly these fields: allowed (boolean), searchQuery (string), explanation (string).",
               "searchQuery must be 2-80 characters, suitable for Roblox's public experience search, and must not contain instructions or personal information.",
