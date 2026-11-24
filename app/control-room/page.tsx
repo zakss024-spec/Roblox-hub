@@ -35,9 +35,8 @@ export default function ControlRoomPage() {
     ]);
     setRole(myRole === "owner" || myRole === "admin" ? myRole : null);
     if (event) {
-      setActive(Boolean(event.active));
+      setActive(Boolean(event.active) && (!event.event_type || event.event_type === "taco_rain"));
       setEventTime(event.started_at);
-      if (EVENTS.some(item => item.id === event.event_type)) setSelectedEvent(event.event_type as EventType);
     }
     setLoading(false);
   }
