@@ -27,6 +27,7 @@ class MainActivity : Activity() {
     private lateinit var webView: WebView
     private lateinit var progress: ProgressBar
     private lateinit var offlinePanel: LinearLayout
+    private lateinit var splashPanel: LinearLayout
 
     private val homeUrl = "https://roblox-hub-project-of-zakss.vercel.app/"
     private val allowedHost = "roblox-hub-project-of-zakss.vercel.app"
@@ -63,6 +64,31 @@ class MainActivity : Activity() {
             )
         }
 
+        splashPanel = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setPadding(dp(24), dp(24), dp(24), dp(24))
+            setBackgroundColor(Color.rgb(16, 20, 13))
+            addView(TextView(this@MainActivity).apply {
+                text = "ROBLOX HUB"
+                setTextColor(Color.rgb(168, 240, 74))
+                textSize = 30f
+                gravity = Gravity.CENTER
+                typeface = android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.NORMAL)
+            })
+            addView(TextView(this@MainActivity).apply {
+                text = "YOUR NEXT EXPERIENCE STARTS HERE"
+                setTextColor(Color.WHITE)
+                textSize = 11f
+                letterSpacing = 0.16f
+                gravity = Gravity.CENTER
+                setPadding(0, dp(8), 0, dp(22))
+            })
+            addView(ProgressBar(this@MainActivity).apply {
+                indeterminateTintList = android.content.res.ColorStateList.valueOf(Color.rgb(168, 240, 74))
+            })
+        }
+
         offlinePanel = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
@@ -92,6 +118,7 @@ class MainActivity : Activity() {
         }
 
         root.addView(webView, FrameLayout.LayoutParams(-1, -1))
+        root.addView(splashPanel, FrameLayout.LayoutParams(-1, -1))
         root.addView(progress)
         root.addView(offlinePanel, FrameLayout.LayoutParams(-1, -1))
         setContentView(root)
@@ -106,11 +133,14 @@ class MainActivity : Activity() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val uri = request.url
                 val scheme = uri.scheme ?: return true
-                if (scheme == "https" && (uri.host == allowedHost || uri.host?.endsWith("vercel.app") == true)) {
-                    return false
-                }
-                if (scheme == "http" || scheme == "https") {
-                    return false
+                if (scheme == "https" && uri.host == allowedHost) return false
+                if (scheme == "https" || scheme == "http") {
+                    return try {
+                        startActivity(Intent(Intent.ACTION_VIEW, uri))
+                        true
+                    } catch (_: Exception) {
+                        true
+                    }
                 }
                 return try {
                     startActivity(Intent(Intent.ACTION_VIEW, uri))
@@ -126,6 +156,7 @@ class MainActivity : Activity() {
                 error: WebResourceError
             ) {
                 if (request.isForMainFrame) {
+                    splashPanel.visibility = View.GONE
                     offlinePanel.visibility = View.VISIBLE
                     webView.visibility = View.GONE
                     progress.visibility = View.GONE
@@ -133,6 +164,7 @@ class MainActivity : Activity() {
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
+                splashPanel.visibility = View.GONE
                 offlinePanel.visibility = View.GONE
                 webView.visibility = View.VISIBLE
             }
@@ -147,11 +179,13 @@ class MainActivity : Activity() {
 
     private fun loadHome() {
         if (!isOnline()) {
+            splashPanel.visibility = View.GONE
             offlinePanel.visibility = View.VISIBLE
             webView.visibility = View.GONE
             return
         }
         offlinePanel.visibility = View.GONE
+        splashPanel.visibility = View.VISIBLE
         webView.visibility = View.VISIBLE
         webView.loadUrl(homeUrl)
     }
