@@ -87,10 +87,19 @@ export function AdminAbuseOverlay() {
     if (!sb) return;
     let alive = true;
     void sb.from("site_admin_abuse").select("active,started_at,event_type,beam_angle").eq("id", true).maybeSingle()
-      .then(({ data }) => { if (alive && data) setEvent(data as EventState); });
+      .then(({ data }) => {
+        if (alive && data) {
+          const next = data as EventState;
+          setEvent({ ...next, active: Boolean(next.active) && (!next.event_type || next.event_type === "taco_rain") });
+        }
+      });
     const channel = sb.channel("roblox-hub-admin-abuse")
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "site_admin_abuse", filter: "id=eq.true" },
-        (payload) => { if (alive) setEvent(payload.new as EventState); })
+        (payload) => {
+          if (!alive) return;
+          const next = payload.new as EventState;
+          setEvent({ ...next, active: Boolean(next.active) && (!next.event_type || next.event_type === "taco_rain") });
+        })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "site_announcements" },
         (payload) => {
           if (!alive) return;
