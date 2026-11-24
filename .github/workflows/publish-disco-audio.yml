@@ -13,6 +13,9 @@ jobs:
   publish-audio:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Download the user-provided MP3
         env:
           AUDIO_SOURCE_URL: "https://d2jqrm6oza8nb6.cloudfront.net/datasets/5df9d470-dc1d-4af5-a19b-f7e3bb353d74.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZDg2YTliOGU0YjcyNWE4MCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5NTY0Mjg5NH0.5_hJeb0sLsnfgjRyHq00vq_a3usUbOX3YDHPzwyNU9w"
