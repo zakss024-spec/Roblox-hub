@@ -42,8 +42,10 @@ function playAnnouncementSound() {
 }
 
 function startEventMusic(_type: EventType, onReady: () => void) {
-  if (_type === "disco_takeover") return () => {};
-  const audio = new Audio("https://quicksounds.com/uploads/tracks/1219935113_1051071961_1597840749.mp3");
+  const audioUrl = _type === "disco_takeover"
+    ? "https://github.com/zakss024-spec/Roblox-hub/releases/download/disco-audio-v1/garam-madu.mp3"
+    : "https://quicksounds.com/uploads/tracks/1219935113_1051071961_1597840749.mp3";
+  const audio = new Audio(audioUrl);
   audio.loop = true;
   audio.preload = "auto";
   audio.volume = 0.72;
