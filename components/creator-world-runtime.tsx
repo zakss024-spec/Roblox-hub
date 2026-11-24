@@ -1,5 +1,5 @@
 "use client";
-import {useCallback,useEffect,useRef,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import * as THREE from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 import {getBrowserSupabase} from "@/lib/supabase-browser";
@@ -15,10 +15,10 @@ export default function CreatorWorldRuntime({projectId,objects}:{projectId:strin
  return()=>{cancelAnimationFrame(state.frame);observer.disconnect();controls.dispose();renderer.dispose();root.removeChild(renderer.domElement);meshRefs.current=null}},[]);
  useEffect(()=>{const state=meshRefs.current;if(!state)return;for(const child of [...state.scene.children])if(child.userData.sceneObject){state.scene.remove(child)}for(const o of objects){let mesh:THREE.Mesh;if(o.type==="coin"){mesh=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.12,24),new THREE.MeshStandardMaterial({color:o.color,metalness:.7,roughness:.2}));mesh.rotation.z=Math.PI/2}else if(o.type==="checkpoint"){mesh=new THREE.Mesh(new THREE.BoxGeometry(.16,2.5,.16),new THREE.MeshStandardMaterial({color:o.color}))}else{mesh=new THREE.Mesh(new THREE.BoxGeometry(o.w,o.h,o.d),new THREE.MeshStandardMaterial({color:o.color,roughness:.7}))}mesh.position.set(o.x,o.y+(o.type==="coin"?.8:o.h/2),o.z);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.sceneObject=true;state.scene.add(mesh)}},[objects]);
  useEffect(()=>{const sb=getBrowserSupabase();if(!sb)return;let currentUserId:string|null=null;let sendTimer:number|undefined;
- const channel=sb.channel("hub-world-"+projectId,{config:{broadcast:{self:false},presence:{key:projectId}}});
+ const guestId="guest-"+crypto.randomUUID();const channel=sb.channel("hub-world-"+projectId,{config:{broadcast:{self:false},presence:{key:guestId}}});
  channel.on("broadcast",{event:"player_state"},({payload})=>{const id=String(payload?.id??"");if(!id||id===currentUserId)return;setRemotes(old=>({...old,[id]:{x:Number(payload.x)||0,z:Number(payload.z)||0,name:"PLAYER",seen:Date.now()}}))});
  channel.on("presence",{event:"sync"},()=>{setOnline(Math.max(1,Object.keys(channel.presenceState()).length))});
- channel.subscribe(async status=>{if(status==="SUBSCRIBED"){const {data:{user}}=await sb.auth.getUser();if(user){currentUserId=user.id;await channel.track({user_id:user.id,online_at:new Date().toISOString()});const send=()=>void channel.send({type:"broadcast",event:"player_state",payload:{id:user.id,x:player.current.x,z:player.current.z}});send();sendTimer=window.setInterval(send,160)}}});
+ channel.subscribe(async status=>{if(status==="SUBSCRIBED"){const {data:{user}}=await sb.auth.getUser();currentUserId=user?.id??guestId;await channel.track({user_id:currentUserId,online_at:new Date().toISOString()});const send=()=>void channel.send({type:"broadcast",event:"player_state",payload:{id:currentUserId,x:player.current.x,z:player.current.z}});send();sendTimer=window.setInterval(send,160)}});
  return()=>{if(sendTimer)window.clearInterval(sendTimer);void sb.removeChannel(channel)};
  },[projectId]);
  useEffect(()=>{const state=meshRefs.current;if(!state)return;const old=state.remoteGroup;while(old.children.length){const child=old.children[0];old.remove(child)}for(const [id,r] of Object.entries(remotes)){if(Date.now()-r.seen>4000)continue;const group=new THREE.Group();const body=new THREE.Mesh(new THREE.BoxGeometry(.85,1.3,.5),new THREE.MeshStandardMaterial({color:"#f2a63a"}));body.position.y=.9;group.add(body);const head=new THREE.Mesh(new THREE.SphereGeometry(.36,16,12),new THREE.MeshStandardMaterial({color:"#f3c69b"}));head.position.y=1.8;group.add(head);group.position.set(r.x,0,r.z);group.userData.id=id;old.add(group)}},[remotes]);
