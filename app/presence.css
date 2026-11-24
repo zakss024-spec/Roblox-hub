@@ -1,0 +1,20 @@
+
+.owner-live-monitor{margin:24px 0;padding:22px;border:1px solid rgba(50,220,125,.35);border-radius:18px;background:linear-gradient(145deg,#07140e,#0a0d0c 65%,#101714);color:#eafff1;box-shadow:0 18px 50px #0003}
+.owner-live-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.owner-live-heading>div:first-child>span{display:flex;align-items:center;gap:7px;color:#70e8a0;font-size:10px;font-weight:900;letter-spacing:.15em}
+.owner-live-heading h2{display:flex;align-items:center;gap:9px;margin:9px 0;font-size:clamp(19px,3vw,26px);letter-spacing:-.04em}
+.owner-live-heading p{margin:0;color:#a9b9af;font-size:13px;line-height:1.5}
+.owner-live-count{min-width:82px;padding:10px 13px;border:1px solid #36d77a55;border-radius:12px;text-align:center;background:#0c2417}
+.owner-live-count strong{display:block;color:#6df39b;font-size:27px;line-height:1.1}
+.owner-live-count small{color:#a7d9b7;font-size:9px;font-weight:900;letter-spacing:.12em}
+.owner-live-list{display:grid;gap:7px;margin-top:18px;max-height:360px;overflow:auto}
+.owner-live-row{display:flex;align-items:center;gap:11px;padding:12px 13px;border:1px solid #ffffff12;border-radius:10px;background:#ffffff07}
+.owner-live-row strong{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.owner-live-dot{width:9px;height:9px;flex:none;border-radius:50%;background:#737d76}
+.owner-live-dot.online{background:#48e883;box-shadow:0 0 12px #48e883aa}
+.owner-live-status{color:#a1aaa4;font-size:9px;font-weight:900;letter-spacing:.12em}
+.owner-live-status.online{color:#6df39b}
+.owner-live-empty,.owner-live-error{display:flex;align-items:center;gap:9px;margin-top:16px;padding:18px;border:1px dashed #ffffff25;border-radius:10px;color:#aebdb3;font-size:12px}
+.owner-live-error{color:#ffaaa2;border-color:#ffaaa255}
+.owner-live-monitor footer{margin-top:13px;color:#77877d;font-size:10px}
+@media(max-width:520px){.owner-live-monitor{padding:16px}.owner-live-heading{gap:10px}.owner-live-count{min-width:70px;padding:9px}.owner-live-heading p{font-size:12px}}
