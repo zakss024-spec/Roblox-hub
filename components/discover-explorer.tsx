@@ -86,29 +86,45 @@ export function DiscoverExplorer({ robloxGames, communityGames }: Props) {
     }
 
     const controller = new AbortController();
-    const timer = window.setTimeout(async () => {
-      setLoading(true);
-      setSearchError("");
-      setLiveGames([]);
-      setNextCursor(null);
-      cursorHistory.current.clear();
+    let refreshInterval: number | undefined;
+    let refreshing = false;
+
+    const refreshResults = async (showLoading: boolean) => {
+      if (refreshing || controller.signal.aborted) return;
+      refreshing = true;
+      if (showLoading) setLoading(true);
       try {
         const response = await fetch(`/api/roblox/search?q=${encodeURIComponent(searchTerm)}`, { signal: controller.signal });
         const result = await response.json() as SearchResponse;
         if (!response.ok) throw new Error(result.error || "Roblox search is temporarily unavailable.");
         setLiveGames(result.games ?? []);
         setNextCursor(result.nextCursor ?? null);
+        setSearchError("");
       } catch (error) {
-        if (!controller.signal.aborted) {
+        if (!controller.signal.aborted && showLoading) {
           setSearchError(error instanceof Error ? error.message : "Search failed. Try again.");
         }
       } finally {
-        if (!controller.signal.aborted) setLoading(false);
+        refreshing = false;
+        if (!controller.signal.aborted && showLoading) setLoading(false);
       }
+    };
+
+    setLoading(true);
+    setSearchError("");
+    setLiveGames([]);
+    setNextCursor(null);
+    cursorHistory.current.clear();
+
+    const timer = window.setTimeout(() => {
+      void refreshResults(true);
+      // Keep player counts and discovery results fresh while the Discover page stays open.
+      refreshInterval = window.setInterval(() => void refreshResults(false), 60_000);
     }, 350);
 
     return () => {
       window.clearTimeout(timer);
+      if (refreshInterval !== undefined) window.clearInterval(refreshInterval);
       controller.abort();
     };
   }, [searchTerm]);
