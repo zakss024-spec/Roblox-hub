@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 
 type EventType = "taco_rain" | "disco_takeover";
+type GlobalEffect = { id: string; effect_type: "confetti" | "firework"; created_at: string };
 type EventState = { active: boolean; started_at: string | null; event_type?: EventType; beam_angle?: number };
 type Announcement = { id: number; sender_name: string; message: string; created_at: string };
 
@@ -39,6 +40,56 @@ function playAnnouncementSound() {
     void context.close();
     // Browser autoplay policies may block sound until the visitor interacts.
   });
+}
+
+function playGlobalEffectSound(type: "confetti" | "firework") {
+  const AudioContextClass = window.AudioContext;
+  if (!AudioContextClass) return;
+  const context = new AudioContextClass();
+  void context.resume().then(() => {
+    if (context.state !== "running") { void context.close(); return; }
+    const now = context.currentTime;
+    if (type === "confetti") {
+      [659.25, 783.99, 987.77, 1318.51].forEach((frequency, index) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        const start = now + index * 0.075;
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(frequency, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.085, start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.42);
+        oscillator.connect(gain); gain.connect(context.destination);
+        oscillator.start(start); oscillator.stop(start + 0.44);
+      });
+    } else {
+      const length = Math.floor(context.sampleRate * 1.25);
+      const buffer = context.createBuffer(1, length, context.sampleRate);
+      const channel = buffer.getChannelData(0);
+      for (let i = 0; i < length; i++) channel[i] = (Math.random() * 2 - 1) * (1 - i / length);
+      const noise = context.createBufferSource();
+      const filter = context.createBiquadFilter();
+      const gain = context.createGain();
+      noise.buffer = buffer; filter.type = "lowpass";
+      filter.frequency.setValueAtTime(260, now);
+      filter.frequency.exponentialRampToValueAtTime(2400, now + 0.62);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.16, now + 0.5);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+      noise.connect(filter); filter.connect(gain); gain.connect(context.destination);
+      noise.start(now); noise.stop(now + 1.22);
+      const pop = context.createOscillator();
+      const popGain = context.createGain();
+      pop.type = "sine"; pop.frequency.setValueAtTime(180, now + 0.72);
+      pop.frequency.exponentialRampToValueAtTime(48, now + 1.12);
+      popGain.gain.setValueAtTime(0.0001, now + 0.72);
+      popGain.gain.exponentialRampToValueAtTime(0.22, now + 0.75);
+      popGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.18);
+      pop.connect(popGain); popGain.connect(context.destination);
+      pop.start(now + 0.72); pop.stop(now + 1.2);
+    }
+    window.setTimeout(() => { void context.close(); }, 1700);
+  }).catch(() => { void context.close(); });
 }
 
 function startEventMusic(_type: EventType, onReady: () => void) {
@@ -84,6 +135,10 @@ export function AdminAbuseOverlay() {
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [soundReady, setSoundReady] = useState(false);
   const [remixActive, setRemixActive] = useState(false);
+  const [globalEffect, setGlobalEffect] = useState<GlobalEffect | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const soundEnabledRef = useRef(false);
+  const effectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [remixKey, setRemixKey] = useState(0);
   const announcementTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const remixTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -106,6 +161,16 @@ export function AdminAbuseOverlay() {
           const next = payload.new as EventState;
           setEvent({ ...next, active: Boolean(next.active) && (!next.event_type || next.event_type === "taco_rain" || next.event_type === "disco_takeover") });
         })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "site_effect_triggers" },
+        (payload) => {
+          if (!alive) return;
+          const next = payload.new as GlobalEffect;
+          if (next.effect_type !== "confetti" && next.effect_type !== "firework") return;
+          setGlobalEffect(next);
+          if (effectTimer.current) clearTimeout(effectTimer.current);
+          effectTimer.current = setTimeout(() => setGlobalEffect(null), 4200);
+          if (soundEnabledRef.current) playGlobalEffectSound(next.effect_type);
+        })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "site_announcements" },
         (payload) => {
           if (!alive) return;
@@ -119,6 +184,7 @@ export function AdminAbuseOverlay() {
       alive = false;
       if (announcementTimer.current) clearTimeout(announcementTimer.current);
       if (remixTimer.current) clearTimeout(remixTimer.current);
+      if (effectTimer.current) clearTimeout(effectTimer.current);
       void sb.removeChannel(channel);
     };
   }, []);
@@ -143,7 +209,7 @@ export function AdminAbuseOverlay() {
     return startEventMusic(eventType, () => setSoundReady(true));
   }, [showEventEffects, eventType]);
 
-  if (!event.active && !announcement) return null;
+  if (!event.active && !announcement && !globalEffect && soundEnabled) return null;
   return <>
     {event.active && <>
       {showEventEffects && (eventType === "disco_takeover" ? <><div className="abuse-event abuse-event--disco" aria-hidden="true"><div className="abuse-disco-lights"/><div className="abuse-disco-rig"><span className="abuse-disco-lamp abuse-disco-lamp--left"/><span className="abuse-disco-lamp abuse-disco-lamp--right"/></div><div className="abuse-disco-ball">🪩</div>{remixActive && <div className="abuse-remix-fx" key={remixKey} aria-hidden="true"><div className="abuse-remix-rockets">{Array.from({length:7},(_,i)=><span key={i} style={{left:`${9+i*13}%`,animationDelay:`${i*.11}s`}}>✦</span>)}</div><div className="abuse-remix-confetti">{Array.from({length:44},(_,i)=><i key={i} style={{left:`${(i*37)%100}%`,animationDelay:`${(i%11)*.045}s`,rotate:`${(i*29)%160}deg`}}/>)}</div><div className="abuse-remix-flares"><i/><i/><i/></div></div>}</div><button type="button" className="abuse-remix-button" onClick={()=>{setRemixKey((v)=>v+1);setRemixActive(true);if(remixTimer.current)clearTimeout(remixTimer.current);remixTimer.current=setTimeout(()=>setRemixActive(false),2600);}} aria-label="Trigger Disco Remix effects"><span>✦</span> REMIX <span>✦</span></button></> : <div className="abuse-event abuse-event--taco" aria-hidden="true">
@@ -168,6 +234,10 @@ export function AdminAbuseOverlay() {
       </div> : null}
       {showEventEffects && eventType === "taco_rain" && !soundReady && <div className="abuse-sound-hint" aria-live="polite">TAP ANYWHERE TO ENABLE EVENT SOUND</div>}
     </>}
+    {globalEffect && <div className={`global-owner-effect global-owner-effect--${globalEffect.effect_type}`} key={globalEffect.id} aria-hidden="true">
+      {globalEffect.effect_type === "confetti" ? <><div className="global-confetti-corner global-confetti-corner--left">{Array.from({length:30},(_,i)=><i key={i} style={{left:`${(i*31)%100}%`,"--i":i,"--delay":`${(i%10)*.045}s`} as React.CSSProperties}/>)}</div><div className="global-confetti-corner global-confetti-corner--right">{Array.from({length:30},(_,i)=><i key={i} style={{left:`${(i*31)%100}%`,"--i":i+30,"--delay":`${(i%10)*.045}s`} as React.CSSProperties}/>)}</div></> : <div className="global-firework-launches">{Array.from({length:5},(_,i)=><span key={i} style={{"--i":i,"--delay":`${i*.14}s`} as React.CSSProperties}><i/></span>)}</div>}
+    </div>}
+    {!soundEnabled && <button type="button" className="global-effect-sound-enable" onClick={()=>{soundEnabledRef.current=true;setSoundEnabled(true);if(globalEffect)playGlobalEffectSound(globalEffect.effect_type);}}>🔊 AKTIFKAN SUARA EFEK</button>}
     {announcement && <div className="global-announcement" role="status" aria-live="polite">
       <div className="global-announcement-tag">ROBLOX HUB <span>· GLOBAL ANNOUNCEMENT</span></div>
       <p><strong>{announcement.sender_name}:</strong> {announcement.message}</p>
