@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ShieldCheck, RadioTower, UserPlus, UserMinus, Square, Play, RefreshCw, Send, Sparkles } from "lucide-react";
+import { ArrowLeft, BookOpen, ShieldCheck, RadioTower, UserPlus, UserMinus, Square, Play, RefreshCw, Send, Sparkles } from "lucide-react";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { SiteHeader } from "@/components/site-header";
 
