@@ -152,9 +152,9 @@ export function AdminAbuseOverlay() {
       {isIntro ? <div className="abuse-intro abuse-intro--taco" role="status" aria-live="assertive">
         <div className="abuse-intro-content">
           <span className="abuse-intro-kicker">ROBLOX HUB PRESENTS · CRUNCH TIME</span>
-          <strong>{eventType === "disco_takeover" ? "DISCO FEVER" : "TACO RAIN"}</strong>
+          <strong>TACO RAIN</strong>
           <span className="abuse-countdown" key={countdown}>{countdown}</span>
-          <span className="abuse-intro-caption">{eventType === "disco_takeover" ? "THE DANCE FLOOR IS OPEN!" : "THE TACO STORM IS HERE!"}</span>
+          <span className="abuse-intro-caption">THE TACO STORM IS HERE!</span>
         </div>
       </div> : eventType === "taco_rain" && elapsed < INTRO_DURATION + 1250 ? <div className="abuse-opening" aria-hidden="true">
         <div className="abuse-curtain abuse-curtain-left"/>
