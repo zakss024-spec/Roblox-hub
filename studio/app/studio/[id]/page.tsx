@@ -2,7 +2,8 @@
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import { ArrowLeft, Box, Check, Circle, Coins, Cuboid, Globe2, Layers3, LockKeyhole, LogIn, RotateCcw, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Box, Check, Circle, Coins, Cuboid, Globe2, Layers3, LockKeyhole, LogIn, Play, RotateCcw, Save, Trash2 } from "lucide-react";
+import SceneViewport3D from "@/components/scene-viewport-3d";
 
 type Engine = "2d" | "3d";
 type Kind = "block" | "platform" | "coin" | "checkpoint";
@@ -34,6 +35,11 @@ export default function StudioEditor() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const active = useMemo(() => objects.find(o => o.id === selected) ?? null, [objects, selected]);
+  const handleSceneSelect = useCallback((objectId: string | null) => setSelected(objectId), []);
+  const handleSceneMove = useCallback((objectId: string, x: number, z: number) => {
+    setObjects(items => items.map(item => item.id === objectId ? { ...item, x, z } : item));
+    setSaved(false);
+  }, []);
 
   const load = useCallback(async () => {
     const sb = getSupabase();
@@ -59,7 +65,7 @@ export default function StudioEditor() {
     const canvas = canvasRef.current;
     if (!canvas || !project) return;
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx || project.engine === "3d") return;
     const W = 1200, H = 700;
     canvas.width = W; canvas.height = H;
     ctx.fillStyle = "#b9d5e5"; ctx.fillRect(0, 0, W, H);
@@ -167,9 +173,9 @@ export default function StudioEditor() {
   if (!project) return <main className="studio-loading"><p>{error || "Project tidak tersedia."}</p><a href="https://roblox-hub-project-of-zakss.vercel.app/creator">Kembali ke ROBLOX HUB</a></main>;
 
   return <main className="studio-app">
-    <header className="studio-topbar"><a href="https://roblox-hub-project-of-zakss.vercel.app/creator" className="back-link"><ArrowLeft size={17}/> HUB</a><div className="brand-mark">ROBLOX HUB <span>STUDIO</span></div><div className="project-name"><i/>{project.title}</div><div className="top-actions"><button onClick={()=>void save()} disabled={saving}><Save size={16}/>{saving?"SAVING":saved?"SAVED":"SAVE"}</button><button className="publish-btn" onClick={()=>void publish()} disabled={publishing}><Globe2 size={16}/>{publishing?"PUBLISHING":published?"UPDATE PUBLISH":"PUBLISH"}</button></div></header>
+    <header className="studio-topbar"><a href="https://roblox-hub-project-of-zakss.vercel.app/creator" className="back-link"><ArrowLeft size={17}/> HUB</a><div className="brand-mark">ROBLOX HUB <span>STUDIO</span></div><div className="project-name"><i/>{project.title}</div><div className="top-actions"><a className="play-test-btn" href={`https://roblox-hub-project-of-zakss.vercel.app/creator/play/${project.id}`}><Play size={16}/>PLAY TEST</a><button onClick={()=>void save()} disabled={saving}><Save size={16}/>{saving?"SAVING":saved?"SAVED":"SAVE"}</button><button className="publish-btn" onClick={()=>void publish()} disabled={publishing}><Globe2 size={16}/>{publishing?"PUBLISHING":published?"UPDATE PUBLISH":"PUBLISH"}</button></div></header>
     <div className="studio-workspace"><aside className="tool-panel"><div className="panel-heading"><span>BUILD TOOLS</span><small>ADD TO WORLD</small></div><button onClick={()=>add("block")}><Box/> <span>Block</span><kbd>B</kbd></button><button onClick={()=>add("platform")}><Layers3/> <span>Platform</span><kbd>P</kbd></button><button onClick={()=>add("coin")}><Coins/> <span>Coin</span><kbd>C</kbd></button><button onClick={()=>add("checkpoint")}><Circle/> <span>Checkpoint</span><kbd>K</kbd></button><div className="panel-divider"/><div className="panel-heading"><span>WORLD OBJECTS</span><small>{objects.length}/200</small></div><div className="object-list">{objects.map((o,i)=><button key={o.id} className={selected===o.id?"active":""} onClick={()=>setSelected(o.id)}><i style={{background:o.color}}/>{o.type.toUpperCase()} {i+1}</button>)}{objects.length===0&&<p className="empty-list">Tanah sudah tersedia. Tambahkan objek untuk mulai membangun.</p>}</div></aside>
-    <section className="viewport-wrap"><div className="viewport-toolbar"><span>WORLD EDITOR <b>● LIVE SCENE</b></span><span>{project.engine.toUpperCase()} MODE · AUTO TERRAIN</span></div><canvas ref={canvasRef} className="world-canvas" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp}/><div className="viewport-footer"><span>DRAG OBJECTS: SELECT IN LIST · TRANSFORM: RIGHT PANEL</span><span>SCENE V1</span></div></section>
+    <section className="viewport-wrap"><div className="viewport-toolbar"><span>WORLD EDITOR <b>● LIVE SCENE</b></span><span>{project.engine.toUpperCase()} MODE · AUTO TERRAIN</span></div>{project.engine === "3d" ? <SceneViewport3D objects={objects} selected={selected} onSelect={handleSceneSelect} onMove={handleSceneMove}/> : <canvas ref={canvasRef} className="world-canvas" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp}/>}<div className="viewport-footer"><span>DRAG OBJECTS: SELECT IN LIST · TRANSFORM: RIGHT PANEL</span><span>SCENE V1</span></div></section>
     <aside className="properties-panel"><div className="panel-heading"><span>INSPECTOR</span><small>{active?"OBJECT SELECTED":"NO SELECTION"}</small></div>{active?<><label>OBJECT TYPE<input value={active.type.toUpperCase()} readOnly/></label><div className="property-group"><b>POSITION</b><label>X<input type="number" value={active.x} onChange={e=>patch({x:Number(e.target.value)})}/></label><label>Y<input type="number" value={active.y} onChange={e=>patch({y:Number(e.target.value)})}/></label>{project.engine==="3d"&&<label>Z<input type="number" value={active.z} onChange={e=>patch({z:Number(e.target.value)})}/></label>}</div><div className="property-group"><b>SIZE</b><label>WIDTH<input type="number" min=".25" max="10" step=".25" value={active.w} onChange={e=>patch({w:Number(e.target.value)})}/></label><label>HEIGHT<input type="number" min=".25" max="10" step=".25" value={active.h} onChange={e=>patch({h:Number(e.target.value)})}/></label>{project.engine==="3d"&&<label>DEPTH<input type="number" min=".25" max="10" step=".25" value={active.d} onChange={e=>patch({d:Number(e.target.value)})}/></label>}</div><label>COLOR<input className="color-input" type="color" value={active.color} onChange={e=>patch({color:e.target.value})}/></label><button className="delete-btn" onClick={()=>{setObjects(v=>v.filter(o=>o.id!==selected));setSelected(null);setSaved(false);}}><Trash2 size={15}/> DELETE OBJECT</button></>:<div className="inspector-empty"><Cuboid size={34}/><p>Pilih objek dari daftar untuk mengatur posisi, ukuran, dan warna.</p></div>}<div className="terrain-note"><Check size={15}/> AUTO TERRAIN ACTIVE<br/><small>Tanah dasar selalu muncul dan tidak bisa terhapus.</small></div></aside></div>
     <footer className="studio-status"><span><i/> ALL SYSTEMS READY</span><span>{objects.length} OBJECTS · {project.engine.toUpperCase()} WORLD</span><span>{published?"PUBLIC WORLD":"PRIVATE DRAFT"}</span></footer>
     {(error||message)&&<div className={error?"toast error-toast":"toast"}>{error||message}</div>}
