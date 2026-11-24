@@ -7,15 +7,9 @@ import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { SiteHeader } from "@/components/site-header";
 
 type Role = "owner" | "admin" | null;
-type EventType = "taco_rain" | "rainbow_party" | "emoji_invasion" | "pet_parade" | "candy_storm" | "disco_takeover" | "zakss_jumpscare";
+type EventType = "taco_rain";
 const EVENTS: { id: EventType; name: string; emoji: string; description: string }[] = [
   { id: "taco_rain", name: "Taco Rain", emoji: "🌮", description: "Hujan taco yang ramai dan lucu" },
-  { id: "rainbow_party", name: "Rainbow Party", emoji: "🌈", description: "Warna neon dan confetti" },
-  { id: "emoji_invasion", name: "Emoji Invasion", emoji: "😂", description: "Emoji raksasa melayang" },
-  { id: "pet_parade", name: "Pet Parade", emoji: "🐾", description: "Parade hewan lucu" },
-  { id: "candy_storm", name: "Candy Storm", emoji: "🍬", description: "Hujan permen warna-warni" },
-  { id: "disco_takeover", name: "Disco Takeover", emoji: "🪩", description: "Lampu disco dan beat elektronik" },
-  { id: "zakss_jumpscare", name: "Zakss 3D Jumpscare", emoji: "👁️", description: "Teks ZAKSS 3D muncul mendadak dengan efek zoom" },
 ];
 
 export default function ControlRoomPage() {
@@ -30,7 +24,6 @@ export default function ControlRoomPage() {
   const [active, setActive] = useState(false);
   const [eventTime, setEventTime] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventType>("taco_rain");
-  const [beamAngle, setBeamAngle] = useState(0);
 
   async function refresh() {
     const sb = getBrowserSupabase();
@@ -45,7 +38,6 @@ export default function ControlRoomPage() {
       setActive(Boolean(event.active));
       setEventTime(event.started_at);
       if (EVENTS.some(item => item.id === event.event_type)) setSelectedEvent(event.event_type as EventType);
-      setBeamAngle(Number(event.beam_angle ?? 0));
     }
     setLoading(false);
   }
@@ -61,16 +53,6 @@ export default function ControlRoomPage() {
     }
     setBusy(false);
   }
-  async function applyBeamPosition() {
-    const sb = getBrowserSupabase();
-    if (!sb) return;
-    setBusy(true); setError(""); setNotice("");
-    const { error: rpcError } = await sb.rpc("set_rainbow_beam_angle", { new_angle: beamAngle });
-    if (rpcError) setError(rpcError.message.includes("FORBIDDEN") ? "Hanya Owner yang boleh menggerakkan beam." : rpcError.message);
-    else setNotice("Arah beam berhasil diperbarui untuk semua pengunjung online.");
-    setBusy(false);
-  }
-
   async function manageAdmin(e: FormEvent<HTMLFormElement>, makeAdmin: boolean) {
     e.preventDefault(); const sb = getBrowserSupabase(); if (!sb) return;
     setBusy(true); setError(""); setNotice("");
@@ -104,19 +86,12 @@ export default function ControlRoomPage() {
       <div className="control-heading"><div><div className="eyebrow dark-eyebrow"><ShieldCheck size={14}/> PRIVATE COMMAND / ROBLOX HUB</div><h1>CONTROL<br/><span>ROOM.</span></h1><p>Kelola fitur utama dan event website secara realtime. Admin Abuse Intro adalah fitur utama, terpisah dari 20 menu Owner dan 5 menu Admin.</p></div><div className="role-stamp"><span>ACCESS LEVEL</span><strong>{role.toUpperCase()}</strong><small>{role === "owner" ? "20 OWNER MENUS" : "5 ADMIN MENUS"}</small></div></div>
       <section className="abuse-console">
         <div className="console-title"><div><span>LIVE EVENT CONTROL</span><h2>⚡ ADMIN ABUSE</h2></div><span className={active ? "event-status is-live" : "event-status"}>{active ? "● LIVE" : "○ INACTIVE"}</span></div>
-        <p>Pilih satu event. Pengunjung online menerima intro khusus, animasi realtime, dan soundtrack khas event. START akan mengganti event yang sedang berjalan; STOP ALL menghentikan semuanya.</p>
+        <p>Taco Rain adalah satu-satunya event Admin Abuse yang tersedia. Pengunjung online menerima intro, animasi hujan taco, dan soundtrack event. STOP ALL menghentikan semuanya.</p>
         <div className="abuse-event-picker">
-          {EVENTS.map(item => <button type="button" key={item.id} className={selectedEvent === item.id ? "abuse-event-option selected" : "abuse-event-option"} onClick={() => setSelectedEvent(item.id)} disabled={busy || active}>
-            <span className="abuse-event-option-emoji">{item.emoji}</span><span className="abuse-event-option-copy"><strong>{item.name}</strong><small>{item.description}</small></span><span className="abuse-event-option-check">{selectedEvent === item.id ? "✓" : ""}</span>
-          </button>)}
+          <div className="abuse-event-option selected" aria-current="true">
+            <span className="abuse-event-option-emoji">🌮</span><span className="abuse-event-option-copy"><strong>Taco Rain</strong><small>Hujan taco yang ramai dan lucu</small></span><span className="abuse-event-option-check">✓</span>
+          </div>
         </div>
-        {role === "owner" && active && selectedEvent === "rainbow_party" && <div className="owner-beam-control">
-          <div className="owner-beam-heading"><span>🇮🇩 OWNER BEAM CONTROL</span><strong>{beamAngle > 0 ? "+" : ""}{beamAngle}°</strong></div>
-          <p>Geser slider untuk mengatur arah sorotan merah-putih. Tekan APPLY agar semua pengunjung melihat arah yang sama.</p>
-          <input aria-label="Arah beam Rainbow Party" type="range" min={-60} max={60} step={1} value={beamAngle} onChange={e => setBeamAngle(Number(e.target.value))} disabled={busy}/>
-          <div className="owner-beam-scale"><span>◀ KIRI</span><span>ATAS</span><span>KANAN ▶</span></div>
-          <button type="button" className="owner-beam-apply" onClick={() => void applyBeamPosition()} disabled={busy}>APPLY BEAM POSITION</button>
-        </div>}
         <div className="console-actions"><button disabled={busy || active} onClick={() => void toggleEvent(true)} className="start-event"><Play size={17} fill="currentColor"/> START {EVENTS.find(item => item.id === selectedEvent)?.name.toUpperCase()}</button><button disabled={busy || !active} onClick={() => void toggleEvent(false)} className="stop-event"><Square size={16} fill="currentColor"/> STOP ALL</button><button disabled={busy} onClick={() => void refresh()} className="refresh-event"><RefreshCw size={16}/></button></div>
         {eventTime && active && <small className="event-time">Started: {new Date(eventTime).toLocaleString()}</small>}
         <div className="event-sound-note"><Sparkles size={16}/> Setiap event memiliki soundtrack sintetis berbeda. Pengunjung mungkin perlu mengetuk layar sekali agar browser mengizinkan audio.</div>
