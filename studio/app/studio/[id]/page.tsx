@@ -81,7 +81,6 @@ export default function StudioEditor() {
         else if (o.type === "checkpoint") { ctx.fillRect(x-5,y-65,10,65); ctx.fillStyle="#e65d37"; ctx.fillRect(x+5,y-65,45,28); ctx.strokeRect(x+5,y-65,45,28); }
         else { ctx.fillRect(x-w/2,y-h,w,h); ctx.strokeRect(x-w/2,y-h,w,h); }
       }
-    }
     ctx.fillStyle = "rgba(15,27,22,.7)"; ctx.fillRect(20,20,220,38);
     ctx.fillStyle = "#f5f7e8"; ctx.font = "bold 16px Arial"; ctx.fillText("2D WORLD / SIDE VIEW", 34,45);
   }, [project, objects, selected]);
