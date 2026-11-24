@@ -23,6 +23,10 @@ export default function ControlRoomPage() {
   const [error, setError] = useState("");
   const [active, setActive] = useState(false);
   const [eventTime, setEventTime] = useState<string | null>(null);
+  const [newsTitle, setNewsTitle] = useState("");
+  const [newsSummary, setNewsSummary] = useState("");
+  const [newsBody, setNewsBody] = useState("");
+  const [newsCategory, setNewsCategory] = useState("UPDATE");
   const selectedEvent: EventType = "taco_rain";
 
   async function refresh() {
@@ -78,6 +82,29 @@ export default function ControlRoomPage() {
     setBusy(false);
   }
 
+  async function publishNews(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) { setError("Sesi login tidak ditemukan."); return; }
+    setBusy(true); setError(""); setNotice("");
+    const { error: publishError } = await sb.from("hub_news").insert({
+      author_id: user.id,
+      title: newsTitle.trim(),
+      summary: newsSummary.trim(),
+      body: newsBody.trim(),
+      category: newsCategory,
+      published_at: new Date().toISOString(),
+    });
+    if (publishError) setError(publishError.message);
+    else {
+      setNotice("Berita berhasil diterbitkan ke Hub Newsroom dan Notification Center.");
+      setNewsTitle(""); setNewsSummary(""); setNewsBody("");
+    }
+    setBusy(false);
+  }
+
   return <main className="control-room"><SiteHeader/><section className="control-wrap">
     <Link href="/" className="back-link"><ArrowLeft size={15}/> BACK TO UNIVERSE</Link>
     {loading ? <div className="control-loading">VERIFYING ACCESS...</div> : !role ? <div className="control-denied"><ShieldCheck size={38}/><h1>ACCESS RESTRICTED.</h1><p>Akun ini belum memiliki akses Owner atau Admin.</p><Link href="/account">Kembali ke akun</Link></div> :
@@ -102,6 +129,17 @@ export default function ControlRoomPage() {
           <label htmlFor="announcement-message">MASUKKAN TEKS PENGUMUMAN</label>
           <textarea id="announcement-message" value={announcementText} onChange={e=>setAnnouncementText(e.target.value.slice(0,280))} placeholder="Tulis pengumuman di sini..." maxLength={280} rows={3} required />
           <div className="announcement-form-bottom"><small>{announcementText.length}/280 karakter · jeda 8 detik antar pesan</small><button disabled={busy || !announcementText.trim()}><Send size={16}/> KIRIM TEXT PENGUMUMAN</button></div>
+        </form>
+      </section>
+      <section className="announcement-console hub-news-admin">
+        <div className="announcement-heading"><div><span>EDITORIAL PUBLISHING</span><h2><BookOpen size={19}/> PUBLISH HUB NEWS</h2></div><Link href="/news">VIEW NEWSROOM ↗</Link></div>
+        <p>Terbitkan kabar dan update resmi ROBLOX HUB untuk semua pengunjung.</p>
+        <form onSubmit={e => void publishNews(e)} className="announcement-form">
+          <label>NEWS TITLE<input value={newsTitle} onChange={e=>setNewsTitle(e.target.value.slice(0,100))} maxLength={100} minLength={4} required placeholder="Judul berita"/></label>
+          <label>SHORT SUMMARY<input value={newsSummary} onChange={e=>setNewsSummary(e.target.value.slice(0,240))} maxLength={240} minLength={10} required placeholder="Ringkasan singkat untuk kartu berita"/></label>
+          <label>CATEGORY<select value={newsCategory} onChange={e=>setNewsCategory(e.target.value)}><option value="UPDATE">UPDATE</option><option value="ROBLOX">ROBLOX</option><option value="COMMUNITY">COMMUNITY</option><option value="EVENT">EVENT</option></select></label>
+          <label>FULL STORY<textarea value={newsBody} onChange={e=>setNewsBody(e.target.value.slice(0,5000))} maxLength={5000} minLength={10} rows={5} required placeholder="Isi berita lengkap..."/></label>
+          <div className="announcement-form-bottom"><small>{newsBody.length}/5000 karakter</small><button disabled={busy||newsTitle.trim().length<4||newsSummary.trim().length<10||newsBody.trim().length<10}><BookOpen size={16}/> PUBLISH NEWS</button></div>
         </form>
       </section>
       {role === "owner" && <section className="admin-manage"><div className="manage-icon"><UserPlus size={22}/></div><div className="manage-copy"><span>OWNER ONLY</span><h2>MANAGE ADMIN</h2><p>Masukkan username atau ID publik pengguna yang sudah terdaftar.</p><form onSubmit={e => void manageAdmin(e,true)}><input value={identifier} onChange={e=>setIdentifier(e.target.value)} placeholder="Username atau RH-000001" required/><button disabled={busy}><UserPlus size={16}/> ADD ADMIN</button></form><form onSubmit={e=>void manageAdmin(e,false)}><button className="remove-admin" disabled={busy || !identifier.trim()}><UserMinus size={16}/> REMOVE ADMIN</button></form></div></section>}
