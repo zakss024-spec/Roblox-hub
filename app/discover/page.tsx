@@ -5,7 +5,7 @@ import { DiscoverExplorer } from "@/components/discover-explorer";
 import { getPublishedExperiences } from "@/lib/supabase";
 import { getRobloxFeaturedExperiences } from "@/lib/roblox-discovery";
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 export default async function DiscoverPage() {
   const [communityGames, robloxGames] = await Promise.all([
