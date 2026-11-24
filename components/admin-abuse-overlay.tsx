@@ -126,10 +126,10 @@ export function AdminAbuseOverlay() {
 
   const startedAt = event.started_at ? new Date(event.started_at).getTime() : 0;
   const elapsed = startedAt ? Math.max(0, clock - startedAt) : INTRO_DURATION;
-  const isIntro = event.active && elapsed < INTRO_DURATION;
-  const countdown = Math.max(1, 5 - Math.floor(elapsed / 1000));
-  const showEventEffects = event.active && elapsed >= INTRO_DURATION;
   const eventType: EventType = event.event_type === "disco_takeover" ? "disco_takeover" : "taco_rain";
+  const isIntro = event.active && eventType === "taco_rain" && elapsed < INTRO_DURATION;
+  const countdown = Math.max(1, 5 - Math.floor(elapsed / 1000));
+  const showEventEffects = event.active && (eventType === "disco_takeover" || elapsed >= INTRO_DURATION);
 
   useEffect(() => {
     setSoundReady(false);
@@ -149,14 +149,14 @@ export function AdminAbuseOverlay() {
             fontSize: `${24 + (n % 5) * 8}px`,
           }}>🌮</span>)}</div>
       </div>)}
-      {isIntro ? <div className={`abuse-intro ${eventType === "disco_takeover" ? "abuse-intro--disco" : "abuse-intro--taco"}`} role="status" aria-live="assertive">
+      {isIntro ? <div className="abuse-intro abuse-intro--taco" role="status" aria-live="assertive">
         <div className="abuse-intro-content">
           <span className="abuse-intro-kicker">ROBLOX HUB PRESENTS · CRUNCH TIME</span>
           <strong>{eventType === "disco_takeover" ? "DISCO FEVER" : "TACO RAIN"}</strong>
           <span className="abuse-countdown" key={countdown}>{countdown}</span>
           <span className="abuse-intro-caption">{eventType === "disco_takeover" ? "THE DANCE FLOOR IS OPEN!" : "THE TACO STORM IS HERE!"}</span>
         </div>
-      </div> : elapsed < INTRO_DURATION + 1250 ? <div className="abuse-opening" aria-hidden="true">
+      </div> : eventType === "taco_rain" && elapsed < INTRO_DURATION + 1250 ? <div className="abuse-opening" aria-hidden="true">
         <div className="abuse-curtain abuse-curtain-left"/>
         <div className="abuse-curtain abuse-curtain-right"/>
       </div> : null}
