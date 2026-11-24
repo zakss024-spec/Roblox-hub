@@ -79,10 +79,6 @@ export default function LoginPage() {
           <div className="eyebrow dark-eyebrow"><Sparkles size={14}/> PLAYER GATEWAY</div>
           <h1>WELCOME<br/><span>BACK.</span></h1>
           <p className="auth-subtitle">Masuk dengan akun ROBLOX HUB yang sudah kamu daftarkan.</p>
-          <div className="auth-tabs">
-            <Link href="/auth">CREATE ACCOUNT</Link>
-            <span className="selected">SIGN IN</span>
-          </div>
           <form className="auth-form" onSubmit={submit}>
             <label><span>EMAIL ADDRESS</span><div className="auth-input"><Mail size={17}/><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" required/></div></label>
             <label><span>PASSWORD</span><div className="auth-input"><LockKeyhole size={17}/><input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Your account password" autoComplete="current-password" required/></div></label>
@@ -90,7 +86,7 @@ export default function LoginPage() {
             {notice && <p className="auth-feedback success" role="status">{notice}</p>}
             <button className="auth-submit" type="submit" disabled={busy}>{busy?"SIGNING IN...":"ENTER ROBLOX HUB"} <ArrowRight size={17}/></button>
           </form>
-          <p className="auth-legal">Belum punya akun? <Link href="/auth">Buat akun baru di sini.</Link> Gunakan password unik dan jangan pernah bagikan password Roblox atau cookie akunmu.</p>
+          <p className="auth-legal">Gunakan akun ROBLOX HUB kamu untuk melanjutkan. Jangan pernah bagikan password Roblox atau cookie akunmu.</p>
         </section>
       </div>
       <footer className="auth-footer"><span>ROBLOX HUB / PLAYER GATEWAY</span><span>© 2026 — ALL WORLDS WELCOME</span></footer>
