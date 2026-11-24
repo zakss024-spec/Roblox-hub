@@ -28,8 +28,8 @@
 .abuse-event--pet .abuse-particle{animation-name:pet-parade;animation-duration:10s!important}
 @keyframes pet-parade{0%{transform:translate3d(-20vw,0,0) rotate(-8deg) scale(.8);top:65%}50%{transform:translate3d(45vw,-35px,0) rotate(8deg) scale(1.12)}100%{transform:translate3d(120vw,15px,0) rotate(-8deg) scale(.9);top:58%}}
 .abuse-event--candy{background:radial-gradient(ellipse at 50% 0%,#ff9acb18,transparent 65%)}
-.abuse-event--disco{background:radial-gradient(ellipse at 50% 110%,#8d42ff35,transparent 55%),#09051c}
-.abuse-disco-lights{position:absolute;inset:-25%;background:conic-gradient(from 0deg at 50% 50%,#ff36b31b,#39e8ff1b,#fff12220,#8e52ff25,#ff36b31b);filter:blur(18px);animation:rainbow-spin 9s linear infinite}
+.abuse-event--disco{background:transparent!important;isolation:isolate;overflow:visible}
+.abuse-disco-lights{position:absolute;inset:0;background:transparent;pointer-events:none}
 .abuse-disco-ball{position:absolute;top:7%;left:50%;transform:translateX(-50%);font-size:clamp(54px,10vw,100px);filter:drop-shadow(0 0 24px #fff9);animation:disco-bob 2s ease-in-out infinite alternate}
 @keyframes disco-bob{to{transform:translate(-50%,12px) rotate(8deg)}}
 .abuse-intro--taco{background:radial-gradient(ellipse,#5b2b13 0%,#080605 62%)}
@@ -113,9 +113,9 @@
 
 
 /* Disco Fever: overhead rotating fixtures and crossed spot beams */
-.abuse-event--disco{background:radial-gradient(ellipse at 50% 110%,#8d42ff35,transparent 55%),radial-gradient(ellipse at 50% 0%,#32105a 0%,#09051c 62%);isolation:isolate}
+.abuse-event--disco{background:transparent!important;isolation:isolate;overflow:visible}
 .abuse-disco-lights{position:absolute;inset:-25%;background:conic-gradient(from 0deg at 50% 50%,#ff36b31b,#39e8ff1b,#fff12220,#8e52ff25,#ff36b31b);filter:blur(18px);animation:rainbow-spin 9s linear infinite}
-.abuse-disco-rig{position:absolute;inset:0;overflow:hidden}
+.abuse-disco-rig{position:absolute;inset:0;overflow:visible;pointer-events:none}
 .abuse-disco-lamp{position:absolute;top:-12px;width:52px;height:58px;z-index:3;border:2px solid #c9b8ff;border-top:0;border-radius:0 0 13px 13px;background:linear-gradient(135deg,#f5eaff,#7852b5 48%,#21143e);box-shadow:0 5px 20px #c38cff88, inset 0 -8px 12px #09051c;transform-origin:50% 0;animation:disco-lamp-swing 3.8s ease-in-out infinite alternate}
 .abuse-disco-lamp:before{content:"";position:absolute;left:13px;right:13px;bottom:5px;height:13px;border-radius:50%;background:#fff;box-shadow:0 0 14px 7px #fff,0 0 32px 15px #d17bff}
 .abuse-disco-lamp:after{content:"";position:absolute;top:48px;left:50%;width:min(44vw,520px);height:105vh;clip-path:polygon(47% 0,53% 0,100% 100%,0 100%);transform:translateX(-50%);transform-origin:50% 0;filter:blur(10px);opacity:.58;mix-blend-mode:screen}
@@ -126,6 +126,6 @@
 @keyframes disco-lamp-swing{0%{rotate:-16deg}100%{rotate:16deg}}
 @keyframes disco-beam-left{0%{transform:translateX(-50%) rotate(-24deg);opacity:.25}100%{transform:translateX(-50%) rotate(30deg);opacity:.72}}
 @keyframes disco-beam-right{0%{transform:translateX(-50%) rotate(24deg);opacity:.28}100%{transform:translateX(-50%) rotate(-30deg);opacity:.72}}
-.abuse-disco-ball{position:absolute;z-index:4;top:7%;left:50%;transform:translateX(-50%);font-size:clamp(54px,10vw,100px);filter:drop-shadow(0 0 24px #fff9);animation:disco-bob 2s ease-in-out infinite alternate}
+.abuse-disco-ball{position:absolute;z-index:4;top:12px;left:50%;transform:translateX(-50%);font-size:clamp(38px,7vw,66px);filter:drop-shadow(0 0 18px #fff9);animation:disco-bob 2s ease-in-out infinite alternate;pointer-events:none}
 @media(max-width:600px){.abuse-disco-lamp{width:42px;height:50px}.abuse-disco-lamp--left{left:3vw}.abuse-disco-lamp--right{right:3vw}.abuse-disco-lamp:after{width:58vw}}
 @media(prefers-reduced-motion:reduce){.abuse-disco-lamp,.abuse-disco-lamp:after,.abuse-disco-lights,.abuse-disco-ball{animation:none!important}}
