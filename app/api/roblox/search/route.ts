@@ -89,6 +89,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ games: [], nextCursor: null, error: "Invalid search." }, { status: 400 });
   }
 
+  // Keep the public discovery tool focused on age-appropriate, non-weapon experiences.
+  if (/\\b(fps|shooter|weapon|firearm|gun|pistol|rifle|sniper|battle.?royale|tembak.?tembakan|senjata)\\b/i.test(query)) {
+    return NextResponse.json({ games: [], nextCursor: null, error: "Pencarian ini tidak tersedia. Coba genre Roblox lain yang tidak berfokus pada senjata." }, { status: 403 });
+  }
+
   const searchUrl = new URL("https://apis.roblox.com/search-api/omni-search");
   searchUrl.searchParams.set("searchQuery", query);
   searchUrl.searchParams.set("sessionId", "roblox-hub-discover");
