@@ -83,7 +83,10 @@ export function AdminAbuseOverlay() {
   const [clock, setClock] = useState(() => Date.now());
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [soundReady, setSoundReady] = useState(false);
+  const [remixActive, setRemixActive] = useState(false);
+  const [remixKey, setRemixKey] = useState(0);
   const announcementTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const remixTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const sb = getBrowserSupabase();
@@ -115,6 +118,7 @@ export function AdminAbuseOverlay() {
     return () => {
       alive = false;
       if (announcementTimer.current) clearTimeout(announcementTimer.current);
+      if (remixTimer.current) clearTimeout(remixTimer.current);
       void sb.removeChannel(channel);
     };
   }, []);
@@ -142,7 +146,7 @@ export function AdminAbuseOverlay() {
   if (!event.active && !announcement) return null;
   return <>
     {event.active && <>
-      {showEventEffects && (eventType === "disco_takeover" ? <div className="abuse-event abuse-event--disco" aria-hidden="true"><div className="abuse-disco-lights"/><div className="abuse-disco-rig"><span className="abuse-disco-lamp abuse-disco-lamp--left"/><span className="abuse-disco-lamp abuse-disco-lamp--right"/></div><div className="abuse-disco-ball">🪩</div></div> : <div className="abuse-event abuse-event--taco" aria-hidden="true">
+      {showEventEffects && (eventType === "disco_takeover" ? <><div className="abuse-event abuse-event--disco" aria-hidden="true"><div className="abuse-disco-lights"/><div className="abuse-disco-rig"><span className="abuse-disco-lamp abuse-disco-lamp--left"/><span className="abuse-disco-lamp abuse-disco-lamp--right"/></div><div className="abuse-disco-ball">🪩</div>{remixActive && <div className="abuse-remix-fx" key={remixKey} aria-hidden="true"><div className="abuse-remix-rockets">{Array.from({length:7},(_,i)=><span key={i} style={{left:`${9+i*13}%`,animationDelay:`${i*.11}s`}}>✦</span>)}</div><div className="abuse-remix-confetti">{Array.from({length:44},(_,i)=><i key={i} style={{left:`${(i*37)%100}%`,animationDelay:`${(i%11)*.045}s`,rotate:`${(i*29)%160}deg`}}/>)}</div><div className="abuse-remix-flares"><i/><i/><i/></div></div>}</div><button type="button" className="abuse-remix-button" onClick={()=>{setRemixKey((v)=>v+1);setRemixActive(true);if(remixTimer.current)clearTimeout(remixTimer.current);remixTimer.current=setTimeout(()=>setRemixActive(false),2600);}} aria-label="Trigger Disco Remix effects"><span>✦</span> REMIX <span>✦</span></button></> : <div className="abuse-event abuse-event--taco" aria-hidden="true">
         <div className="abuse-particle-layer">{particles.map((n) =>
           <span className="abuse-particle" key={n} style={{
             left: `${(n * 47 + 3) % 100}%`,
