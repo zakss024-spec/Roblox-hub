@@ -82,7 +82,6 @@ export function AdminAbuseOverlay() {
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [soundReady, setSoundReady] = useState(false);
   const announcementTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const discoPlayerRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
     const sb = getBrowserSupabase();
@@ -131,14 +130,6 @@ export function AdminAbuseOverlay() {
   const countdown = Math.max(1, 5 - Math.floor(elapsed / 1000));
   const showEventEffects = event.active && elapsed >= INTRO_DURATION;
   const eventType: EventType = event.event_type === "disco_takeover" ? "disco_takeover" : "taco_rain";
-  const enableDiscoMusic = () => {
-    const player = discoPlayerRef.current?.contentWindow;
-    if (!player) return;
-    player.postMessage(JSON.stringify({ event: "command", func: "unMute", args: [] }), "*");
-    player.postMessage(JSON.stringify({ event: "command", func: "setVolume", args: [70] }), "*");
-    player.postMessage(JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*");
-    setSoundReady(true);
-  };
 
   useEffect(() => {
     setSoundReady(false);
@@ -149,7 +140,7 @@ export function AdminAbuseOverlay() {
   if (!event.active && !announcement) return null;
   return <>
     {event.active && <>
-      {showEventEffects && (eventType === "disco_takeover" ? <div className="abuse-event abuse-event--disco" aria-hidden="true"><div className="abuse-disco-lights"/><div className="abuse-disco-ball">🪩</div></div> : <div className="abuse-event abuse-event--taco" aria-hidden="true">
+      {showEventEffects && (eventType === "disco_takeover" ? <div className="abuse-event abuse-event--disco" aria-hidden="true"><div className="abuse-disco-lights"/><div className="abuse-disco-rig"><span className="abuse-disco-lamp abuse-disco-lamp--left"/><span className="abuse-disco-lamp abuse-disco-lamp--right"/></div><div className="abuse-disco-ball">🪩</div></div> : <div className="abuse-event abuse-event--taco" aria-hidden="true">
         <div className="abuse-particle-layer">{particles.map((n) =>
           <span className="abuse-particle" key={n} style={{
             left: `${(n * 47 + 3) % 100}%`,
@@ -169,7 +160,6 @@ export function AdminAbuseOverlay() {
         <div className="abuse-curtain abuse-curtain-left"/>
         <div className="abuse-curtain abuse-curtain-right"/>
       </div> : null}
-      {showEventEffects && eventType === "disco_takeover" && <div className="abuse-disco-player"><div className="abuse-disco-player-heading"><span>DISCO FEVER SOUNDTRACK</span><strong>YOUTUBE</strong></div><iframe ref={discoPlayerRef} title="Garam & Madu - Tenxi, Naykilla, Jemsii" src="https://www.youtube-nocookie.com/embed/k0ubS6BhHu4?autoplay=1&mute=1&controls=1&playsinline=1&rel=0&enablejsapi=1" allow="autoplay; encrypted-media; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen/><button type="button" onClick={enableDiscoMusic}>ENABLE MUSIC</button></div>}
       {showEventEffects && eventType === "taco_rain" && !soundReady && <div className="abuse-sound-hint" aria-live="polite">TAP ANYWHERE TO ENABLE EVENT SOUND</div>}
     </>}
     {announcement && <div className="global-announcement" role="status" aria-live="polite">
