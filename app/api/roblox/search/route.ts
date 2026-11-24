@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Keep the public discovery tool focused on age-appropriate, non-weapon experiences.
-  if (/\\b(fps|shooter|weapon|firearm|gun|pistol|rifle|sniper|battle.?royale|tembak.?tembakan|senjata)\\b/i.test(query)) {
+  if (/\b(fps|shooter|weapon|firearm|gun|pistol|rifle|sniper|battle.?royale|tembak.?tembakan|senjata)\b/i.test(query)) {
     return NextResponse.json({ games: [], nextCursor: null, error: "Pencarian ini tidak tersedia. Coba genre Roblox lain yang tidak berfokus pada senjata." }, { status: 403 });
   }
 
