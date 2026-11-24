@@ -41,6 +41,8 @@ export default function Home() {
   <Link className="hub-destination-card" href="/notifications"><Bell size={22}/><strong>Notifications</strong><p>Keep up with site announcements.</p><ArrowUpRight size={16}/></Link>
   <Link className="hub-destination-card" href="/owner-analytics"><ChartNoAxesCombined size={22}/><strong>Owner Analytics</strong><p>Activity insights for site staff.</p><ArrowUpRight size={16}/></Link>
   <Link className="hub-destination-card" href="/zakss-ai"><Sparkles size={22}/><strong>Zakss AI</strong><p>Describe a world and get recommendations.</p><ArrowUpRight size={16}/></Link>
+  <Link className="hub-destination-card" href="/creator"><Gamepad2 size={22}/><strong>HUB Creator</strong><p>Build and publish your own 2D or 3D worlds.</p><ArrowUpRight size={16}/></Link>
+  <Link className="hub-destination-card" href="/creator/community"><Globe2 size={22}/><strong>Community Worlds</strong><p>Play worlds made by other HUB players.</p><ArrowUpRight size={16}/></Link>
   </div></section>
   <section className="owner-strip"><div className="owner-symbol"><Globe2 size={27}/></div><div className="owner-copy"><span className="eyebrow">FOR GAME OWNERS & CREATORS</span><h2>YOUR WORLD.<br/>YOUR RULES.</h2><p>Private owner tools will only become available after secure account and server-side permission verification.</p></div><div className="owner-cta"><span>PRIVATE ACCESS</span><span className="owner-locked">ACCESS CONTROLLED <ShieldCheck size={16}/></span></div></section>
   <footer className="site-footer"><Link className="footer-brand" href="/">ROBLOX<span>HUB</span></Link><span>AN UNIVERSE OF EXPERIENCES.</span><span>© 2026 ROBLOX HUB</span></footer>
