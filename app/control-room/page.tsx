@@ -23,7 +23,7 @@ export default function ControlRoomPage() {
   const [error, setError] = useState("");
   const [active, setActive] = useState(false);
   const [eventTime, setEventTime] = useState<string | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<EventType>("taco_rain");
+  const selectedEvent: EventType = "taco_rain";
 
   async function refresh() {
     const sb = getBrowserSupabase();
