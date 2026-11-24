@@ -34,6 +34,15 @@ const STARTER_PLACES = [
   { placeId: 735030788, genre: "Roleplay", fallbackName: "Royale High" },
   { placeId: 6737970321, genre: "Roleplay", fallbackName: "Livetopia" },
   { placeId: 8481844229, genre: "Roleplay", fallbackName: "Berry Avenue" },
+  { placeId: 6516141723, genre: "Horror", fallbackName: "DOORS" },
+  { placeId: 4623386862, genre: "Horror", fallbackName: "Piggy" },
+  { placeId: 7991339063, genre: "Adventure", fallbackName: "Rainbow Friends" },
+  { placeId: 9872472334, genre: "Survival", fallbackName: "Evade" },
+  { placeId: 2768379856, genre: "Survival", fallbackName: "3008" },
+  { placeId: 738339342, genre: "Escape", fallbackName: "Flood Escape 2" },
+  { placeId: 277751860, genre: "Minigames", fallbackName: "Epic Minigames" },
+  { placeId: 2913303231, genre: "Building", fallbackName: "Obby Creator" },
+  { placeId: 13822889, genre: "Building", fallbackName: "Lumber Tycoon 2" },
 ];
 
 type PlaceDetails = {
