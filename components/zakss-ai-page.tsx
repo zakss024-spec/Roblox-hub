@@ -21,7 +21,12 @@ export function ZakssAIPage() {
 
   async function recommend() {
     const request = prompt.trim();
-    if (request.length < 2 || stage === "thinking" || stage === "searching") return;
+    if (stage === "thinking" || stage === "searching") return;
+    if (request.length < 2) {
+      setStage("error");
+      setMessage("Tulis dulu game yang ingin kamu cari, minimal 2 karakter.");
+      return;
+    }
     setGames([]);
     setStage("thinking");
     setMessage("Siap Zakss AI, loading di carikan sesuai permintaan pengguna...");
@@ -68,7 +73,7 @@ export function ZakssAIPage() {
           <p>Kasih tahu map seperti apa yang ingin kamu mainkan. Zakss AI akan memahami permintaanmu dan mencarikan pengalaman Roblox yang relevan.</p>
           <div className="zakss-ai-prompt">
             <textarea value={prompt} maxLength={500} onChange={(event) => setPrompt(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void recommend(); } }} placeholder="Contoh: carikan map roleplay kota yang seru dimainkan bareng teman..." aria-label="Permintaan rekomendasi map Roblox"/>
-            <button type="button" onClick={() => void recommend()} disabled={busy || prompt.trim().length < 2}><Send size={17}/>{busy ? "SEDANG MENCARI..." : "TANYA ZAKSS AI"}</button>
+            <button type="button" onClick={() => void recommend()} disabled={busy}><Send size={17}/>{busy ? "SEDANG MENCARI..." : "TANYA ZAKSS AI"}</button>
           </div>
           <small className="zakss-ai-hint">ENTER UNTUK KIRIM · SHIFT + ENTER UNTUK BARIS BARU</small>
         </div>
