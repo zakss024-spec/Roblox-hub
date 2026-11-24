@@ -28,6 +28,8 @@ export default function ControlRoomPage() {
   const [newsSummary, setNewsSummary] = useState("");
   const [newsBody, setNewsBody] = useState("");
   const [newsCategory, setNewsCategory] = useState("UPDATE");
+  const [maintenanceActive, setMaintenanceActive] = useState(false);
+  const [maintenanceBusy, setMaintenanceBusy] = useState(false);
   const selectedEvent: EventType = "taco_rain";
 
   async function refresh() {
@@ -39,6 +41,7 @@ export default function ControlRoomPage() {
       sb.rpc("get_my_site_role"), sb.from("site_admin_abuse").select("active,started_at,event_type,beam_angle").eq("id", true).maybeSingle()
     ]);
     setRole(myRole === "owner" || myRole === "admin" ? myRole : null);
+    if (myRole === "owner") { const { data: maintenance } = await sb.from("hub_site_maintenance").select("is_active").eq("id", true).maybeSingle(); setMaintenanceActive(Boolean(maintenance?.is_active)); }
     if (event) {
       setActive(Boolean(event.active) && (!event.event_type || event.event_type === "taco_rain"));
       setEventTime(event.started_at);
@@ -46,6 +49,25 @@ export default function ControlRoomPage() {
     setLoading(false);
   }
   useEffect(() => { void refresh(); }, []);
+  async function toggleMaintenance(next: boolean) {
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) { setError("Sesi Owner tidak ditemukan."); return; }
+    setMaintenanceBusy(true); setError(""); setNotice("");
+    const { error: updateError } = await sb.from("hub_site_maintenance").update({
+      is_active: next,
+      updated_at: new Date().toISOString(),
+      updated_by: user.id,
+    }).eq("id", true);
+    if (updateError) setError(updateError.message);
+    else {
+      setMaintenanceActive(next);
+      setNotice(next ? "Maintenance Mode aktif. Pengunjung sekarang melihat halaman perbaikan; akun Owner tetap bisa mengakses website." : "Maintenance Mode dimatikan. Website kembali terbuka untuk semua pengguna.");
+    }
+    setMaintenanceBusy(false);
+  }
+
   async function toggleEvent(next: boolean) {
     const sb = getBrowserSupabase(); if (!sb) return;
     setBusy(true); setError(""); setNotice("");
@@ -111,7 +133,18 @@ export default function ControlRoomPage() {
     {loading ? <div className="control-loading">VERIFYING ACCESS...</div> : !role ? <div className="control-denied"><ShieldCheck size={38}/><h1>ACCESS RESTRICTED.</h1><p>Akun ini belum memiliki akses Owner atau Admin.</p><Link href="/account">Kembali ke akun</Link></div> :
     <>
       <div className="control-heading"><div><div className="eyebrow dark-eyebrow"><ShieldCheck size={14}/> PRIVATE COMMAND / ROBLOX HUB</div><h1>CONTROL<br/><span>ROOM.</span></h1><p>Kelola fitur utama dan event website secara realtime. Admin Abuse Intro adalah fitur utama, terpisah dari 20 menu Owner dan 5 menu Admin.</p></div><div className="role-stamp"><span>ACCESS LEVEL</span><strong>{role.toUpperCase()}</strong><small>{role === "owner" ? "20 OWNER MENUS" : "5 ADMIN MENUS"}</small></div></div>
-      {role === "owner" && <OwnerLiveUsers />}
+      {role === "owner" && <>
+        <OwnerLiveUsers />
+        <section className="maintenance-console">
+          <div className="maintenance-console-heading"><div><span>OWNER ONLY / SITE AVAILABILITY</span><h2>🛠 MAINTENANCE MODE</h2></div><span className={maintenanceActive ? "maintenance-console-status active" : "maintenance-console-status"}>{maintenanceActive ? "● WEBSITE CLOSED" : "○ WEBSITE OPEN"}</span></div>
+          <p>Tutup sementara akses halaman website untuk pengunjung saat ada perbaikan. Lu sebagai Owner tetap bisa membuka seluruh halaman dan Control Room.</p>
+          <div className="maintenance-console-actions">
+            <button type="button" disabled={maintenanceBusy || maintenanceActive} onClick={() => void toggleMaintenance(true)}> {maintenanceBusy ? "PLEASE WAIT..." : "CLOSE WEBSITE TEMPORARILY"} </button>
+            <button type="button" className="maintenance-reopen" disabled={maintenanceBusy || !maintenanceActive} onClick={() => void toggleMaintenance(false)}> {maintenanceBusy ? "PLEASE WAIT..." : "REOPEN WEBSITE"} </button>
+          </div>
+          <small>Hanya role Owner yang dapat mengubah status. Admin biasa tidak memiliki kontrol ini.</small>
+        </section>
+      </>}
       <section className="abuse-console">
         <div className="console-title"><div><span>LIVE EVENT CONTROL</span><h2>⚡ ADMIN ABUSE</h2></div><span className={active ? "event-status is-live" : "event-status"}>{active ? "● LIVE" : "○ INACTIVE"}</span></div>
         <p>Taco Rain adalah satu-satunya event Admin Abuse yang tersedia. Pengunjung online menerima intro, animasi hujan taco, dan soundtrack event. STOP ALL menghentikan semuanya.</p>
