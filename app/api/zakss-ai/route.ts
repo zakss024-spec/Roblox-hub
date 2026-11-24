@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type XkiroResponse = {
+type ChatCompletionResponse = {
   choices?: Array<{ message?: { content?: string | Array<{ type?: string; text?: string }> } }>;
   error?: { message?: string };
 };
@@ -49,10 +49,10 @@ function requestsDisallowedContent(prompt: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.XKIRO_API_KEY;
+  const apiKey = process.env.RUNCOMPUTER_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "Zakss AI belum dikonfigurasi. Tambahkan XKIRO_API_KEY di Vercel Environment Variables." },
+      { error: "Zakss AI belum dikonfigurasi. Tambahkan RUNCOMPUTER_API_KEY di Vercel Environment Variables." },
       { status: 503 },
     );
   }
@@ -82,10 +82,10 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const model = process.env.XKIRO_MODEL?.trim() || "openai/gpt-5.6-sol";
+  const baseUrl = (process.env.RUNCOMPUTER_BASE_URL?.trim() || "https://api.runcomputer.cloud/v1").replace(/\\/+$/, "");\n  const model = process.env.RUNCOMPUTER_MODEL?.trim() || "ministral-3-14b-instruct-uncensored";
 
   try {
-    const upstream = await fetch("https://api.xkiro.com/v1/chat/completions", {
+    const upstream = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -119,11 +119,11 @@ export async function POST(request: NextRequest) {
       cache: "no-store",
     });
 
-    const data = await upstream.json().catch(() => null) as XkiroResponse | null;
+    const data = await upstream.json().catch(() => null) as ChatCompletionResponse | null;
     if (!upstream.ok) {
-      console.error("Zakss AI xKiro request failed:", upstream.status, data?.error?.message ?? "Unknown provider error");
+      console.error("Zakss AI RunComputer request failed:", upstream.status, data?.error?.message ?? "Unknown provider error");
       return NextResponse.json(
-        { error: upstream.status === 401 ? "API key xKiro tidak valid. Periksa Environment Variables." : "Zakss AI sedang sibuk. Coba lagi sebentar." },
+        { error: upstream.status === 401 ? "API key RunComputer tidak valid. Periksa Environment Variables." : "Zakss AI sedang sibuk. Coba lagi sebentar." },
         { status: upstream.status === 401 ? 503 : 502 },
       );
     }
