@@ -27,7 +27,7 @@ type DiscoverItem = {
 
 type SearchResponse = { games?: RobloxExperience[]; nextCursor?: string | null; error?: string };
 
-const categories = ["All", "Roleplay", "Simulator", "Pets", "Fashion", "Obby", "Survival", "Building", "Tycoon", "Social", "Horror", "Anime", "Racing", "Story", "Adventure", "Sports", "Tower Defense", "Music", "Puzzle", "Parkour", "Cooking", "Fashion", "Pets", "Escape", "Minigames"];
+const categories = ["All", "Roleplay", "Simulator", "Pets", "Fashion", "Obby", "Survival", "Building", "Tycoon", "Social", "Horror", "Anime", "Racing", "Story", "Adventure", "Sports", "Tower Defense", "Music", "Puzzle", "Parkour", "Cooking", "Escape", "Minigames"];
 const categorySearch: Record<string, string> = {
   Roleplay: "roleplay",
   Simulator: "simulator",
