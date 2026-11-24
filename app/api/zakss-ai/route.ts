@@ -12,6 +12,29 @@ function cleanText(value: unknown, max: number): string {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
+function getSafeGenreQuery(prompt: string): string {
+  const normalized = prompt.toLowerCase();
+  const clearlyHarmful =
+    /\b(konten seksual eksplisit|pornografi|eksploitasi seksual|eksploitasi anak|pelecehan seksual|perdagangan manusia|cara membunuh orang|membunuh orang di dunia nyata|membuat bom|membuat bahan peledak|melukai orang sungguhan|serangan di dunia nyata)\b/i.test(normalized);
+  if (clearlyHarmful) return "";
+
+  const genres: Array<[RegExp, string]> = [
+    [/\b(fps|first person shooter|shooter|tembak[ -]?tembakan|tembak menembak)\b/i, "Roblox FPS shooter"],
+    [/\b(horror|horor|scary|spooky|seram|jumpscare)\b/i, "Roblox horror survival"],
+    [/\b(zombie|undead)\b/i, "Roblox zombie survival"],
+    [/\b(survival|bertahan hidup)\b/i, "Roblox survival game"],
+    [/\b(sniper|aim training|latihan menembak)\b/i, "Roblox aim training"],
+    [/\b(paintball|laser tag)\b/i, "Roblox paintball laser tag"],
+    [/\b(battle royale)\b/i, "Roblox battle royale"],
+    [/\b(combat|pertempuran|war game|perang dalam game|military)\b/i, "Roblox fictional combat game"],
+    [/\b(murder mystery|mystery|misteri|detective)\b/i, "Roblox mystery detective"],
+    [/\b(fighting|pertarungan|martial arts)\b/i, "Roblox fighting game"],
+    [/\b(escape|obby|simulator|roleplay|racing|balapan|adventure|petualangan)\b/i, "Roblox ${normalized.match(/escape|obby|simulator|roleplay|racing|balapan|adventure|petualangan/i)?.[0] ?? "adventure"}"],
+  ];
+  const match = genres.find(([pattern]) => pattern.test(normalized));
+  return match?.[1] ?? "";
+}
+
 export async function POST(request: NextRequest) {
   const apiKey = process.env.XKIRO_API_KEY;
   if (!apiKey) {
@@ -91,14 +114,15 @@ export async function POST(request: NextRequest) {
       explanation?: unknown;
     };
 
-    if (parsed.allowed !== true) {
+    const safeGenreQuery = getSafeGenreQuery(prompt);
+    if (parsed.allowed !== true && !safeGenreQuery) {
       return NextResponse.json({
         allowed: false,
         explanation: cleanText(parsed.explanation, 180) || "Zakss AI tidak bisa membantu mencari tema tersebut. Coba tema game yang aman seperti obby, puzzle, atau simulator.",
       });
     }
 
-    const searchQuery = cleanText(parsed.searchQuery, 80);
+    const searchQuery = safeGenreQuery || cleanText(parsed.searchQuery, 80);
     if (searchQuery.length < 2) throw new Error("Model returned an empty search query.");
 
     return NextResponse.json({
