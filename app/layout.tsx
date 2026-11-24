@@ -8,6 +8,7 @@ import "./zakss-ai.css";
 import "./platform.css";
 import "./presence.css";
 import "./maintenance.css";
+import "./creator/creator.css";
 import { AdminAbuseOverlay } from "@/components/admin-abuse-overlay";
 import { GlobalChat } from "@/components/global-chat";
 import { UserPresenceTracker } from "@/components/user-presence-tracker";
