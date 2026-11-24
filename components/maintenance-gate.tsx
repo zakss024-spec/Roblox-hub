@@ -59,9 +59,7 @@ export function MaintenanceGate({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   if (pathname === "/auth" || pathname === "/login") return <>{children}</>;
-  if (state.checking) {
-    return <main className="maintenance-screen"><div className="maintenance-card"><span className="maintenance-kicker">ROBLOX HUB / SYSTEM CHECK</span><div className="maintenance-spinner"/><h1>CHECKING<br/><span>THE HUB.</span></h1><p>Memeriksa status layanan...</p></div></main>;
-  }
+  if (state.checking) return <>{children}</>;
   if (!state.maintenance || state.owner) return <>{children}</>;
 
   return (
