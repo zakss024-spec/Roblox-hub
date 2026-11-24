@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Gamepad2, LockKeyhole, Mail, Sparkles, UserRound } from "lucide-react";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 export default function AuthPage(){
  const router=useRouter();const [mode,setMode]=useState<"signup"|"signin">("signup");
+ useEffect(()=>{let active=true;const supabase=getBrowserSupabase();if(!supabase)return;void supabase.auth.getUser().then(({data})=>{if(active&&data.user)router.replace("/account");});return()=>{active=false;};},[router]);
  const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [username,setUsername]=useState("");
  const [busy,setBusy]=useState(false);const [message,setMessage]=useState("");const [error,setError]=useState("");
  async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);setError("");setMessage("");
