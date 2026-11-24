@@ -3,7 +3,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "re
 import { useParams } from "next/navigation";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { ArrowLeft, Box, Check, Circle, Coins, Cuboid, Globe2, Layers3, LockKeyhole, LogIn, Play, RotateCcw, Save, Trash2 } from "lucide-react";
-import SceneViewport3D from "@/components/scene-viewport-3d";
+import SceneViewport3D from "../../../components/scene-viewport-3d";
 
 type Engine = "2d" | "3d";
 type Kind = "block" | "platform" | "coin" | "checkpoint";
