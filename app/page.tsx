@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowDownRight, ArrowUpRight, Compass, Gamepad2, Globe2, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Bell, BookOpen, CalendarDays, ChartNoAxesCombined, Compass, Flame, Gamepad2, Globe2, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 const pillars = [
   {icon:Compass,number:"01",title:"Discover worlds",copy:"Explore Roblox experiences by genre, mood, and the kind of adventure you want today."},
