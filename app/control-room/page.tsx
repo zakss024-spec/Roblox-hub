@@ -8,9 +8,10 @@ import { SiteHeader } from "@/components/site-header";
 import { OwnerLiveUsers } from "@/components/owner-live-users";
 
 type Role = "owner" | "admin" | null;
-type EventType = "taco_rain";
+type EventType = "taco_rain" | "disco_takeover";
 const EVENTS: { id: EventType; name: string; emoji: string; description: string }[] = [
   { id: "taco_rain", name: "Taco Rain", emoji: "🌮", description: "Hujan taco yang ramai dan lucu" },
+  { id: "disco_takeover", name: "Disco Fever", emoji: "🪩", description: "Pesta disco dengan soundtrack Garam & Madu" },
 ];
 
 export default function ControlRoomPage() {
@@ -23,6 +24,7 @@ export default function ControlRoomPage() {
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [active, setActive] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<EventType>("disco_takeover");
   const [eventTime, setEventTime] = useState<string | null>(null);
   const [newsTitle, setNewsTitle] = useState("");
   const [newsSummary, setNewsSummary] = useState("");
@@ -30,7 +32,7 @@ export default function ControlRoomPage() {
   const [newsCategory, setNewsCategory] = useState("UPDATE");
   const [maintenanceActive, setMaintenanceActive] = useState(false);
   const [maintenanceBusy, setMaintenanceBusy] = useState(false);
-  const selectedEvent: EventType = "taco_rain";
+
 
   async function refresh() {
     const sb = getBrowserSupabase();
@@ -43,7 +45,8 @@ export default function ControlRoomPage() {
     setRole(myRole === "owner" || myRole === "admin" ? myRole : null);
     if (myRole === "owner") { const { data: maintenance } = await sb.from("hub_site_maintenance").select("is_active").eq("id", true).maybeSingle(); setMaintenanceActive(Boolean(maintenance?.is_active)); }
     if (event) {
-      setActive(Boolean(event.active) && (!event.event_type || event.event_type === "taco_rain"));
+      setActive(Boolean(event.active));
+      if (event.event_type === "taco_rain" || event.event_type === "disco_takeover") setSelectedEvent(event.event_type);
       setEventTime(event.started_at);
     }
     setLoading(false);
@@ -147,15 +150,15 @@ export default function ControlRoomPage() {
       </>}
       <section className="abuse-console">
         <div className="console-title"><div><span>LIVE EVENT CONTROL</span><h2>⚡ ADMIN ABUSE</h2></div><span className={active ? "event-status is-live" : "event-status"}>{active ? "● LIVE" : "○ INACTIVE"}</span></div>
-        <p>Taco Rain adalah satu-satunya event Admin Abuse yang tersedia. Pengunjung online menerima intro, animasi hujan taco, dan soundtrack event. STOP ALL menghentikan semuanya.</p>
+        <p>Pilih event untuk semua pengunjung online. Disco Fever memakai pemutar YouTube resmi untuk lagu Garam &amp; Madu; STOP ALL menghentikan event dan pemutarnya.</p>
         <div className="abuse-event-picker">
-          <div className="abuse-event-option selected" aria-current="true">
-            <span className="abuse-event-option-emoji">🌮</span><span className="abuse-event-option-copy"><strong>Taco Rain</strong><small>Hujan taco yang ramai dan lucu</small></span><span className="abuse-event-option-check">✓</span>
-          </div>
+          {EVENTS.map(item => <button type="button" key={item.id} className={selectedEvent === item.id ? "abuse-event-option selected" : "abuse-event-option"} aria-pressed={selectedEvent === item.id} disabled={busy || active} onClick={() => setSelectedEvent(item.id)}>
+            <span className="abuse-event-option-emoji">{item.emoji}</span><span className="abuse-event-option-copy"><strong>{item.name}</strong><small>{item.description}</small></span>{selectedEvent === item.id && <span className="abuse-event-option-check">✓</span>}
+          </button>)}
         </div>
         <div className="console-actions"><button disabled={busy || active} onClick={() => void toggleEvent(true)} className="start-event"><Play size={17} fill="currentColor"/> START {EVENTS.find(item => item.id === selectedEvent)?.name.toUpperCase()}</button><button disabled={busy || !active} onClick={() => void toggleEvent(false)} className="stop-event"><Square size={16} fill="currentColor"/> STOP ALL</button><button disabled={busy} onClick={() => void refresh()} className="refresh-event"><RefreshCw size={16}/></button></div>
         {eventTime && active && <small className="event-time">Started: {new Date(eventTime).toLocaleString()}</small>}
-        <div className="event-sound-note"><Sparkles size={16}/> Setiap event memiliki soundtrack sintetis berbeda. Pengunjung mungkin perlu mengetuk layar sekali agar browser mengizinkan audio.</div>
+        <div className="event-sound-note"><Sparkles size={16}/> Disco Fever menampilkan pemutar YouTube resmi. Pengunjung dapat mengetuk ENABLE MUSIC jika browser memblokir autoplay.</div>
       </section>
       <section className="announcement-console">
         <div className="announcement-heading"><div><span>LIVE MESSAGE SYSTEM</span><h2>GLOBAL ANNOUNCEMENT</h2></div><span className="announcement-live">● REALTIME</span></div>
