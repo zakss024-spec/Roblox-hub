@@ -67,17 +67,31 @@ export function MaintenanceGate({ children }: { children: ReactNode }) {
   return (
     <main className="maintenance-screen">
       <div className="maintenance-grid" aria-hidden="true"/>
+      <div className="maintenance-topline"><span>ROBLOX HUB <b>/</b> SERVICE NOTICE</span><span>NO. 001 — WORK IN PROGRESS</span></div>
       <section className="maintenance-card">
-        <div className="maintenance-brand">ROBLOX<span>HUB</span></div>
-        <div className="maintenance-symbol">⚙</div>
-        <span className="maintenance-kicker">ZAKSS / ROBLOX HUB — SEDANG UPGRADE</span>
-        <h1>ZAKSS SEDANG<br/><span>MEMPERBAIKI WEB.</span></h1>
-        <p>Zakss sedang memperbaiki web agar ROBLOX HUB terus berkembang, makin nyaman digunakan, dan punya lebih banyak hal seru untuk dijelajahi.</p>
-        <div className="maintenance-status"><span/> WEBSITE SEMENTARA DITUTUP</div>
-        <small>Kami sedang menyiapkan pembaruan. Coba kunjungi lagi nanti, ya!</small>
-        <Link className="maintenance-owner-link" href="/auth">Akses Developer / Owner</Link>
+        <header className="maintenance-card-head">
+          <div className="maintenance-brand"><i>RH</i><span>ROBLOX<br/>HUB</span></div>
+          <span className="maintenance-stamp">OWNER<br/>INITIATED</span>
+        </header>
+        <div className="maintenance-poster-body">
+          <div className="maintenance-copy">
+            <span className="maintenance-kicker">PERHATIAN, PLAYER!</span>
+            <h1>WEB-NYA<br/>LAGI <em>DIBENAHIN.</em></h1>
+            <p>Zakss sedang memperbaiki web agar ROBLOX HUB terus berkembang. Beberapa bagian lagi dirapikan supaya pengalaman menjelajah jadi makin nyaman dan seru.</p>
+          </div>
+          <div className="maintenance-art" aria-hidden="true">
+            <div className="maintenance-art-rays"/>
+            <div className="maintenance-art-disc"><span>WIP</span><i>✳</i></div>
+            <div className="maintenance-art-tag">UNDER<br/>CONSTRUCTION</div>
+            <div className="maintenance-art-spark spark-one">✦</div><div className="maintenance-art-spark spark-two">✳</div>
+          </div>
+        </div>
+        <footer className="maintenance-card-foot">
+          <div className="maintenance-status"><span/> SEDANG DALAM PERBAIKAN <small>— coba mampir lagi nanti.</small></div>
+          <Link className="maintenance-owner-link" href="/auth">AKSES DEVELOPER / OWNER <b>↗</b></Link>
+        </footer>
       </section>
-      <footer className="maintenance-footer">ROBLOX HUB · THANK YOU FOR YOUR PATIENCE</footer>
+      <footer className="maintenance-footer"><span>BUILT FOR PLAYERS.</span><span>ROBLOX HUB © 2026</span></footer>
     </main>
   );
 }
