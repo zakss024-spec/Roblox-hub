@@ -73,7 +73,7 @@ async function getJson<T>(url: string): Promise<T | null> {
   try {
     const response = await fetch(url, {
       headers: { Accept: "application/json", "User-Agent": "ROBLOX-HUB/1.0" },
-      next: { revalidate: 180 },
+      next: { revalidate: 60 },
     });
     if (!response.ok) return null;
     return await response.json() as T;
