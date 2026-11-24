@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 
-type EventType = "taco_rain";
+type EventType = "taco_rain" | "disco_takeover";
 type EventState = { active: boolean; started_at: string | null; event_type?: EventType; beam_angle?: number };
 type Announcement = { id: number; sender_name: string; message: string; created_at: string };
 
@@ -42,6 +42,7 @@ function playAnnouncementSound() {
 }
 
 function startEventMusic(_type: EventType, onReady: () => void) {
+  if (_type === "disco_takeover") return () => {};
   const audio = new Audio("https://quicksounds.com/uploads/tracks/1219935113_1051071961_1597840749.mp3");
   audio.loop = true;
   audio.preload = "auto";
@@ -81,6 +82,7 @@ export function AdminAbuseOverlay() {
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [soundReady, setSoundReady] = useState(false);
   const announcementTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const discoPlayerRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
     const sb = getBrowserSupabase();
@@ -90,7 +92,7 @@ export function AdminAbuseOverlay() {
       .then(({ data }) => {
         if (alive && data) {
           const next = data as EventState;
-          setEvent({ ...next, active: Boolean(next.active) && (!next.event_type || next.event_type === "taco_rain") });
+          setEvent({ ...next, active: Boolean(next.active) && (!next.event_type || next.event_type === "taco_rain" || next.event_type === "disco_takeover") });
         }
       });
     const channel = sb.channel("roblox-hub-admin-abuse")
@@ -98,7 +100,7 @@ export function AdminAbuseOverlay() {
         (payload) => {
           if (!alive) return;
           const next = payload.new as EventState;
-          setEvent({ ...next, active: Boolean(next.active) && (!next.event_type || next.event_type === "taco_rain") });
+          setEvent({ ...next, active: Boolean(next.active) && (!next.event_type || next.event_type === "taco_rain" || next.event_type === "disco_takeover") });
         })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "site_announcements" },
         (payload) => {
@@ -128,7 +130,15 @@ export function AdminAbuseOverlay() {
   const isIntro = event.active && elapsed < INTRO_DURATION;
   const countdown = Math.max(1, 5 - Math.floor(elapsed / 1000));
   const showEventEffects = event.active && elapsed >= INTRO_DURATION;
-  const eventType: EventType = "taco_rain";
+  const eventType: EventType = event.event_type === "disco_takeover" ? "disco_takeover" : "taco_rain";
+  const enableDiscoMusic = () => {
+    const player = discoPlayerRef.current?.contentWindow;
+    if (!player) return;
+    player.postMessage(JSON.stringify({ event: "command", func: "unMute", args: [] }), "*");
+    player.postMessage(JSON.stringify({ event: "command", func: "setVolume", args: [70] }), "*");
+    player.postMessage(JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*");
+    setSoundReady(true);
+  };
 
   useEffect(() => {
     setSoundReady(false);
@@ -139,7 +149,7 @@ export function AdminAbuseOverlay() {
   if (!event.active && !announcement) return null;
   return <>
     {event.active && <>
-      {showEventEffects && <div className="abuse-event abuse-event--taco" aria-hidden="true">
+      {showEventEffects && (eventType === "disco_takeover" ? <div className="abuse-event abuse-event--disco" aria-hidden="true"><div className="abuse-disco-lights"/><div className="abuse-disco-ball">🪩</div></div> : <div className="abuse-event abuse-event--taco" aria-hidden="true">
         <div className="abuse-particle-layer">{particles.map((n) =>
           <span className="abuse-particle" key={n} style={{
             left: `${(n * 47 + 3) % 100}%`,
@@ -147,19 +157,20 @@ export function AdminAbuseOverlay() {
             animationDuration: `${4.5 + (n % 6) * 0.62}s`,
             fontSize: `${24 + (n % 5) * 8}px`,
           }}>🌮</span>)}</div>
-      </div>}
+      </div>)}
       {isIntro ? <div className="abuse-intro abuse-intro--taco" role="status" aria-live="assertive">
         <div className="abuse-intro-content">
           <span className="abuse-intro-kicker">ROBLOX HUB PRESENTS · CRUNCH TIME</span>
-          <strong>TACO RAIN</strong>
+          <strong>{eventType === "disco_takeover" ? "DISCO FEVER" : "TACO RAIN"}</strong>
           <span className="abuse-countdown" key={countdown}>{countdown}</span>
-          <span className="abuse-intro-caption">THE TACO STORM IS HERE!</span>
+          <span className="abuse-intro-caption">{eventType === "disco_takeover" ? "THE DANCE FLOOR IS OPEN!" : "THE TACO STORM IS HERE!"}</span>
         </div>
       </div> : elapsed < INTRO_DURATION + 1250 ? <div className="abuse-opening" aria-hidden="true">
         <div className="abuse-curtain abuse-curtain-left"/>
         <div className="abuse-curtain abuse-curtain-right"/>
       </div> : null}
-      {showEventEffects && !soundReady && <div className="abuse-sound-hint" aria-live="polite">TAP ANYWHERE TO ENABLE EVENT SOUND</div>}
+      {showEventEffects && eventType === "disco_takeover" && <div className="abuse-disco-player"><div className="abuse-disco-player-heading"><span>DISCO FEVER SOUNDTRACK</span><strong>YOUTUBE</strong></div><iframe ref={discoPlayerRef} title="Garam & Madu - Tenxi, Naykilla, Jemsii" src="https://www.youtube-nocookie.com/embed/k0ubS6BhHu4?autoplay=1&mute=1&controls=1&playsinline=1&rel=0&enablejsapi=1" allow="autoplay; encrypted-media; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen/><button type="button" onClick={enableDiscoMusic}>ENABLE MUSIC</button></div>}
+      {showEventEffects && eventType === "taco_rain" && !soundReady && <div className="abuse-sound-hint" aria-live="polite">TAP ANYWHERE TO ENABLE EVENT SOUND</div>}
     </>}
     {announcement && <div className="global-announcement" role="status" aria-live="polite">
       <div className="global-announcement-tag">ROBLOX HUB <span>· GLOBAL ANNOUNCEMENT</span></div>
