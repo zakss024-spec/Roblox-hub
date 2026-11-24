@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const baseUrl = (process.env.RUNCOMPUTER_BASE_URL?.trim() || "https://api.runcomputer.cloud/v1").replace(/\\/+$/, "");
+  const baseUrl = (process.env.RUNCOMPUTER_BASE_URL?.trim() || "https://api.runcomputer.cloud/v1").replace(/\/+$/, "");
   const model = process.env.RUNCOMPUTER_MODEL?.trim() || "ministral-3-14b-instruct-uncensored";
 
   try {
