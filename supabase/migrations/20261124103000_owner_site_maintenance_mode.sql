@@ -23,3 +23,5 @@ create policy "Only owner can update maintenance status"
 on public.hub_site_maintenance for update to authenticated
 using ((select public.get_my_site_role()) = 'owner')
 with check ((select public.get_my_site_role()) = 'owner');
+
+alter publication supabase_realtime add table public.hub_site_maintenance;
