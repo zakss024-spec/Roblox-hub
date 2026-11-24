@@ -32,6 +32,7 @@ export default function ControlRoomPage() {
   const [newsCategory, setNewsCategory] = useState("UPDATE");
   const [maintenanceActive, setMaintenanceActive] = useState(false);
   const [maintenanceBusy, setMaintenanceBusy] = useState(false);
+  const [effectBusy, setEffectBusy] = useState(false);
 
 
   async function refresh() {
@@ -52,6 +53,16 @@ export default function ControlRoomPage() {
     setLoading(false);
   }
   useEffect(() => { void refresh(); }, []);
+  async function triggerGlobalEffect(effectName: "confetti" | "firework") {
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    setEffectBusy(true); setError(""); setNotice("");
+    const { error: triggerError } = await sb.rpc("trigger_site_effect", { effect_name: effectName });
+    if (triggerError) setError(triggerError.message.includes("OWNER_ONLY") ? "Hanya Owner yang dapat menjalankan efek ini." : triggerError.message);
+    else setNotice(effectName === "confetti" ? "CONFETTI dikirim ke semua pengunjung online!" : "FIREWORK dikirim ke semua pengunjung online!");
+    setEffectBusy(false);
+  }
+
   async function toggleMaintenance(next: boolean) {
     const sb = getBrowserSupabase();
     if (!sb) return;
@@ -138,6 +149,14 @@ export default function ControlRoomPage() {
       <div className="control-heading"><div><div className="eyebrow dark-eyebrow"><ShieldCheck size={14}/> PRIVATE COMMAND / ROBLOX HUB</div><h1>CONTROL<br/><span>ROOM.</span></h1><p>Kelola fitur utama dan event website secara realtime. Admin Abuse Intro adalah fitur utama, terpisah dari 20 menu Owner dan 5 menu Admin.</p></div><div className="role-stamp"><span>ACCESS LEVEL</span><strong>{role.toUpperCase()}</strong><small>{role === "owner" ? "20 OWNER MENUS" : "5 ADMIN MENUS"}</small></div></div>
       {role === "owner" && <>
         <OwnerLiveUsers />
+        <section className="owner-global-effects">
+          <div className="owner-global-effects-heading"><span>OWNER ONLY / GLOBAL REALTIME FX</span><h2>🎉 SPECIAL EFFECTS</h2><p>Tekan tombol untuk memicu animasi dan sound pada pengunjung yang sedang online.</p></div>
+          <div className="owner-global-effects-actions">
+            <button type="button" disabled={effectBusy} onClick={() => void triggerGlobalEffect("confetti")}><span>🎊</span><strong>{effectBusy ? "SENDING..." : "CONFETTI"}</strong><small>Dari pojok kiri dan kanan bawah</small></button>
+            <button type="button" disabled={effectBusy} onClick={() => void triggerGlobalEffect("firework")}><span>🎆</span><strong>{effectBusy ? "SENDING..." : "FIREWORK"}</strong><small>Meluncur dari bawah ke atas</small></button>
+          </div>
+          <small className="owner-global-effects-note">Kontrol hanya untuk Owner. Pengunjung dapat mengaktifkan suara efek satu kali jika browser membatasi autoplay.</small>
+        </section>
         <section className="maintenance-console">
           <div className="maintenance-console-heading"><div><span>OWNER ONLY / SITE AVAILABILITY</span><h2>🛠 MAINTENANCE MODE</h2></div><span className={maintenanceActive ? "maintenance-console-status active" : "maintenance-console-status"}>{maintenanceActive ? "● WEBSITE CLOSED" : "○ WEBSITE OPEN"}</span></div>
           <p>Tutup sementara akses halaman website untuk pengunjung saat ada perbaikan. Lu sebagai Owner tetap bisa membuka seluruh halaman dan Control Room.</p>
