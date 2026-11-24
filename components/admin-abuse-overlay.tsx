@@ -29,6 +29,38 @@ const MUSIC: Record<EventType, number[]> = {
   zakss_jumpscare: [110, 220, 880, 440],
 };
 
+function playAnnouncementSound() {
+  const AudioContextClass = window.AudioContext;
+  if (!AudioContextClass) return;
+  const context = new AudioContextClass();
+  void context.resume().then(() => {
+    if (context.state !== "running") {
+      void context.close();
+      return;
+    }
+    const now = context.currentTime;
+    // Short, friendly three-note notification chime.
+    [784, 988, 1175].forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const start = now + index * 0.105;
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(frequency, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.12, start + 0.018);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.24);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(start);
+      oscillator.stop(start + 0.26);
+    });
+    window.setTimeout(() => { void context.close(); }, 650);
+  }).catch(() => {
+    void context.close();
+    // Browser autoplay policies may block sound until the visitor interacts.
+  });
+}
+
 function startEventMusic(type: EventType, onReady: () => void) {
   if (type === "taco_rain") {
     const audio = new Audio("https://quicksounds.com/uploads/tracks/1219935113_1051071961_1597840749.mp3");
@@ -148,6 +180,7 @@ export function AdminAbuseOverlay() {
         (payload) => {
           if (!alive) return;
           setAnnouncement(payload.new as Announcement);
+          playAnnouncementSound();
           if (announcementTimer.current) clearTimeout(announcementTimer.current);
           announcementTimer.current = setTimeout(() => setAnnouncement(null), 9000);
         })
