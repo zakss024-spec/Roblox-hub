@@ -9,14 +9,6 @@ type Announcement = { id: number; sender_name: string; message: string; created_
 
 const INTRO_DURATION = 5000;
 const particles = Array.from({ length: 38 }, (_, i) => i);
-const EVENT_CONFIG = {
-  taco_rain: { title: "TACO RAIN", subtitle: "THE TACO STORM IS HERE!", kicker: "CRUNCH TIME", symbols: ["🌮", "🌮", "🌮", "✨"], className: "taco" },
-};
-
-const MUSIC: Record<EventType, number[]> = {
-  taco_rain: [392, 494, 587, 494, 440, 523, 659, 523],
-};
-
 function playAnnouncementSound() {
   const AudioContextClass = window.AudioContext;
   if (!AudioContextClass) return;
