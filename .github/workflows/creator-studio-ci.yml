@@ -1,0 +1,61 @@
+name: Creator and Studio CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/creator/**"
+      - "components/**"
+      - "lib/**"
+      - "studio/**"
+      - "package.json"
+      - ".github/workflows/creator-studio-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/creator/**"
+      - "components/**"
+      - "lib/**"
+      - "studio/**"
+      - "package.json"
+      - ".github/workflows/creator-studio-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  hub:
+    name: ROBLOX HUB build
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm install
+      - run: npm run typecheck
+      - run: npm run build
+
+  studio:
+    name: ROBLOX HUB STUDIO build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: studio
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_ci_placeholder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: studio/package.json
+      - run: npm install
+      - run: npm run typecheck
+      - run: npm run build
