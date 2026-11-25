@@ -147,7 +147,7 @@ export default function StudioEditor() {
     if (objects.length >= 200) { setError("Maksimal 200 objek per dunia."); return; }
     setBuilderBusy(true); setError(""); setMessage("Zakss AI Builder sedang menyusun objek 3D...");
     try {
-      const response = await fetch("/api/zakss-builder", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: builderPrompt.trim(), existingCount: objects.length }) });
+      const response = await fetch("/api/zakss-builder", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: builderPrompt.trim(), existingCount: objects.length, existingObjects: objects.slice(-60).map(({ id, ...item }) => item) }) });
       const data = await response.json() as { objects?: Array<{type:Kind;x:number;y:number;z:number;w:number;h:number;d:number;color:string}>; summary?:string; error?:string };
       if (!response.ok) throw new Error(data.error || "Zakss AI Builder gagal.");
       const additions = (data.objects || []).slice(0, 200 - objects.length).map((item) => ({ ...item, id: crypto.randomUUID() }));
