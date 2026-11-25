@@ -52,6 +52,16 @@ export async function POST(request: NextRequest) {
     if (room < bridge.length) return NextResponse.json({ error: "Butuh ruang untuk 7 objek jembatan. Hapus beberapa objek dulu ya." }, { status: 400 });
     return NextResponse.json({ objects: bridge, summary: "Jembatan 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
   }
+  const asksStairs = /\b(tangga|stairs|staircase|parkour|obby)\b/.test(normalizedPrompt);
+  if (asksStairs) {
+    const stairs = Array.from({ length: 8 }, (_, i) => ({
+      type: "block", x: 0, y: i * .55, z: 7 - i * 2,
+      w: 3, h: .55, d: 2.2,
+      color: i % 2 === 0 ? "#5b9cda" : "#7d66c2"
+    }));
+    if (room < stairs.length) return NextResponse.json({ error: "Butuh ruang untuk 8 anak tangga parkour. Hapus beberapa objek dulu ya." }, { status: 400 });
+    return NextResponse.json({ objects: stairs, summary: "Tangga parkour 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
+  }
   const asksRoad = /\b(jalan|road|path|lintasan|track)\b/.test(normalizedPrompt);
   if (asksRoad) {
     const road = [
