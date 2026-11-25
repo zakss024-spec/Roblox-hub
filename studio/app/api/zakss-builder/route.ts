@@ -52,6 +52,18 @@ export async function POST(request: NextRequest) {
     if (room < bridge.length) return NextResponse.json({ error: "Butuh ruang untuk 7 objek jembatan. Hapus beberapa objek dulu ya." }, { status: 400 });
     return NextResponse.json({ objects: bridge, summary: "Jembatan 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
   }
+  const asksCastle = /\b(kastil|castle|menara|tower)\b/.test(normalizedPrompt);
+  if (asksCastle) {
+    const castle = [
+      { type: "platform", x: 0, y: 0, z: 0, w: 14, h: .5, d: 14, color: "#8a8b91" },
+      { type: "block", x: 0, y: .5, z: 0, w: 6, h: 4, d: 6, color: "#b9b8b2" },
+      ...[[-4.5,-4.5],[4.5,-4.5],[-4.5,4.5],[4.5,4.5]].map(([x,z]) => ({ type: "block", x, y: .5, z, w: 2.2, h: 6, d: 2.2, color: "#96989e" })),
+      ...[[-4.5,-4.5],[4.5,-4.5],[-4.5,4.5],[4.5,4.5]].map(([x,z]) => ({ type: "block", x, y: 6.5, z, w: 2.8, h: .8, d: 2.8, color: "#8d4b43" })),
+      { type: "block", x: 0, y: 4.5, z: -3.15, w: 1.4, h: 2.5, d: .2, color: "#69452f" }
+    ];
+    if (room < castle.length) return NextResponse.json({ error: "Butuh ruang untuk 10 objek kastil. Hapus beberapa objek dulu ya." }, { status: 400 });
+    return NextResponse.json({ objects: castle, summary: "Kastil dan menara 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
+  }
   const asksStairs = /\b(tangga|stairs|staircase|parkour|obby)\b/.test(normalizedPrompt);
   if (asksStairs) {
     const stairs = Array.from({ length: 8 }, (_, i) => ({
