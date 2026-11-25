@@ -6,7 +6,7 @@ import {ArrowLeft,Box,Check,Circle,Coins,Cuboid,Layers3,Save,Trash2,Undo2} from 
 import {getBrowserSupabase} from "@/lib/supabase-browser";
 import {SiteHeader} from "@/components/site-header";
 import CreatorSceneViewport3D from "@/components/creator-scene-viewport-3d";
-type Obj={id:string;type:"block"|"platform"|"coin"|"checkpoint";x:number;y:number;z:number;w:number;h:number;d:number;color:string};
+type Obj={id:string;type:"block"|"platform"|"coin"|"checkpoint";x:number;y:number;z:number;w:number;h:number;d:number;color:string;rotationY?:number};
 type Scene={schemaVersion:number;objects:Obj[]};
 type Project={id:string;owner_id:string;title:string;description:string;engine:"2d"|"3d";template:string;scene:Scene};
 const palette=["#f2bd45","#e65d37","#9acb4a","#5b8fe8","#a98bd8","#f4efe5"];
