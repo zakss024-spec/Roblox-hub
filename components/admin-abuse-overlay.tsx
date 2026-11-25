@@ -134,14 +134,9 @@ export function AdminAbuseOverlay() {
   const [clock, setClock] = useState(() => Date.now());
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [soundReady, setSoundReady] = useState(false);
-  const [remixActive, setRemixActive] = useState(false);
   const [globalEffect, setGlobalEffect] = useState<GlobalEffect | null>(null);
-  const [soundEnabled, setSoundEnabled] = useState(false);
-  const soundEnabledRef = useRef(false);
   const effectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [remixKey, setRemixKey] = useState(0);
   const announcementTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const remixTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const sb = getBrowserSupabase();
@@ -169,7 +164,7 @@ export function AdminAbuseOverlay() {
           setGlobalEffect(next);
           if (effectTimer.current) clearTimeout(effectTimer.current);
           effectTimer.current = setTimeout(() => setGlobalEffect(null), 4200);
-          if (soundEnabledRef.current) playGlobalEffectSound(next.effect_type);
+          playGlobalEffectSound(next.effect_type);
         })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "site_announcements" },
         (payload) => {
@@ -183,7 +178,6 @@ export function AdminAbuseOverlay() {
     return () => {
       alive = false;
       if (announcementTimer.current) clearTimeout(announcementTimer.current);
-      if (remixTimer.current) clearTimeout(remixTimer.current);
       if (effectTimer.current) clearTimeout(effectTimer.current);
       void sb.removeChannel(channel);
     };
@@ -212,7 +206,7 @@ export function AdminAbuseOverlay() {
 
   return <>
     {event.active && <>
-      {showEventEffects && (eventType === "disco_takeover" ? <><div className="abuse-event abuse-event--disco" aria-hidden="true"><div className="abuse-disco-lights"/><div className="abuse-disco-rig"><span className="abuse-disco-lamp abuse-disco-lamp--left"/><span className="abuse-disco-lamp abuse-disco-lamp--right"/></div><div className="abuse-disco-ball">🪩</div>{remixActive && <div className="abuse-remix-fx" key={remixKey} aria-hidden="true"><div className="abuse-remix-rockets">{Array.from({length:7},(_,i)=><span key={i} style={{left:`${9+i*13}%`,animationDelay:`${i*.11}s`}}>✦</span>)}</div><div className="abuse-remix-confetti">{Array.from({length:44},(_,i)=><i key={i} style={{left:`${(i*37)%100}%`,animationDelay:`${(i%11)*.045}s`,rotate:`${(i*29)%160}deg`}}/>)}</div><div className="abuse-remix-flares"><i/><i/><i/></div></div>}</div><button type="button" className="abuse-remix-button" onClick={()=>{setRemixKey((v)=>v+1);setRemixActive(true);if(remixTimer.current)clearTimeout(remixTimer.current);remixTimer.current=setTimeout(()=>setRemixActive(false),2600);}} aria-label="Trigger Disco Remix effects"><span>✦</span> REMIX <span>✦</span></button></> : <div className="abuse-event abuse-event--taco" aria-hidden="true">
+      {showEventEffects && (eventType === "disco_takeover" ? <><div className="abuse-event abuse-event--disco" aria-hidden="true"><div className="abuse-disco-lights"/><div className="abuse-disco-rig"><span className="abuse-disco-lamp abuse-disco-lamp--left"/><span className="abuse-disco-lamp abuse-disco-lamp--right"/></div><div className="abuse-disco-ball">🪩</div></> : <div className="abuse-event abuse-event--taco" aria-hidden="true">
         <div className="abuse-particle-layer">{particles.map((n) =>
           <span className="abuse-particle" key={n} style={{
             left: `${(n * 47 + 3) % 100}%`,
@@ -235,10 +229,9 @@ export function AdminAbuseOverlay() {
       {showEventEffects && eventType === "taco_rain" && !soundReady && <div className="abuse-sound-hint" aria-live="polite">TAP ANYWHERE TO ENABLE EVENT SOUND</div>}
     </>}
     {globalEffect && <div className={`global-owner-effect global-owner-effect--${globalEffect.effect_type}`} key={globalEffect.id} aria-hidden="true">
-      {globalEffect.effect_type === "confetti" ? <><div className="global-confetti-corner global-confetti-corner--left">{Array.from({length:30},(_,i)=><i key={i} style={{left:`${(i*31)%100}%`,"--i":i,"--delay":`${(i%10)*.045}s`} as React.CSSProperties}/>)}</div><div className="global-confetti-corner global-confetti-corner--right">{Array.from({length:30},(_,i)=><i key={i} style={{left:`${(i*31)%100}%`,"--i":i+30,"--delay":`${(i%10)*.045}s`} as React.CSSProperties}/>)}</div></> : <div className="global-firework-launches">{Array.from({length:5},(_,i)=><span key={i} style={{"--i":i,"--delay":`${i*.14}s`} as React.CSSProperties}><i/></span>)}</div>}
+      {globalEffect.effect_type === "confetti" ? <><div className="global-confetti-corner global-confetti-corner--left">{Array.from({length:30},(_,i)=><i key={i} style={{left:`${(i*31)%100}%`,"--i":i,"--delay":`${(i%10)*.045}s`} as React.CSSProperties}/>)}</div><div className="global-confetti-corner global-confetti-corner--right">{Array.from({length:30},(_,i)=><i key={i} style={{left:`${(i*31)%100}%`,"--i":i+30,"--delay":`${(i%10)*.045}s`} as React.CSSProperties}/>)}</div></> : <div className="global-firework-launches">{Array.from({length:7},(_,i)=><span key={i} style={{"--i":i,"--delay":`${i*.12}s`} as React.CSSProperties}><i/><b>{Array.from({length:22},(_,j)=><em key={j} style={{"--spark":j} as React.CSSProperties}/>)}</b></span>)}</div>}
     </div>}
-    <button type="button" className="global-effect-sound-enable" aria-label={soundEnabled ? "Matikan suara efek" : "Aktifkan suara efek"} onClick={()=>{const next=!soundEnabled; soundEnabledRef.current=next; setSoundEnabled(next); if(next){const AudioContextClass=window.AudioContext;if(AudioContextClass){globalEffectAudioContext??=new AudioContextClass();void globalEffectAudioContext.resume();} if(globalEffect)playGlobalEffectSound(globalEffect.effect_type);}}}>{soundEnabled ? "🔊 SOUND ON" : "🔇 SOUND OFF"}</button>
-    {announcement && <div className="global-announcement" role="status" aria-live="polite">
+        {announcement && <div className="global-announcement" role="status" aria-live="polite">
       <div className="global-announcement-tag">ROBLOX HUB <span>· GLOBAL ANNOUNCEMENT</span></div>
       <p><strong>{announcement.sender_name}:</strong> {announcement.message}</p>
     </div>}
