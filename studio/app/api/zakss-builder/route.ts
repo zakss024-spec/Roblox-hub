@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
 
     let response = await fetch(base + "/chat/completions", requestOptions);
     let data = await response.json().catch(() => null) as ChatCompletionResponse | null;
-    const fallbackModel = process.env.XKIRO_FALLBACK_MODEL || "cohere/command-a-reasoning";
+    const fallbackModel = process.env.XKIRO_FALLBACK_MODEL || "cohere/command-a-plus";
     if (!response.ok && (response.status === 429 || response.status === 503) && fallbackModel !== model) {
       const retryPayload = JSON.parse(requestOptions.body as string) as Record<string, unknown>;
       retryPayload.model = fallbackModel;
