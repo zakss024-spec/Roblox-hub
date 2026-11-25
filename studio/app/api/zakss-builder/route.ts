@@ -42,6 +42,16 @@ export async function POST(request: NextRequest) {
     if (room < city.length) return NextResponse.json({ error: "Butuh ruang untuk 7 objek kota. Hapus beberapa objek dulu ya." }, { status: 400 });
     return NextResponse.json({ objects: city, summary: "Kota kecil 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
   }
+  const asksBridge = /\b(jembatan|bridge)\b/.test(normalizedPrompt);
+  if (asksBridge) {
+    const bridge = [
+      { type: "platform", x: 0, y: 0, z: 0, w: 14, h: .3, d: 12, color: "#287fa8" },
+      { type: "platform", x: 0, y: .45, z: 0, w: 4, h: .35, d: 12, color: "#9b7048" },
+      ...[-5, -2.5, 0, 2.5, 5].map((z) => ({ type: "platform", x: 0, y: .48, z, w: .18, h: .7, d: .18, color: "#d3b58a" }))
+    ];
+    if (room < bridge.length) return NextResponse.json({ error: "Butuh ruang untuk 7 objek jembatan. Hapus beberapa objek dulu ya." }, { status: 400 });
+    return NextResponse.json({ objects: bridge, summary: "Jembatan 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
+  }
   const asksRoad = /\b(jalan|road|path|lintasan|track)\b/.test(normalizedPrompt);
   if (asksRoad) {
     const road = [
