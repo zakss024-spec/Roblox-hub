@@ -29,6 +29,28 @@ export async function POST(request: NextRequest) {
     }, { headers: { "Cache-Control": "no-store" } });
   }
   const room = 200 - existingCount;
+  const asksCity = /\b(kota|city|town|perumahan)\b/.test(normalizedPrompt);
+  if (asksCity) {
+    const city = [
+      { type: "platform", x: 0, y: 0, z: 0, w: 22, h: .4, d: 22, color: "#55585d" },
+      ...[
+        [-7, -7, 3.5, 6, 5, "#6d879d"], [-1, -7, 4.5, 5, 6, "#b78a63"],
+        [6, -7, 3.2, 6, 4, "#8c9c75"], [-7, 5, 4.2, 5, 6, "#9a7caa"],
+        [0, 5, 5.2, 6, 5, "#b6a16d"], [7, 5, 3.8, 5, 5, "#739da0"]
+      ].map(([x, z, h, w, d, color]) => ({ type: "block", x, y: .4, z, w, h, d, color }))
+    ];
+    if (room < city.length) return NextResponse.json({ error: "Butuh ruang untuk 7 objek kota. Hapus beberapa objek dulu ya." }, { status: 400 });
+    return NextResponse.json({ objects: city, summary: "Kota kecil 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
+  }
+  const asksRoad = /\b(jalan|road|path|lintasan|track)\b/.test(normalizedPrompt);
+  if (asksRoad) {
+    const road = [
+      { type: "platform", x: 0, y: 0, z: 0, w: 4, h: .25, d: 20, color: "#34363a" },
+      ...[-8, -4, 0, 4, 8].map((z) => ({ type: "platform", x: 0, y: .13, z, w: .18, h: .03, d: 1.6, color: "#f2d75c" }))
+    ];
+    if (room < road.length) return NextResponse.json({ error: "Butuh ruang untuk 6 objek jalan. Hapus beberapa objek dulu ya." }, { status: 400 });
+    return NextResponse.json({ objects: road, summary: "Jalan 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
+  }
   const asksForest = /\b(hutan|forest|woods|woodland)\b/.test(normalizedPrompt);
   if (asksForest) {
     const forest = [
