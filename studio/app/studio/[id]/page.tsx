@@ -38,7 +38,7 @@ export default function StudioEditor() {
   const active = useMemo(() => objects.find(o => o.id === selected) ?? null, [objects, selected]);
   const handleSceneSelect = useCallback((objectId: string | null) => setSelected(objectId), []);
   const handleSceneTransform = useCallback((objectId:string,position:{x:number;y:number;z:number},scale:{x:number;y:number;z:number},rotationY:number)=>{
-    setObjects(items=>items.map(item=>item.id===objectId?{...item,x:Number(position.x.toFixed(3)),y:Number((position.y-item.h/2).toFixed(3)),z:Number(position.z.toFixed(3)),w:Number(Math.max(.25,scale.x).toFixed(3)),h:Number(Math.max(.25,scale.y).toFixed(3)),d:Number(Math.max(.25,scale.z).toFixed(3)),rotationY:Number(rotationY.toFixed(3))}:item));
+    setObjects(items=>items.map(item=>item.id===objectId?{...item,x:Number(position.x.toFixed(3)),y:Number((position.y-scale.y/2).toFixed(3)),z:Number(position.z.toFixed(3)),w:Number(Math.max(.25,scale.x).toFixed(3)),h:Number(Math.max(.25,scale.y).toFixed(3)),d:Number(Math.max(.25,scale.z).toFixed(3)),rotationY:Number(rotationY.toFixed(3))}:item));
     setSaved(false);
   },[]);
 
