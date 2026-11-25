@@ -4,7 +4,8 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-11-25",
   "compatibility_flags": [
-    "nodejs_compat"
+    "nodejs_compat",
+    "nodejs_compat_populate_process_env"
   ],
   "upload_source_maps": true,
   "assets": {
@@ -13,5 +14,9 @@
   },
   "observability": {
     "enabled": true
+  },
+  "vars": {
+    "RUNCOMPUTER_BASE_URL": "https://api.runcomputer.cloud/v1",
+    "RUNCOMPUTER_MODEL": "deepseek-v4-flash"
   }
 }
