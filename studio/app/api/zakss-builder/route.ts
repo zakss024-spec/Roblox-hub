@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       ...[[-4.5,-4.5],[4.5,-4.5],[-4.5,4.5],[4.5,4.5]].map(([x,z]) => ({ type: "block", x, y: 6.5, z, w: 2.8, h: .8, d: 2.8, color: "#8d4b43" })),
       { type: "block", x: 0, y: 4.5, z: -3.15, w: 1.4, h: 2.5, d: .2, color: "#69452f" }
     ];
-    if (room < castle.length) return NextResponse.json({ error: "Butuh ruang untuk 10 objek kastil. Hapus beberapa objek dulu ya." }, { status: 400 });
+    if (room < castle.length) return NextResponse.json({ error: "Butuh ruang untuk 11 objek kastil. Hapus beberapa objek dulu ya." }, { status: 400 });
     return NextResponse.json({ objects: castle, summary: "Kastil dan menara 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
   }
   const asksStairs = /\b(tangga|stairs|staircase|parkour|obby)\b/.test(normalizedPrompt);
