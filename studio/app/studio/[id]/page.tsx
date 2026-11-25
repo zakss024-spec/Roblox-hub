@@ -22,7 +22,8 @@ export default function StudioEditor() {
   const dragRef = useRef<{ id: string; offsetX: number; offsetY: number } | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [objects, setObjects] = useState<SceneObject[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);\n  const [transformMode,setTransformMode]=useState<"translate"|"rotate"|"scale">("translate");
+  const [selected, setSelected] = useState<string | null>(null);
+  const [transformMode,setTransformMode]=useState<"translate"|"rotate"|"scale">("translate");
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
