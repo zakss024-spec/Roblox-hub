@@ -134,28 +134,6 @@
 .abuse-event--disco .abuse-disco-lights{inset:0;background:transparent!important;filter:none!important;animation:none!important;}
 
 
-/* Disco Fever REMIX burst: fireworks rise from the bottom without blocking the HUB. */
-.abuse-remix-button{position:fixed;z-index:92;left:50%;bottom:22px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border:1.5px solid #fff8;border-radius:999px;background:linear-gradient(110deg,#5d24a8,#d52b91 52%,#ff8a28);color:#fff;font:900 12px 'DM Sans';letter-spacing:2px;box-shadow:0 0 18px #d64cff88,0 5px 24px #0007;cursor:pointer;pointer-events:auto;transition:transform .18s ease,filter .18s ease}
-.abuse-remix-button:hover{filter:brightness(1.2);transform:translateX(-50%) translateY(-2px) scale(1.04)}
-.abuse-remix-button:active{transform:translateX(-50%) scale(.96)}
-.abuse-remix-button span{color:#fff4a6;font-size:16px}
-.abuse-remix-fx{position:fixed;inset:0;z-index:81;overflow:hidden;pointer-events:none}
-.abuse-remix-rockets{position:absolute;inset:0}
-.abuse-remix-rockets span{position:absolute;bottom:-8vh;color:#fff6a8;font-size:clamp(24px,4vw,42px);text-shadow:0 0 8px #fff,0 0 20px #ff9d39,0 0 34px #ff3e9c;animation:remix-rocket-rise 1.05s cubic-bezier(.18,.72,.25,1) both}
-@keyframes remix-rocket-rise{0%{opacity:0;transform:translate3d(0,0,0) scale(.3)}12%{opacity:1}78%{opacity:1;transform:translate3d(0,-66vh,0) scale(1.1)}100%{opacity:0;transform:translate3d(0,-72vh,0) scale(.2)}}
-.abuse-remix-confetti{position:absolute;inset:0}
-.abuse-remix-confetti i{position:absolute;bottom:-18px;width:7px;height:13px;border-radius:2px;background:hsl(calc(var(--i, 1)*37),95%,65%);background:#ffdf62;box-shadow:0 0 8px #fff7;animation:remix-confetti-rise 1.8s cubic-bezier(.12,.65,.22,1) both}
-.abuse-remix-confetti i:nth-child(3n){background:#ff55bd}.abuse-remix-confetti i:nth-child(3n + 1){background:#55eaff}.abuse-remix-confetti i:nth-child(3n + 2){background:#a9ff69}
-@keyframes remix-confetti-rise{0%{opacity:0;transform:translate3d(0,0,0) rotate(0) scale(.4)}12%{opacity:1}65%{opacity:1;transform:translate3d(22px,-58vh,0) rotate(440deg) scale(1)}100%{opacity:0;transform:translate3d(-18px,-88vh,0) rotate(780deg) scale(.65)}}
-.abuse-remix-flares{position:absolute;inset:0}
-.abuse-remix-flares i{position:absolute;bottom:-25vh;left:18%;width:2px;height:70vh;opacity:0;background:linear-gradient(to top,transparent,#fff,#ff70d8,transparent);filter:drop-shadow(0 0 9px #ff60dd);transform-origin:bottom;animation:remix-flare-rise 1.35s ease-out both}
-.abuse-remix-flares i:nth-child(2){left:50%;height:84vh;animation-delay:.16s;background:linear-gradient(to top,transparent,#fff,#70eaff,transparent)}
-.abuse-remix-flares i:nth-child(3){left:82%;height:66vh;animation-delay:.3s;background:linear-gradient(to top,transparent,#fff,#ffe36b,transparent)}
-@keyframes remix-flare-rise{0%{opacity:0;transform:translateY(0) scaleY(.05) rotate(-8deg)}18%{opacity:.95}75%{opacity:.75;transform:translateY(-62vh) scaleY(1) rotate(8deg)}100%{opacity:0;transform:translateY(-80vh) scaleY(.15) rotate(12deg)}}
-@media(max-width:600px){.abuse-remix-button{bottom:16px;padding:11px 20px;font-size:11px}}
-@media(prefers-reduced-motion:reduce){.abuse-remix-fx *{animation-duration:.01ms!important;animation-iteration-count:1!important}}
-
-
 /* Owner-triggered global confetti and fireworks */
 .owner-global-effects{margin:24px 0;padding:24px;border:2px solid #171a20;background:linear-gradient(135deg,#fff8e8,#f5f1ff);box-shadow:6px 6px 0 #171a20}
 .owner-global-effects-heading>span{font:900 9px 'DM Sans';letter-spacing:1.6px;color:#ff6038}.owner-global-effects-heading h2{margin:7px 0;font:900 32px 'Barlow Condensed'}.owner-global-effects-heading p,.owner-global-effects-note{font:600 11px/1.6 'DM Sans';color:#77766f}
@@ -167,3 +145,27 @@
 .global-effect-sound-enable{position:fixed;z-index:96;bottom:18px;right:18px;padding:10px 14px;border:1px solid #fff8;border-radius:999px;background:#171a20;color:#fff;font:900 10px 'DM Sans';letter-spacing:.5px;box-shadow:0 4px 18px #0005;cursor:pointer;pointer-events:auto;white-space:nowrap}
 @media(max-width:600px){.owner-global-effects{padding:18px}.owner-global-effects-actions{grid-template-columns:1fr}.global-confetti-corner{width:48vw}.global-effect-sound-enable{right:10px;bottom:12px;font-size:9px}}
 @media(prefers-reduced-motion:reduce){.global-confetti-corner i,.global-firework-launches>span,.global-firework-launches>span i{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+/* Celebration effects: rich confetti and multi-stage fireworks */
+.global-owner-effect{z-index:86;isolation:isolate}
+.global-confetti-corner{width:min(48vw,520px);height:84vh;perspective:700px}
+.global-confetti-corner i{width:clamp(5px,.65vw,10px);height:clamp(11px,1.25vw,19px);border-radius:1px;opacity:0;transform-style:preserve-3d;background:linear-gradient(135deg,#fff9 0%,hsl(calc(var(--i)*47),96%,72%) 22%,hsl(calc(var(--i)*47),90%,48%) 58%,#31152c 100%);box-shadow:inset 1px 0 1px #fff9,0 0 8px #fff6,0 2px 3px #0005;animation:global-confetti-burst 4.1s cubic-bezier(.12,.65,.22,1) var(--delay) both;transform-origin:center}
+.global-confetti-corner i:nth-child(4n){width:5px;height:22px;border-radius:5px;background:linear-gradient(90deg,#fff8,#ff62bd 35%,#9a36db 75%,#fff8)}
+.global-confetti-corner i:nth-child(5n){width:12px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff,#ffe36b 38%,#ff8b36 78%)}
+.global-confetti-corner i:nth-child(7n){width:8px;height:20px;border-radius:50% 0 50% 0}
+.global-confetti-corner--right{transform:scaleX(-1)}
+@keyframes global-confetti-burst{0%{opacity:0;transform:translate3d(0,0,0) rotateX(0) rotateY(0) rotateZ(0) scale(.25)}9%{opacity:1}34%{opacity:1;transform:translate3d(calc((var(--i) - 15)*5px),-34vh,0) rotateX(210deg) rotateY(160deg) rotateZ(260deg) scale(1.08)}68%{opacity:.95;transform:translate3d(calc((var(--i) - 15)*13px),-61vh,0) rotateX(540deg) rotateY(390deg) rotateZ(620deg) scale(.9)}100%{opacity:0;transform:translate3d(calc((var(--i) - 15)*17px),-82vh,0) rotateX(760deg) rotateY(620deg) rotateZ(920deg) scale(.55)}}
+.global-firework-launches{position:absolute;inset:0;overflow:hidden}
+.global-firework-launches>span{position:absolute;left:calc(8% + var(--i)*14%);bottom:-9vh;width:5px;height:5px;border-radius:50%;background:#fff;opacity:0;box-shadow:0 0 7px 3px #fff,0 0 17px 8px #ffbd55,0 0 28px 12px #ff5b32;animation:global-firework-rise 1.65s cubic-bezier(.2,.72,.28,1) var(--delay) both}
+.global-firework-launches>span:before{content:"";position:absolute;left:50%;top:0;width:3px;height:31vh;transform:translateX(-50%);border-radius:50%;background:linear-gradient(to top,#fff0 0%,#ff9a39 28%,#fff 80%,#fff0 100%);filter:blur(1.2px);box-shadow:0 0 8px #ffb14b}
+.global-firework-launches>span:after{content:"";position:absolute;left:50%;top:50%;width:22px;height:22px;border:2px solid #fff;border-radius:50%;opacity:0;transform:translate(-50%,-50%) scale(.1);box-shadow:0 0 14px #fff,0 0 30px #ffb84d;animation:global-firework-ring .9s ease-out calc(var(--delay) + 1.48s) both}
+.global-firework-launches>span>b{position:absolute;left:50%;top:50%;width:0;height:0;opacity:0;animation:global-firework-sparks 1.8s ease-out calc(var(--delay) + 1.48s) both}
+.global-firework-launches>span>b em{position:absolute;left:0;top:0;width:4px;height:clamp(28px,4.8vh,52px);border-radius:100%;transform-origin:50% 0;transform:rotate(calc(var(--spark)*16.36deg)) translateY(-4px);background:linear-gradient(to bottom,#fff 0%,#fff7a8 20%,#ff9a42 68%,#ff4d7d00 100%);filter:drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #ffb34d)}
+.global-firework-launches>span>b em:nth-child(3n){background:linear-gradient(to bottom,#fff,#7cecff 35%,#398aff00)}
+.global-firework-launches>span>b em:nth-child(3n + 1){background:linear-gradient(to bottom,#fff,#ff78cf 35%,#ff3b7800)}
+.global-firework-launches>span>b em:nth-child(3n + 2){background:linear-gradient(to bottom,#fff,#fff08a 35%,#ff8c2b00)}
+@keyframes global-firework-rise{0%{opacity:0;transform:translateY(0) scale(.55)}8%{opacity:1}72%{opacity:1;transform:translateY(-65vh) scale(1)}88%,100%{opacity:0;transform:translateY(-69vh) scale(.15)}}
+@keyframes global-firework-ring{0%{opacity:0;transform:translate(-50%,-50%) scale(.1)}18%{opacity:.9}100%{opacity:0;transform:translate(-50%,-50%) scale(8)}}
+@keyframes global-firework-sparks{0%{opacity:0;transform:scale(.08)}12%{opacity:1;transform:scale(.35)}100%{opacity:0;transform:scale(1.5)}}
+@media(max-width:600px){.global-confetti-corner{width:54vw;height:78vh}}
+@media(prefers-reduced-motion:reduce){.global-confetti-corner i,.global-firework-launches>span,.global-firework-launches>span:after,.global-firework-launches>span>b{animation-duration:.01ms!important;animation-iteration-count:1!important}}
