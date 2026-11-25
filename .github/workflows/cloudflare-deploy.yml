@@ -1,0 +1,61 @@
+name: Cloudflare Workers Deploy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-workers-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-hub:
+    name: Deploy ROBLOX HUB
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run cf:deploy
+      - name: Set Zakss AI runtime secret
+        env:
+          RUNCOMPUTER_API_KEY: ${{ secrets.RUNCOMPUTER_API_KEY }}
+        run: |
+          if [ -z "$RUNCOMPUTER_API_KEY" ]; then
+            echo "RUNCOMPUTER_API_KEY repository secret is missing."
+            exit 1
+          fi
+          printf '%s' "$RUNCOMPUTER_API_KEY" | npx wrangler secret put RUNCOMPUTER_API_KEY --name roblox-hub-cloudflare
+
+  deploy-studio:
+    name: Deploy ROBLOX HUB STUDIO
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: studio
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run cf:deploy
