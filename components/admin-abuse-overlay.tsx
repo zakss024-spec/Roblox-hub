@@ -206,7 +206,7 @@ export function AdminAbuseOverlay() {
 
   return <>
     {event.active && <>
-      {showEventEffects && (eventType === "disco_takeover" ? <><div className="abuse-event abuse-event--disco" aria-hidden="true"><div className="abuse-disco-lights"/><div className="abuse-disco-rig"><span className="abuse-disco-lamp abuse-disco-lamp--left"/><span className="abuse-disco-lamp abuse-disco-lamp--right"/></div><div className="abuse-disco-ball">🪩</div></> : <div className="abuse-event abuse-event--taco" aria-hidden="true">
+      {showEventEffects && (eventType === "disco_takeover" ? <><div className="abuse-event abuse-event--disco" aria-hidden="true"><div className="abuse-disco-lights"/><div className="abuse-disco-rig"><span className="abuse-disco-lamp abuse-disco-lamp--left"/><span className="abuse-disco-lamp abuse-disco-lamp--right"/></div><div className="abuse-disco-ball">🪩</div></div></> : <div className="abuse-event abuse-event--taco" aria-hidden="true">
         <div className="abuse-particle-layer">{particles.map((n) =>
           <span className="abuse-particle" key={n} style={{
             left: `${(n * 47 + 3) % 100}%`,
