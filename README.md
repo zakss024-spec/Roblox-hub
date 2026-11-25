@@ -13,7 +13,7 @@ A mobile-first Roblox experience discovery website with a 3D comic visual identi
 - `XKIRO_API_KEY` (server-only secret for Zakss AI; never prefix with `NEXT_PUBLIC_`)
 - `XKIRO_MODEL` (optional; defaults to `openai/gpt-5.6-sol`)
 
-Zakss AI calls xKiro from the Next.js server at `https://api.xkiro.com/v1/chat/completions`. Add `XKIRO_API_KEY` in Vercel Project Settings → Environment Variables, then redeploy. Never commit the real key or paste it into client-side code.
+Zakss AI calls xKiro from the Next.js server at `https://api.xkiro.com/v1/chat/completions`. Set `XKIRO_API_KEY` as a server-only secret. For Cloudflare deployments, add it to GitHub Actions Secrets; the deploy workflow installs it on both HUB and STUDIO Workers. For the Vercel backup, also add `XKIRO_API_KEY` in each Vercel project's Environment Variables. Never commit the real key or paste it into client-side code.
 
 Only the Supabase publishable key belongs in public frontend configuration. Never expose a Supabase secret/service-role key in browser code.
 
