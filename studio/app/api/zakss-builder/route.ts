@@ -52,6 +52,20 @@ export async function POST(request: NextRequest) {
     if (room < bridge.length) return NextResponse.json({ error: "Butuh ruang untuk 7 objek jembatan. Hapus beberapa objek dulu ya." }, { status: 400 });
     return NextResponse.json({ objects: bridge, summary: "Jembatan 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
   }
+  const asksVolcano = /\\b(gunung berapi|volcano|vulkan)\\b/.test(normalizedPrompt);
+  if (asksVolcano) {
+    const volcano = [
+      { type: "platform", x: 0, y: 0, z: 0, w: 18, h: .35, d: 18, color: "#4b7891" },
+      { type: "block", x: 0, y: .35, z: 0, w: 12, h: 2.2, d: 12, color: "#57514c" },
+      { type: "block", x: 0, y: 2.55, z: 0, w: 9, h: 2.1, d: 9, color: "#68615a" },
+      { type: "block", x: 0, y: 4.65, z: 0, w: 6.5, h: 1.8, d: 6.5, color: "#76564a" },
+      { type: "block", x: 0, y: 6.45, z: 0, w: 4.4, h: .65, d: 4.4, color: "#c94d32" },
+      { type: "platform", x: 0, y: 6.78, z: 0, w: 3.2, h: .2, d: 3.2, color: "#ff6b28" },
+      { type: "block", x: 0, y: 6.98, z: 0, w: 1.6, h: .45, d: 1.6, color: "#ffd04a" }
+    ];
+    if (room < volcano.length) return NextResponse.json({ error: "Butuh ruang untuk 7 objek gunung berapi. Hapus beberapa objek dulu ya." }, { status: 400 });
+    return NextResponse.json({ objects: volcano, summary: "Gunung berapi 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
+  }
   const asksCastle = /\b(kastil|castle|menara|tower)\b/.test(normalizedPrompt);
   if (asksCastle) {
     const castle = [
