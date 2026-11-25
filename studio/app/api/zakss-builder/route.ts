@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
               "Object types: block/platform are rectangular 3D boxes; coin is a collectible coin; checkpoint is a flag marker; tree is a stylized tree with trunk and foliage. Use only these types.",
               "Return ONLY valid JSON with exactly this structure: {\"operations\":[{\"action\":\"add\",\"object\":{\"type\":\"block|platform|coin|checkpoint|tree\",\"x\":0,\"y\":0,\"z\":0,\"w\":1,\"h\":1,\"d\":1,\"color\":\"#RRGGBB\",\"rotationY\":0}},{\"action\":\"update\",\"id\":\"existing-id\",\"changes\":{\"x\":0,\"color\":\"#RRGGBB\"}},{\"action\":\"delete\",\"id\":\"existing-id\"}],\"summary\":\"short Indonesian completion message\"}. Do not use markdown.",
               "Use add for new objects, update for requested property changes, and delete only when the user explicitly asks to remove. Update changes may contain only type, x, y, z, w, h, d, color, rotationY. For update/delete, use exact existing IDs from the scene reference. Do not claim an action that is not in operations.",
-              "Create up to 40 operations and never exceed the remaining 200-object capacity. Coordinates x/z -50..50, y -10..50; dimensions .25..50; colors #RRGGBB. Keep the scene within the viewport.",
+              "Create up to 40 operations and never exceed the remaining 200-object capacity. Coordinates x/z -5,000,000..5,000,000, y -100..5,000,000; dimensions .05..10,000,000 (height max 5,000,000); colors #RRGGBB. Large terrain can be represented by wide platforms. Keep ordinary props near the playable area and avoid unnecessarily huge individual objects.",
               "Fictional horror, fantasy battles, sci-fi, monsters, survival, and other non-graphic game themes are allowed. Do not provide real-world harm instructions, weapon construction, dangerous real-life activity guidance, explicit sexual content, or sexual content involving minors.",
               "If unrelated to game creation or scene editing, return an empty operations array and a brief Indonesian explanation. If asked to change project settings or gameplay code not supported by this scene editor, explain that this AI currently edits scene objects only.",
             ].join(" "),
@@ -211,7 +211,7 @@ export async function POST(request: NextRequest) {
         const changes: Record<string, unknown> = {};
         if (typeof input.type === "string" && TYPES.has(input.type)) changes.type = input.type;
         for (const key of ["x", "y", "z"] as const) if (input[key] !== undefined) changes[key] = finiteNumber(input[key], 0, key === "y" ? -100 : -5_000_000, 5_000_000);
-        for (const key of ["w", "h", "d"] as const) if (input[key] !== undefined) changes[key] = finiteNumber(input[key], 1, .25, 50);
+        for (const key of ["w", "h", "d"] as const) if (input[key] !== undefined) changes[key] = finiteNumber(input[key], 1, .05, key === "h" ? 5_000_000 : 10_000_000);
         if (typeof input.color === "string" && COLORS.test(input.color)) changes.color = input.color;
         if (input.rotationY !== undefined) changes.rotationY = finiteNumber(input.rotationY, 0, -Math.PI * 4, Math.PI * 4);
         if (Object.keys(changes).length) operations.push({ action: "update", id, changes });
