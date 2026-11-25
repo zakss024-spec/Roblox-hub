@@ -3,7 +3,7 @@ import {useEffect,useRef,useState} from "react";
 import * as THREE from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 import {getBrowserSupabase} from "@/lib/supabase-browser";
-type Obj={id:string;type:string;x:number;y:number;z:number;w:number;h:number;d:number;color:string};
+type Obj={id:string;type:string;x:number;y:number;z:number;w:number;h:number;d:number;color:string;rotationY?:number};
 type Remote={x:number;z:number;name:string;seen:number};
 export default function CreatorWorldRuntime({projectId,objects}:{projectId:string;objects:Obj[]}){
  const host=useRef<HTMLDivElement>(null);const [joystick,setJoystick]=useState({x:0,z:0});const [remotes,setRemotes]=useState<Record<string,Remote>>({});const [online,setOnline]=useState(1);const [jumping,setJumping]=useState(false);const jumpingRef=useRef(false);const objectsRef=useRef(objects);const [soundOn,setSoundOn]=useState(false);
