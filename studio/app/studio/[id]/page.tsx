@@ -53,7 +53,11 @@ export default function StudioEditor() {
       .eq("id", id).eq("owner_id", user.id).single();
     if (projectError || !data) { setError("Project tidak ditemukan, atau akun ini bukan pemiliknya."); setLoading(false); return; }
     const scene = (data.scene ?? starterGround(data.engine)) as Scene;
-    setProject(data as Project);
+    if (data.engine !== "3d") {
+      const { error: engineError } = await sb.from("hub_creator_projects").update({ engine: "3d" }).eq("id", id).eq("owner_id", user.id);
+      if (engineError) { setError("Gagal mengubah project lama ke mode 3D: " + engineError.message); setLoading(false); return; }
+    }
+    setProject({ ...data, engine: "3d" } as Project);
     setObjects(Array.isArray(scene.objects) ? scene.objects : []);
     const { data: pub } = await sb.from("hub_creator_publications").select("project_id").eq("project_id", id).maybeSingle();
     setPublished(Boolean(pub));
@@ -139,7 +143,7 @@ export default function StudioEditor() {
     const sb = getSupabase(); if (!sb || !project || !userId) return;
     if (objects.length > 200) { setError("Maksimal 200 objek per dunia."); return; }
     setSaving(true); setError(""); setMessage("");
-    const { error: saveError } = await sb.from("hub_creator_projects").update({ scene: { schemaVersion: 1, objects }, updated_at: new Date().toISOString() }).eq("id", project.id).eq("owner_id", userId);
+    const { error: saveError } = await sb.from("hub_creator_projects").update({ engine: "3d", scene: { schemaVersion: 1, objects }, updated_at: new Date().toISOString() }).eq("id", project.id).eq("owner_id", userId);
     if (saveError) setError("Gagal menyimpan: " + saveError.message); else { setSaved(true); setMessage("Perubahan dunia tersimpan."); }
     setSaving(false);
   }
@@ -148,7 +152,7 @@ export default function StudioEditor() {
     setPublishing(true); setError(""); setMessage("");
     const { error: saveError } = await sb.from("hub_creator_projects").update({ scene: { schemaVersion: 1, objects }, updated_at: new Date().toISOString() }).eq("id", project.id).eq("owner_id", userId);
     if (saveError) { setError("Simpan sebelum publish gagal: " + saveError.message); setPublishing(false); return; }
-    const { error: pubError } = await sb.from("hub_creator_publications").upsert({ project_id: project.id, owner_id: userId, title: project.title, description: project.description, engine: project.engine, template: project.template, scene: { schemaVersion: 1, objects }, published_at: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: "project_id" });
+    const { error: pubError } = await sb.from("hub_creator_publications").upsert({ project_id: project.id, owner_id: userId, title: project.title, description: project.description, engine: "3d", template: project.template, scene: { schemaVersion: 1, objects }, published_at: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: "project_id" });
     if (pubError) setError("Publish gagal: " + pubError.message); else { setPublished(true); setSaved(true); setMessage("Game berhasil dipublikasikan. Buka Community Worlds di ROBLOX HUB untuk memainkannya."); }
     setPublishing(false);
   }
