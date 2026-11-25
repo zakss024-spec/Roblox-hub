@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
   const model = process.env.XKIRO_MODEL || "mistralai/mistral-large-2512";
 
   try {
-    const response = await fetch(base + "/chat/completions", {
+    const requestOptions = {
       method: "POST",
       headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
@@ -137,13 +137,27 @@ export async function POST(request: NextRequest) {
         max_tokens: 3600,
       }),
       signal: AbortSignal.timeout(30_000),
-      cache: "no-store",
-    });
+      cache: "no-store" as RequestCache,
+    };
 
-    const data = await response.json().catch(() => null) as ChatCompletionResponse | null;
+    let response = await fetch(base + "/chat/completions", requestOptions);
+    let data = await response.json().catch(() => null) as ChatCompletionResponse | null;
+    const fallbackModel = process.env.XKIRO_FALLBACK_MODEL || "openai/gpt-5.6-sol";
+    if (!response.ok && (response.status === 429 || response.status === 503) && fallbackModel !== model) {
+      const retryPayload = JSON.parse(requestOptions.body as string) as Record<string, unknown>;
+      retryPayload.model = fallbackModel;
+      console.warn("Zakss AI Builder primary model unavailable; trying fallback", response.status, fallbackModel);
+      response = await fetch(base + "/chat/completions", { ...requestOptions, body: JSON.stringify(retryPayload) });
+      data = await response.json().catch(() => null) as ChatCompletionResponse | null;
+    }
     if (!response.ok) {
       console.error("Zakss AI Builder provider error", response.status, data?.error?.message || "");
-      return NextResponse.json({ error: "Zakss AI Builder sedang sibuk. Coba lagi sebentar." }, { status: 502 });
+      const errorMessage = response.status === 429
+        ? "xKiro sedang membatasi permintaan (rate limit). Tunggu sebentar atau cek limit API key di dashboard xKiro."
+        : response.status === 503
+          ? "Model AI sedang penuh. Coba lagi sebentar."
+          : "Zakss AI Builder gagal menghubungi provider AI.";
+      return NextResponse.json({ error: errorMessage }, { status: 502 });
     }
 
     const content = data?.choices?.[0]?.message?.content;
