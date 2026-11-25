@@ -21,7 +21,8 @@ export default function StudioEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dragRef = useRef<{ id: string; offsetX: number; offsetY: number } | null>(null);
   const [project, setProject] = useState<Project | null>(null);
-  const [objects, setObjects] = useState<SceneObject[]>([]);\n  const [worldSizeKm, setWorldSizeKm] = useState(1);
+  const [objects, setObjects] = useState<SceneObject[]>([]);
+  const [worldSizeKm, setWorldSizeKm] = useState(1);
   const [selected, setSelected] = useState<string | null>(null);
   const [transformMode,setTransformMode]=useState<"translate"|"rotate"|"scale">("translate");
   const [loading, setLoading] = useState(true);
@@ -60,7 +61,8 @@ export default function StudioEditor() {
       if (engineError) { setError("Gagal mengubah project lama ke mode 3D: " + engineError.message); setLoading(false); return; }
     }
     setProject({ ...data, engine: "3d" } as Project);
-    setObjects(Array.isArray(scene.objects) ? scene.objects : []);\n    setWorldSizeKm(Math.min(100000, Math.max(0.01, Number(scene.worldSizeKm) || 1)));
+    setObjects(Array.isArray(scene.objects) ? scene.objects : []);
+    setWorldSizeKm(Math.min(100000, Math.max(0.01, Number(scene.worldSizeKm) || 1)));
     const { data: pub } = await sb.from("hub_creator_publications").select("project_id").eq("project_id", id).maybeSingle();
     setPublished(Boolean(pub));
     setLoading(false);
