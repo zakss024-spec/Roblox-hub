@@ -136,27 +136,47 @@ export async function POST(request: NextRequest) {
         response_format: { type: "json_object" },
         max_tokens: 3600,
       }),
-      signal: AbortSignal.timeout(30_000),
       cache: "no-store" as RequestCache,
     };
 
-    let response = await fetch(base + "/chat/completions", requestOptions);
+    // Give each provider attempt its own timeout so the fallback gets a full window.
+    const endpoint = base + "/chat/completions";
+    let response = await fetch(endpoint, { ...requestOptions, signal: AbortSignal.timeout(25_000) });
     let data = await response.json().catch(() => null) as ChatCompletionResponse | null;
+    const primaryStatus = response.status;
     const fallbackModel = process.env.XKIRO_FALLBACK_MODEL || "cohere/command-a-plus";
-    if (!response.ok && (response.status === 429 || response.status === 503) && fallbackModel !== model) {
+    const retryableStatuses = new Set([400, 404, 408, 409, 422, 429, 500, 502, 503, 504]);
+    let activeModel = model;
+
+    // Retry model/provider availability errors, but never retry authentication failures.
+    if (!response.ok && retryableStatuses.has(response.status) && fallbackModel !== model) {
       const retryPayload = JSON.parse(requestOptions.body as string) as Record<string, unknown>;
       retryPayload.model = fallbackModel;
-      console.warn("Zakss AI Builder primary model unavailable; trying fallback", response.status, fallbackModel);
-      response = await fetch(base + "/chat/completions", { ...requestOptions, body: JSON.stringify(retryPayload) });
+      console.warn("Zakss AI Builder fallback attempt", { primaryStatus, fallbackModel });
+      response = await fetch(endpoint, {
+        ...requestOptions,
+        body: JSON.stringify(retryPayload),
+        signal: AbortSignal.timeout(25_000),
+      });
       data = await response.json().catch(() => null) as ChatCompletionResponse | null;
+      activeModel = fallbackModel;
     }
+
     if (!response.ok) {
-      console.error("Zakss AI Builder provider error", response.status, data?.error?.message || "");
+      console.error("Zakss AI Builder provider attempts failed", {
+        primaryModel: model,
+        primaryStatus,
+        fallbackModel: activeModel === fallbackModel ? fallbackModel : null,
+        finalStatus: response.status,
+        providerMessage: cleanText(data?.error?.message, 240),
+      });
       const errorMessage = response.status === 429
-        ? "xKiro sedang membatasi permintaan (rate limit). Tunggu sebentar atau cek limit API key di dashboard xKiro."
+        ? "xKiro masih menolak permintaan (HTTP 429) pada model cadangan juga. Ini biasanya terkait kuota atau rate limit akun API, bukan tombol Studio. Periksa Usage/limit xKiro."
         : response.status === 503
-          ? "Model AI sedang penuh. Coba lagi sebentar."
-          : "Zakss AI Builder gagal menghubungi provider AI.";
+          ? "Model utama dan cadangan sedang tidak tersedia (HTTP 503). Coba lagi nanti."
+          : response.status === 401 || response.status === 403
+            ? "API key xKiro ditolak atau tidak memiliki izin. Periksa konfigurasi key di Vercel."
+            : `Provider xKiro gagal (HTTP ${response.status}). Cek konfigurasi model dan dashboard xKiro.`;
       return NextResponse.json({ error: errorMessage }, { status: 502 });
     }
 
