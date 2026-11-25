@@ -10,8 +10,8 @@ export default function SceneViewport3D({objects,selected,onSelect,onTransform,m
  const api=useRef<{renderer:THREE.WebGLRenderer;scene:THREE.Scene;camera:THREE.PerspectiveCamera;controls:OrbitControls;gizmo:TransformControls;ray:THREE.Raycaster;pointer:THREE.Vector2;groups:Map<string,THREE.Group>;meshes:Map<string,THREE.Mesh>;frame:number}|null>(null);
  useEffect(()=>{
   const root=host.current;if(!root)return;
-  const scene=new THREE.Scene();scene.background=new THREE.Color("#91b9d0");scene.fog=new THREE.Fog("#91b9d0",45,105);
-  const camera=new THREE.PerspectiveCamera(48,root.clientWidth/Math.max(root.clientHeight,1),.1,250);camera.position.set(15,14,18);
+  const scene=new THREE.Scene();scene.background=new THREE.Color("#91b9d0");const worldKm=Math.max(.01,Math.min(100000,Number(worldSizeKm)||1));const groundSize=Math.max(100,worldKm*100);scene.fog=new THREE.Fog("#91b9d0",Math.min(45,groundSize*.45),Math.max(105,groundSize*.8));
+  const camera=new THREE.PerspectiveCamera(48,root.clientWidth/Math.max(root.clientHeight,1),.1,Math.max(250,groundSize*2));camera.position.set(15,14,18);
   const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));renderer.setSize(root.clientWidth,root.clientHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;root.appendChild(renderer.domElement);
   scene.add(new THREE.HemisphereLight("#e7f7ff","#526c42",2));const sun=new THREE.DirectionalLight("#fff1d6",3.1);sun.position.set(-12,24,14);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);scene.add(sun);
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(groundSize,groundSize),new THREE.MeshStandardMaterial({color:"#73a95b",roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.08;ground.receiveShadow=true;scene.add(ground);
