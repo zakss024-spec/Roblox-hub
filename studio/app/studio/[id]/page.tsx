@@ -145,17 +145,57 @@ export default function StudioEditor() {
     e.preventDefault();
     if (builderBusy || !builderPrompt.trim()) return;
     if (objects.length >= 200) { setError("Maksimal 200 objek per dunia."); return; }
-    setBuilderBusy(true); setError(""); setMessage("Zakss AI Builder sedang menyusun objek 3D...");
+    setBuilderBusy(true); setError(""); setMessage("Zakss AI sedang memahami perintah dan scene...");
     try {
-      const response = await fetch("/api/zakss-builder", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: builderPrompt.trim(), existingCount: objects.length, existingObjects: objects.slice(-60).map(({ id, ...item }) => item) }) });
-      const data = await response.json() as { objects?: Array<{type:Kind;x:number;y:number;z:number;w:number;h:number;d:number;color:string}>; summary?:string; error?:string };
+      const response = await fetch("/api/zakss-builder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: builderPrompt.trim(),
+          existingCount: objects.length,
+          existingObjects: objects.slice(-200),
+          selectedObjectId: selected,
+        }),
+      });
+      type BuilderOperation =
+        | { action: "add"; object: Omit<SceneObject, "id"> }
+        | { action: "update"; id: string; changes: Partial<Omit<SceneObject, "id">> }
+        | { action: "delete"; id: string };
+      const data = await response.json() as { operations?: BuilderOperation[]; summary?: string; error?: string };
       if (!response.ok) throw new Error(data.error || "Zakss AI Builder gagal.");
-      const additions = (data.objects || []).slice(0, 200 - objects.length).map((item) => ({ ...item, id: crypto.randomUUID() }));
-      if (!additions.length) throw new Error(data.summary || "Belum ada objek yang bisa dibuat. Coba jelaskan bentuk dan ukurannya.");
-      setObjects(current => [...current, ...additions]);
-      setSelected(additions[0].id);
+
+      const operations = Array.isArray(data.operations) ? data.operations.slice(0, 40) : [];
+      const normalized: BuilderOperation[] = [];
+      const created: SceneObject[] = [];
+      for (const operation of operations) {
+        if (operation.action === "add") {
+          if (objects.length + created.length >= 200) continue;
+          const item: SceneObject = { ...operation.object, id: crypto.randomUUID() };
+          created.push(item);
+          normalized.push({ action: "add", object: item });
+        } else if ((operation.action === "update" || operation.action === "delete") && objects.some(item => item.id === operation.id)) {
+          normalized.push(operation);
+        }
+      }
+      if (!normalized.length) throw new Error(data.summary || "Belum ada perubahan yang bisa diterapkan. Coba jelaskan objek atau perintahnya lebih detail.");
+
+      setObjects(current => {
+        let next = [...current];
+        for (const operation of normalized) {
+          if (operation.action === "add") next.push(operation.object as SceneObject);
+          else if (operation.action === "update") next = next.map(item => item.id === operation.id ? { ...item, ...operation.changes } : item);
+          else if (operation.action === "delete") next = next.filter(item => item.id !== operation.id);
+        }
+        return next.slice(0, 200);
+      });
+      if (created.length) setSelected(created[0].id);
+      else if (normalized.some(operation => operation.action === "delete" && operation.id === selected)) setSelected(null);
       setSaved(false);
-      setMessage(`Sudah jadi nih broo! +${additions.length} objek 3D masuk ke dunia. ${data.summary || ""}`.trim());
+      const addCount = normalized.filter(operation => operation.action === "add").length;
+      const updateCount = normalized.filter(operation => operation.action === "update").length;
+      const deleteCount = normalized.filter(operation => operation.action === "delete").length;
+      const actionReport = [addCount ? `+${addCount} objek` : "", updateCount ? `${updateCount} diubah` : "", deleteCount ? `${deleteCount} dihapus` : ""].filter(Boolean).join(" · ");
+      setMessage(`${data.summary || "Selesai!"} ${actionReport ? "(" + actionReport + ")" : ""}`.trim());
       setBuilderPrompt("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Zakss AI Builder gagal.");
