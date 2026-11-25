@@ -52,15 +52,18 @@ export async function POST(request: NextRequest) {
     if (room < bridge.length) return NextResponse.json({ error: "Butuh ruang untuk 7 objek jembatan. Hapus beberapa objek dulu ya." }, { status: 400 });
     return NextResponse.json({ objects: bridge, summary: "Jembatan 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
   }
-  const asksIsland = /\\b(pulau|island|tropical island)\\b/.test(normalizedPrompt);
+  const asksIsland = /\b(pulau|island|tropical island)\b/.test(normalizedPrompt);
   if (asksIsland) {
     const island = [
       { type: "platform", x: 0, y: 0, z: 0, w: 16, h: 1.2, d: 16, color: "#9a7047" },
-      { type: "platform", x: 0, y: 1.15, z: 0, w: 13, h: .35, d: 13, color: "#54a94f" },
-      { type: "platform", x: 0, y: .7, z: 0, w: 15, h: .25, d: 15, color: "#e4d18a" },
-      ...[[-4,-3],[4,-3],[-3,4],[4,3]].map(([x,z]) => ({ type: "tree", x, y: 1.5, z, w: 1.4, h: 3.2, d: 1.4, color: "#3d9849" }))
+      { type: "platform", x: 0, y: 1.2, z: 0, w: 13, h: .35, d: 13, color: "#54a94f" },
+      ...[
+        { x: 0, z: -7, w: 16, d: 2 }, { x: 0, z: 7, w: 16, d: 2 },
+        { x: -7, z: 0, w: 2, d: 12 }, { x: 7, z: 0, w: 2, d: 12 }
+      ].map(({ x, z, w, d }) => ({ type: "platform", x, y: 1.2, z, w, h: .35, d, color: "#e4d18a" })),
+      ...[[-4,-3],[4,-3],[-3,4],[4,3]].map(([x,z]) => ({ type: "tree", x, y: .8, z, w: 1.4, h: 3.2, d: 1.4, color: "#3d9849" }))
     ];
-    if (room < island.length) return NextResponse.json({ error: "Butuh ruang untuk 7 objek pulau. Hapus beberapa objek dulu ya." }, { status: 400 });
+    if (room < island.length) return NextResponse.json({ error: "Butuh ruang untuk 10 objek pulau. Hapus beberapa objek dulu ya." }, { status: 400 });
     return NextResponse.json({ objects: island, summary: "Pulau tropis 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
   }
   const asksVolcano = /\\b(gunung berapi|volcano|vulkan)\\b/.test(normalizedPrompt);
