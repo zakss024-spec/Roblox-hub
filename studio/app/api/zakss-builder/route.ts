@@ -28,6 +28,33 @@ export async function POST(request: NextRequest) {
       summary: "Tanah dan rumput 3D sudah jadi nih broo!"
     }, { headers: { "Cache-Control": "no-store" } });
   }
+  const room = 200 - existingCount;
+  const asksForest = /\b(hutan|forest|woods|woodland)\b/.test(normalizedPrompt);
+  if (asksForest) {
+    const forest = [
+      { type: "platform", x: 0, y: 0, z: 0, w: 20, h: .4, d: 20, color: "#80502d" },
+      ...[
+        [-6, -5, 1.1], [-2, -6, .9], [3, -5, 1.2], [7, -3, .95],
+        [-7, 2, 1.0], [-3, 5, 1.15], [2, 4, .9], [6, 6, 1.1]
+      ].map(([x, z, scale]) => ({ type: "tree", x, y: .4, z, w: 1.5 * scale, h: 3 * scale, d: 1.5 * scale, color: "#3d8d43" }))
+    ];
+    if (room < forest.length) return NextResponse.json({ error: "Butuh ruang untuk 8 objek hutan. Hapus beberapa objek dulu ya." }, { status: 400 });
+    return NextResponse.json({ objects: forest, summary: "Hutan kecil 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
+  }
+  const asksHouse = /\b(rumah|house|cottage|pondok)\b/.test(normalizedPrompt);
+  if (asksHouse) {
+    const house = [
+      { type: "platform", x: 0, y: 0, z: 0, w: 6.5, h: .4, d: 6.5, color: "#8b8d91" },
+      { type: "block", x: 0, y: .4, z: 0, w: 5.5, h: 3, d: 5.5, color: "#e8d5b5" },
+      { type: "block", x: 0, y: .4, z: -2.82, w: 1.1, h: 2, d: .16, color: "#75442c" },
+      { type: "block", x: -1.55, y: 1.35, z: -2.83, w: .85, h: .85, d: .16, color: "#74c9e8" },
+      { type: "block", x: 1.55, y: 1.35, z: -2.83, w: .85, h: .85, d: .16, color: "#74c9e8" },
+      { type: "block", x: 0, y: 3.4, z: 0, w: 6.4, h: .75, d: 6.4, color: "#a84432" },
+      { type: "block", x: 0, y: 4.15, z: 0, w: 4.8, h: .7, d: 4.8, color: "#8d3529" }
+    ];
+    if (room < house.length) return NextResponse.json({ error: "Butuh ruang untuk 7 objek rumah. Hapus beberapa objek dulu ya." }, { status: 400 });
+    return NextResponse.json({ objects: house, summary: "Rumah sederhana 3D sudah jadi nih broo!" }, { headers: { "Cache-Control": "no-store" } });
+  }
   const base = (process.env.XKIRO_BASE_URL || "https://api.xkiro.com/v1").replace(/\/+$/, "");
   const model = process.env.XKIRO_MODEL || "mistralai/mistral-large-2512";
   try {
@@ -42,7 +69,7 @@ export async function POST(request: NextRequest) {
             "Convert the user's Indonesian or English building idea into a small set of concrete 3D scene objects.",
             "Return ONLY JSON: {\"objects\":[{\"type\":\"block|platform|coin|checkpoint\",\"x\":0,\"y\":0,\"z\":0,\"w\":1,\"h\":1,\"d\":1,\"color\":\"#RRGGBB\"}],\"summary\":\"short friendly Indonesian completion message\"}.",
             "Coordinates are relative to world origin. Ground level is y=0. Platforms should sit at y=0. Blocks use their bottom as y=0 in the editor. Use platform for broad ground, paths and floors; use blocks for rocks, walls and decorations. Use tree for a complete stylized tree with a brown trunk and green foliage; tree objects should have w/d around 1.5 and h around 3, y=0.",
-            "For a request to add soil and grass, create a broad brown dirt platform (y=0, h around 0.6) and a green grass platform just above it (y=0.6, h around 0.2), both centered near origin, with sensible sizes. If the prompt asks for trees or a forest, use tree objects with varied positions and sizes; avoid placing them all on top of each other. Do not generate code, scripts, URLs or unsafe instructions.",
+            "For a request to add soil and grass, create a broad brown dirt platform (y=0, h around 0.6) and a green grass platform just above it (y=0.6, h around 0.2), both centered near origin, with sensible sizes. If the prompt asks for trees or a forest, use tree objects with varied positions and sizes; avoid placing them all on top of each other. For houses, build a foundation, walls, door, windows and layered roof using blocks and platforms. Do not generate code, scripts, URLs or unsafe instructions.",
             "Create 1 to 18 objects only. Keep every coordinate between -20 and 20, dimensions between 0.25 and 20, and use only the listed object types. Preserve existing scene by adding objects only; never delete or edit existing objects.",
             "Keep all content age-appropriate and non-graphic. If the request is unrelated to safe game building, return {\"objects\":[],\"summary\":\"Coba perintah untuk membangun dunia game 3D ya.\"}."
           ].join(" ") },
