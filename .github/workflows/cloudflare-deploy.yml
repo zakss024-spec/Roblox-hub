@@ -1,0 +1,79 @@
+name: Cloudflare Workers Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cloudflare-migration
+    paths:
+      - '.github/workflows/cloudflare-deploy.yml'
+      - 'wrangler.jsonc'
+      - 'studio/wrangler.jsonc'
+      - 'app/**'
+      - 'lib/**'
+      - 'components/**'
+      - 'studio/**'
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-workers-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-hub:
+    name: Deploy ROBLOX HUB
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Deploy HUB Worker
+        run: npm run cf:deploy
+      - name: Set xKiro runtime secret
+        env:
+          XKIRO_API_KEY: ${{ secrets.XKIRO_API_KEY }}
+        run: |
+          if [ -z "$XKIRO_API_KEY" ]; then
+            echo "XKIRO_API_KEY repository secret is missing."
+            exit 1
+          fi
+          printf '%s' "$XKIRO_API_KEY" | npx wrangler secret put XKIRO_API_KEY --name roblox-hub-cloudflare
+
+  deploy-studio:
+    name: Deploy ROBLOX HUB STUDIO
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: studio
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Deploy STUDIO Worker
+        run: npm run cf:deploy
+      - name: Set xKiro runtime secret
+        env:
+          XKIRO_API_KEY: ${{ secrets.XKIRO_API_KEY }}
+        run: |
+          if [ -z "$XKIRO_API_KEY" ]; then
+            echo "XKIRO_API_KEY repository secret is missing."
+            exit 1
+          fi
+          printf '%s' "$XKIRO_API_KEY" | npx wrangler secret put XKIRO_API_KEY --name roblox-hub-studio-cloudflare

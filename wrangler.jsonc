@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "roblox-hub-cloudflare",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-11-25",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_compat_populate_process_env"
+  ],
+  "upload_source_maps": true,
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "XKIRO_BASE_URL": "https://api.xkiro.com/v1",
+    "XKIRO_MODEL": "mistralai/mistral-large-2512",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://xxmztomunyhkkuykelbe.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_NIHt_s_AqhJ85vPXY6neFA_h4DUS7Sl",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4bXp0b211bnloa2t1eWtlbGJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU0NDI2OTksImV4cCI6MjExMTAxODY5OX0.tl_BYusBAb6qJnxVSLWvZxvsDOJbWhHLmK9G9ZNG9-I"
+  },
+  "account_id": "5e641c1acd066b9b492ff43bd5c5682c"
+}

@@ -9,6 +9,8 @@ on:
       - "lib/**"
       - "studio/**"
       - "package.json"
+      - "wrangler.jsonc"
+      - "open-next.config.ts"
       - ".github/workflows/creator-studio-ci.yml"
   pull_request:
     branches: [main]
@@ -38,6 +40,7 @@ jobs:
       - run: npm install
       - run: npm run typecheck
       - run: npm run build
+      - run: npm run cf:build
 
   studio:
     name: ROBLOX HUB STUDIO build
@@ -56,3 +59,4 @@ jobs:
       - run: npm install
       - run: npm run typecheck
       - run: npm run build
+      - run: npm run cf:build

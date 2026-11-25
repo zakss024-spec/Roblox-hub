@@ -46,10 +46,10 @@ function requestsDisallowedContent(prompt: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.RUNCOMPUTER_API_KEY;
+  const apiKey = process.env.XKIRO_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "Zakss AI belum dikonfigurasi. Tambahkan RUNCOMPUTER_API_KEY di Vercel Environment Variables." },
+      { error: "Zakss AI belum dikonfigurasi. Tambahkan XKIRO_API_KEY pada environment server." },
       { status: 503 },
     );
   }
@@ -73,8 +73,8 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const baseUrl = (process.env.RUNCOMPUTER_BASE_URL?.trim() || "https://api.runcomputer.cloud/v1").replace(/\/+$/, "");
-  const model = process.env.RUNCOMPUTER_MODEL?.trim() || "ministral-3-14b-instruct-uncensored";
+  const baseUrl = (process.env.XKIRO_BASE_URL?.trim() || "https://api.xkiro.com/v1").replace(/\/+$/, "");
+  const model = process.env.XKIRO_MODEL?.trim() || "openai/gpt-5.6-sol";
 
   try {
     const upstream = await fetch(`${baseUrl}/chat/completions`, {
@@ -113,9 +113,9 @@ export async function POST(request: NextRequest) {
 
     const data = await upstream.json().catch(() => null) as ChatCompletionResponse | null;
     if (!upstream.ok) {
-      console.error("Zakss AI RunComputer request failed:", upstream.status, data?.error?.message ?? "Unknown provider error");
+      console.error("Zakss AI xKiro request failed:", upstream.status, data?.error?.message ?? "Unknown provider error");
       return NextResponse.json(
-        { error: upstream.status === 401 ? "API key RunComputer tidak valid. Periksa Environment Variables." : "Zakss AI sedang sibuk. Coba lagi sebentar." },
+        { error: upstream.status === 401 ? "API key xKiro tidak valid. Periksa XKIRO_API_KEY." : "Zakss AI sedang sibuk. Coba lagi sebentar." },
         { status: upstream.status === 401 ? 503 : 502 },
       );
     }
