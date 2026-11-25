@@ -216,7 +216,7 @@ export default function StudioEditor() {
   async function publish() {
     const sb = getSupabase(); if (!sb || !project || !userId) return;
     setPublishing(true); setError(""); setMessage("");
-    const { error: saveError } = await sb.from("hub_creator_projects").update({ scene: { schemaVersion: 1, objects }, updated_at: new Date().toISOString() }).eq("id", project.id).eq("owner_id", userId);
+    const { error: saveError } = await sb.from("hub_creator_projects").update({ scene: { schemaVersion: 1, objects, worldSizeKm }, updated_at: new Date().toISOString() }).eq("id", project.id).eq("owner_id", userId);
     if (saveError) { setError("Simpan sebelum publish gagal: " + saveError.message); setPublishing(false); return; }
     const { error: pubError } = await sb.from("hub_creator_publications").upsert({ project_id: project.id, owner_id: userId, title: project.title, description: project.description, engine: "3d", template: project.template, scene: { schemaVersion: 1, objects, worldSizeKm }, published_at: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: "project_id" });
     if (pubError) setError("Publish gagal: " + pubError.message); else { setPublished(true); setSaved(true); setMessage("Game berhasil dipublikasikan. Buka Community Worlds di ROBLOX HUB untuk memainkannya."); }
