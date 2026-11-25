@@ -15,6 +15,19 @@ export async function POST(request: NextRequest) {
   const existingCount = Number(body.existingCount) || 0;
   if (prompt.length < 3) return NextResponse.json({ error: "Tulis ide bangunan dulu, bro." }, { status: 400 });
   if (existingCount >= 200) return NextResponse.json({ error: "Dunia sudah mencapai batas 200 objek." }, { status: 400 });
+  const normalizedPrompt = prompt.toLowerCase();
+  const asksSoil = /\b(tanah|soil|dirt|ground|terrain)\b/.test(normalizedPrompt);
+  const asksGrass = /\b(rumput|grass|grassy)\b/.test(normalizedPrompt);
+  if (asksSoil && asksGrass) {
+    if (200 - existingCount < 2) return NextResponse.json({ error: "Butuh ruang untuk 2 objek terrain. Hapus satu objek dulu ya." }, { status: 400 });
+    return NextResponse.json({
+      objects: [
+        { type: "platform", x: 0, y: 0, z: 0, w: 18, h: .6, d: 18, color: "#80502d" },
+        { type: "platform", x: 0, y: .6, z: 0, w: 18, h: .2, d: 18, color: "#58a94f" }
+      ],
+      summary: "Tanah dan rumput 3D sudah jadi nih broo!"
+    }, { headers: { "Cache-Control": "no-store" } });
+  }
   const base = (process.env.XKIRO_BASE_URL || "https://api.xkiro.com/v1").replace(/\/+$/, "");
   const model = process.env.XKIRO_MODEL || "mistralai/mistral-large-2512";
   try {
