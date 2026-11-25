@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const TYPES = new Set(["block", "platform", "coin", "checkpoint"]);
+const TYPES = new Set(["block", "platform", "coin", "checkpoint", "tree"]);
 const COLORS = /^#[0-9a-fA-F]{6}$/;
 
 export async function POST(request: NextRequest) {
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
             "Convert the user's Indonesian or English building idea into a small set of concrete 3D scene objects.",
             "Return ONLY JSON: {\"objects\":[{\"type\":\"block|platform|coin|checkpoint\",\"x\":0,\"y\":0,\"z\":0,\"w\":1,\"h\":1,\"d\":1,\"color\":\"#RRGGBB\"}],\"summary\":\"short friendly Indonesian completion message\"}.",
             "Coordinates are relative to world origin. Ground level is y=0. Platforms should sit at y=0. Blocks use their bottom as y=0 in the editor. Use platform for broad ground, paths and floors; use blocks for trees, rocks, walls and decorations.",
-            "For a request to add soil and grass, create a broad brown dirt platform and a green grass platform just above it, both centered near origin, with sensible sizes. Do not generate code, scripts, URLs or unsafe instructions.",
+            "For a request to add soil and grass, create a broad brown dirt platform and a green grass platform just above it, both centered near origin, with sensible sizes. If the prompt asks for trees or a forest, use tree objects with varied positions and sizes; avoid placing them all on top of each other. Do not generate code, scripts, URLs or unsafe instructions.",
             "Create 1 to 18 objects only. Keep every coordinate between -20 and 20, dimensions between 0.25 and 20, and use only the listed object types. Preserve existing scene by adding objects only; never delete or edit existing objects.",
             "Keep all content age-appropriate and non-graphic. If the request is unrelated to safe game building, return {\"objects\":[],\"summary\":\"Coba perintah untuk membangun dunia game 3D ya.\"}."
           ].join(" ") },
