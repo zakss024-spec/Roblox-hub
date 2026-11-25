@@ -45,12 +45,12 @@ function cleanSceneObjects(value: unknown): SceneItem[] {
     return [{
       id: cleanText(o.id, 80) || undefined,
       type,
-      x: finiteNumber(o.x, 0, -50, 50),
-      y: finiteNumber(o.y, 0, -10, 50),
-      z: finiteNumber(o.z, 0, -50, 50),
-      w: finiteNumber(o.w, 1, .25, 50),
-      h: finiteNumber(o.h, 1, .25, 50),
-      d: finiteNumber(o.d, 1, .25, 50),
+      x: finiteNumber(o.x, 0, -5_000_000, 5_000_000),
+      y: finiteNumber(o.y, 0, -100, 5_000_000),
+      z: finiteNumber(o.z, 0, -5_000_000, 5_000_000),
+      w: finiteNumber(o.w, 1, .05, 10_000_000),
+      h: finiteNumber(o.h, 1, .05, 5_000_000),
+      d: finiteNumber(o.d, 1, .05, 10_000_000),
       color: typeof o.color === "string" && COLORS.test(o.color) ? o.color : "#72a957",
       ...(Number.isFinite(Number(o.rotationY)) ? { rotationY: finiteNumber(o.rotationY, 0, -Math.PI * 4, Math.PI * 4) } : {}),
     }];
@@ -64,12 +64,12 @@ function cleanAddObject(value: unknown): SceneItem | null {
   if (!TYPES.has(type)) return null;
   return {
     type,
-    x: finiteNumber(o.x, 0, -50, 50),
-    y: finiteNumber(o.y, 0, -10, 50),
-    z: finiteNumber(o.z, 0, -50, 50),
-    w: finiteNumber(o.w, 1, .25, 50),
-    h: finiteNumber(o.h, 1, .25, 50),
-    d: finiteNumber(o.d, 1, .25, 50),
+    x: finiteNumber(o.x, 0, -5_000_000, 5_000_000),
+    y: finiteNumber(o.y, 0, -100, 5_000_000),
+    z: finiteNumber(o.z, 0, -5_000_000, 5_000_000),
+    w: finiteNumber(o.w, 1, .05, 10_000_000),
+    h: finiteNumber(o.h, 1, .05, 5_000_000),
+    d: finiteNumber(o.d, 1, .05, 10_000_000),
     color: typeof o.color === "string" && COLORS.test(o.color) ? o.color : "#72a957",
     rotationY: finiteNumber(o.rotationY, 0, -Math.PI * 4, Math.PI * 4),
   };
@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
         const input = op.changes as Record<string, unknown>;
         const changes: Record<string, unknown> = {};
         if (typeof input.type === "string" && TYPES.has(input.type)) changes.type = input.type;
-        for (const key of ["x", "y", "z"] as const) if (input[key] !== undefined) changes[key] = finiteNumber(input[key], 0, key === "y" ? -10 : -50, 50);
+        for (const key of ["x", "y", "z"] as const) if (input[key] !== undefined) changes[key] = finiteNumber(input[key], 0, key === "y" ? -100 : -5_000_000, 5_000_000);
         for (const key of ["w", "h", "d"] as const) if (input[key] !== undefined) changes[key] = finiteNumber(input[key], 1, .25, 50);
         if (typeof input.color === "string" && COLORS.test(input.color)) changes.color = input.color;
         if (input.rotationY !== undefined) changes.rotationY = finiteNumber(input.rotationY, 0, -Math.PI * 4, Math.PI * 4);
