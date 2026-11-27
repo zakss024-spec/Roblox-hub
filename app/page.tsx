@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { ArrowDownRight, ArrowUpRight, Bell, BookOpen, CalendarDays, ChartNoAxesCombined, Compass, Flame, Gamepad2, Globe2, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { HomeMotion } from "@/components/home-motion";
 const pillars = [
   {icon:Compass,number:"01",title:"Discover worlds",copy:"Explore Roblox experiences by genre, mood, and the kind of adventure you want today."},
   {icon:Sparkles,number:"02",title:"Build your collection",copy:"Keep the experiences you love close. Your personal collection belongs to you."},
   {icon:ShieldCheck,number:"03",title:"Creator command",copy:"A private control space for game owners and people they explicitly authorize."}
 ];
 export default function Home() {
- return <main>
+ return <HomeMotion><main data-hub-home>
   <SiteHeader/>
   <section className="hero-shell">
    <div className="hero-grid" aria-hidden="true"/>
@@ -46,5 +47,5 @@ export default function Home() {
   </div></section>
   <section className="owner-strip"><div className="owner-symbol"><Globe2 size={27}/></div><div className="owner-copy"><span className="eyebrow">FOR GAME OWNERS & CREATORS</span><h2>YOUR WORLD.<br/>YOUR RULES.</h2><p>Private owner tools will only become available after secure account and server-side permission verification.</p></div><div className="owner-cta"><span>PRIVATE ACCESS</span><span className="owner-locked">ACCESS CONTROLLED <ShieldCheck size={16}/></span></div></section>
   <footer className="site-footer"><Link className="footer-brand" href="/">ROBLOX<span>HUB</span></Link><span>AN UNIVERSE OF EXPERIENCES.</span><span>© 2026 ROBLOX HUB</span></footer>
- </main>;
+ </main></HomeMotion>;
 }
